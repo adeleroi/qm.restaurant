@@ -7,7 +7,7 @@ export function Hero() {
                 Order groceries and dishes for delivery today!
             </p>
             <span className="text-xl mb-4 font-medium">Get delivered anywhere in <span className="font-bold">Ottawa</span> and <span className="font-bold">Gatineau</span></span>
-            <SearchPosition/>
+            <SearchPosition themeColor="black"/>
         </div>
     )
 }

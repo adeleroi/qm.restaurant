@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@chakra-ui/react": "^2.8.2",
+    "@conform-to/react": "^0.9.1",
+    "@conform-to/zod": "^0.9.1",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
     "clsx": "^2.1.0",

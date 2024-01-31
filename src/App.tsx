@@ -3,9 +3,10 @@ import './App.css'
 import { Navbar } from './components/navbar'
 import { Footer } from './components/footer'
 import { ChakraProvider } from '@chakra-ui/react'
-import { LoginActionsProvider } from './context/auth-context'
+import { LoginActionsProvider } from './context/login-action-context'
 import { loginEmailPassword, signupEmailPassword, useFirebaseAuth } from './firebase/auth'
 import React from 'react'
+import { FirebaseAuthProvider } from './firebase/provider'
 
 
 function validateCredentials() {
@@ -40,15 +41,15 @@ export async function action({request}: ActionFunctionArgs) {
 }
 
 function App() {
-  const { loading, complete, data }: ReturnType<typeof useFirebaseAuth> = useFirebaseAuth()
+  const { loading, loggedIn } = useFirebaseAuth()
   const navigate = useNavigate();
 
     React.useEffect(() => {
-      if (complete && data) {
+      if (loggedIn) {
         navigate('restaurant');
       } 
       
-    }, [complete, data, navigate])
+    }, [loggedIn, navigate])
 
   if (loading) null;
 
@@ -66,9 +67,11 @@ function App() {
 function AppWithProvider() {
   return (
     <ChakraProvider>
+      <FirebaseAuthProvider>
         <LoginActionsProvider>
         <App/>
         </LoginActionsProvider>
+      </FirebaseAuthProvider>
     </ChakraProvider>
   )
 }

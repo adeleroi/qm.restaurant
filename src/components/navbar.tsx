@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { Button } from "./button";
 import { Logo } from "./logo";
 import { Search } from "./search";
@@ -13,9 +12,7 @@ export function Navbar() {
         <nav className="flex justify-between w-full py-[0.5rem] px-16 items-center bg-white shadow-xl gap-2 top-0 z-20  sticky">
             <div className="w-68 flex items-center justify-start gap-4">
                 <Menu/>
-                <Link to="/">
-                    <Logo/>
-                </Link>
+                <Logo/>
             </div>
             <div className="hidden">
                 <Search/>

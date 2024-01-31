@@ -1,4 +1,4 @@
-import { type User, connectAuthEmulator, createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { type User, connectAuthEmulator, createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { firebaseApp } from ".";
 import React from "react";
 
@@ -21,25 +21,20 @@ export async function signout() {
     await signOut(auth);
 }
 
-type Status = 'idle' | 'pending' | 'complete' | 'loading';
-export function useFirebaseAuth(): {loading: boolean, complete: boolean, data: User|null} {
-    const [ status, setStatus ] = React.useState<Status>('idle');
-    const [ user, setUser ] = React.useState<User|null>(null);
-    
-    React.useEffect(() => {
-        setStatus('pending')
-        const unsubscribe = onAuthStateChanged(auth, user => {
-            setUser(user);
-            setStatus('complete');
-        })
-        return unsubscribe;
-    }, [])
-    
-    const loading = status !== 'complete';
-    const complete = status === 'complete';
+type TUseFirebaseAuth = {
+    loading: boolean,
+    complete: boolean,
+    data: User|null,
+    loggedIn: boolean,
+    loggedOut: boolean,
+}
 
+export const firebaseContext = React.createContext<TUseFirebaseAuth|null>(null);
 
-    if (status !== 'complete') return {loading, complete, data: user};
-
-    return {loading, complete, data: user};
+export function useFirebaseAuth() {
+    const context = React.useContext(firebaseContext);
+    if (!context) {
+        throw new Error('useFirebaseAuth hooks should only be used within FirebaseAuthProvider!')
+    }
+    return context;
 }

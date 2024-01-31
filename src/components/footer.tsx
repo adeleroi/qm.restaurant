@@ -9,9 +9,7 @@ export function Footer() {
         <footer className="flex justify-center h-[200px] px-24 my-16">
             <div className="flex flex-1 flex-col items-start justify-between mx-24">
                 <div className="w-full flex items-center flex-col justify-center  border-b-[1px] pb-2">
-                    <a href="/">
-                        <Logo/>
-                    </a>
+                    <Logo/>
                     <ul className="mt-16 flex w-80 justify-between">
                         <LanguageSelect triggerElement={<li className="hover:text-gray-400 cursor-pointer">English</li>}/>
                         <AuthTrigger triggerElement={<li onClick={() => setAction('signup')} className="hover:text-gray-400 cursor-pointer">Sign up</li>}/>
