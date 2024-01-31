@@ -10,6 +10,7 @@ import { Restaurant } from './views/restaurant.tsx';
 import { Store } from './views/store.tsx';
 import { ErrorPage } from './views/error.tsx';
 import { Home } from './views/home.tsx';
+import { action as rootAction } from './App.tsx';
 
 
 const router = createBrowserRouter([
@@ -17,6 +18,7 @@ const router = createBrowserRouter([
     path: "/",
     element: <App/>,
     errorElement: <ErrorPage/>,
+    action: rootAction,
     children: [
       {
         index: true,

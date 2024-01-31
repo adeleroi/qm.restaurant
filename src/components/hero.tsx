@@ -1,15 +1,13 @@
-import { ArrowPulseButton } from "../utils/button";
+import { SearchPosition } from "./search";
 
 export function Hero() {
     return (
-        <div className="bg-[url('/hero.jpeg')] w-full h-[40rem] flex justify-center pl-48 items-start bg-cover flex-col">
-            <p className="text-black font-bold text-6xl w-[44rem] text-left mb-16">
-                Order groceries or dishes for delivery today
+        <div className="bg-[url('/hero.jpeg')] w-full h-screen flex justify-center  bg-cover flex-col items-center">
+            <p className="text-black font-bold text-4xl w-[48rem] text-center mb-6">
+                Order groceries and dishes for delivery today!
             </p>
-            <span className="text-2xl mb-8">Get delivered anywhere in <span className="font-bold">Ottawa</span> and <span className="font-bold">Gatineau</span></span>
-            <a href="#grocery-store">
-                <ArrowPulseButton text="Get started" variant="primary" size="medium" className="w-[9rem] h-12" direction="bottom"/>
-            </a>
+            <span className="text-xl mb-4 font-medium">Get delivered anywhere in <span className="font-bold">Ottawa</span> and <span className="font-bold">Gatineau</span></span>
+            <SearchPosition/>
         </div>
     )
 }

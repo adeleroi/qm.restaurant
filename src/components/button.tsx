@@ -21,7 +21,6 @@ export function Button({variant, size='medium', className, children, ...rest}: B
           'rounded-3xl w-[6rem] px-2 py-5 text-md': size === 'small',
         }
       )}
-
       {...rest}>
       {children}
     </button>
@@ -52,6 +51,16 @@ export function ArrowPulseButton({text, direction='right', ...rest}:{text?: stri
             {arrow[direction]}
         </Button>
     )
+}
+
+export function CirclePulseButton() {
+  return (
+    <div className='absolute top-1/2 -translate-y-1/2 right-2 group'>
+      <button className='w-[40px] h-[40px] rounded-full border-2 border-defaultGreen flex items-center justify-center bg-defaultGreen group-hover:bg-[#EEEEEE] focus:ring-2 focus:ring-offset-2 focus:ring-defaultGreen'>
+        <span className="ml-1 material-symbols-outlined animate-slide-right-infinite text-white group-hover:text-defaultGreen">arrow_forward</span>
+      </button>
+    </div>
+  )
 }
 
 Button.displayName = 'Button';

@@ -7,9 +7,9 @@ import {
     ModalCloseButton,
     useDisclosure,
   } from '@chakra-ui/react'
-import { Button } from '../utils/button'
+import { Button } from './button'
 import React from 'react';
-import { useFetcher } from 'react-router-dom';
+import { useActionData, useFetcher } from 'react-router-dom';
 import { Field, Input } from './form-element';
 import { useLoginAction } from '../context/hooks';
 import { Trigger } from '../utils/trigger';
@@ -63,6 +63,10 @@ const actionMessage = {
 
 const AuthForm = React.forwardRef(function AuthForm(_, ref) {
   const fetcher = useFetcher()
+  const data = fetcher.data;
+  const state = fetcher.state;
+  console.log('fetcher', data, state);
+
   const { action, setAction } = useLoginAction();
   const login = action === 'login';
   const reset = action === 'reset';
@@ -97,7 +101,7 @@ const AuthForm = React.forwardRef(function AuthForm(_, ref) {
         <Button
           type="submit"
           name="intent"
-          value={action ? actionMessage[action]: ''}
+          value={action ?? ''}
           variant='primary'
           className='h-14 rounded-lg xl:w-96 outline-none border font-bold'>
             { action && actionMessage[action] }
