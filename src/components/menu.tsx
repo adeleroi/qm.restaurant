@@ -7,6 +7,7 @@ import {
     DrawerCloseButton,
     useDisclosure,
 } from '@chakra-ui/react'
+import { signout } from '../firebase/auth';
 
 export function Menu() {
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -55,7 +56,7 @@ const iconMap = {
     "Blog": <span className="material-symbols-outlined font-medium">newsmode</span>,
     "Help": <span className="material-symbols-outlined font-medium">support</span>,
     "Sign up | Sign in":<span className="material-symbols-outlined font-medium">login</span>,
-    "Log out":<span className="material-symbols-outlined font-medium">logout</span>,
+    "Log out":<span className="material-symbols-outlined font-medium" onClick={() => signout()}>logout</span>,
     "English":<span className="material-symbols-outlined font-medium">translate</span>
 }
 

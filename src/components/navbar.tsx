@@ -27,22 +27,20 @@ export function Navbar() {
 
 function ButtonSection() {
     const { setAction } = useLoginAction();
-    const { status, data: user }: ReturnType<typeof useFirebaseAuth> = useFirebaseAuth()
-    const loading = status === 'loading';
-    const complete = status === 'complete';
+    const { loading, complete, data: user }: ReturnType<typeof useFirebaseAuth> = useFirebaseAuth()
 
     if (loading) return null;
 
     if (complete && user) {
         return (
             <CartTrigger
-            triggerElement={
-                <Button size="small"  className="h-8 shadow-custom bg-white hover:bg-gray-100 focus:bg-gray-200 text-black relative">
-                    <CartIcon/>
-                </Button>
-            }
-        />
-        )
+                triggerElement={
+                    <Button size="small"  className="h-8 shadow-custom bg-white hover:bg-gray-100 focus:bg-gray-200 text-black relative">
+                        <CartIcon/>
+                    </Button>
+                }
+            />
+            )
     }
     return (
         <div className="flex w-80 gap-2 items-center justify-end">

@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
+import App, { loader } from './App.tsx'
 import './index.css'
 import {
   createBrowserRouter,
@@ -21,6 +21,7 @@ const router = createBrowserRouter([
     action: rootAction,
     children: [
       {
+        loader: loader,
         index: true,
         element: <Home/>
       },

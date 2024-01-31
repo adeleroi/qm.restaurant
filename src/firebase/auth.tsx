@@ -1,4 +1,4 @@
-import { type User, connectAuthEmulator, createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
+import { type User, connectAuthEmulator, createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { firebaseApp } from ".";
 import React from "react";
 
@@ -16,8 +16,13 @@ export async function loginEmailPassword(email: string, password: string) {
     return userCredential;
 }
 
+export async function signout() {
+    console.log('signed out')
+    await signOut(auth);
+}
+
 type Status = 'idle' | 'pending' | 'complete' | 'loading';
-export function useFirebaseAuth(): {status: Status, data: User|null} {
+export function useFirebaseAuth(): {loading: boolean, complete: boolean, data: User|null} {
     const [ status, setStatus ] = React.useState<Status>('idle');
     const [ user, setUser ] = React.useState<User|null>(null);
     
@@ -29,8 +34,12 @@ export function useFirebaseAuth(): {status: Status, data: User|null} {
         })
         return unsubscribe;
     }, [])
+    
+    const loading = status !== 'complete';
+    const complete = status === 'complete';
 
-    if (status !== 'complete') return {status:'loading', data: user};
 
-    return {status: 'complete', data: user};
+    if (status !== 'complete') return {loading, complete, data: user};
+
+    return {loading, complete, data: user};
 }

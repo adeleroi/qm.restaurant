@@ -21,12 +21,12 @@ type InputInnerProps = (JSX.IntrinsicElements['input'] | JSX.IntrinsicElements['
 export const Input = React.forwardRef(function Input(props: InputInnerProps, ref) {
   if (props.type === 'textarea') {
     // @ts-expect-error set the correct type after
-    return <textarea ref={ref} {...props as JSX.IntrinsicElements['textarea']} className={clsx('p-2 rounded-lg xl:w-96 h-44 outline-none ', props.className, {
+    return <textarea ref={ref} {...props as JSX.IntrinsicElements['textarea']} className={clsx('p-2 rounded-lg w-96 h-44 outline-none ', props.className, {
         'border-2 border-red-500': props.error
     })} />
 }
 // @ts-expect-error set the correct type after
-  return <input ref={ref} {...props as JSX.IntrinsicElements['input']} className={clsx('p-2 rounded-lg xl:w-96 h-14 outline-none', props.className, {
+  return <input ref={ref} {...props as JSX.IntrinsicElements['input']} className={clsx('p-2 rounded-lg w-96 h-14 outline-none', props.className, {
     'border-2 border-red-500': props.error
   })} />
 })

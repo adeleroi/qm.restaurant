@@ -1,14 +1,20 @@
-import { ActionFunctionArgs, Outlet, json, redirect } from 'react-router-dom'
+import { ActionFunctionArgs, Outlet, json, redirect, useNavigate } from 'react-router-dom'
 import './App.css'
 import { Navbar } from './components/navbar'
 import { Footer } from './components/footer'
 import { ChakraProvider } from '@chakra-ui/react'
 import { LoginActionsProvider } from './context/auth-context'
-import { loginEmailPassword, signupEmailPassword } from './firebase/auth'
+import { loginEmailPassword, signupEmailPassword, useFirebaseAuth } from './firebase/auth'
+import React from 'react'
 
 
 function validateCredentials() {
-  return false;
+  return true;
+}
+
+export async function loader({request}) {
+  // return redirect('restaurant');
+  return json({});
 }
 
 
@@ -34,12 +40,24 @@ export async function action({request}: ActionFunctionArgs) {
 }
 
 function App() {
+  const { loading, complete, data }: ReturnType<typeof useFirebaseAuth> = useFirebaseAuth()
+  const navigate = useNavigate();
+
+    React.useEffect(() => {
+      if (complete && data) {
+        navigate('restaurant');
+      } 
+      
+    }, [complete, data, navigate])
+
+  if (loading) null;
+
   return (
     <>
-        <Navbar/>
-        <div>
-          <Outlet/>
-        </div>
+      <Navbar/>
+      <div>
+        <Outlet/>
+      </div>
       <Footer/>
     </>
   )
