@@ -10,8 +10,8 @@ type InputProps = {
 export function Field({ children, className, error } : InputProps) {
   return (
     <div className={clsx('m-1', className)}>
-      { error ? <InputError>{error}</InputError> : null }
       {children}
+      { error ? <InputError>{error}</InputError> : null }
     </div>
   )
 }
@@ -36,6 +36,6 @@ function InputError({children}: { children: React.ReactNode }) {
     return null;
   }
   return (
-    <p className='pb-1 text-left text-red-500 text-xs'>{children}</p>
+    <p className='pb-1 mt-[1px] text-left text-red-500 text-xs'>{children}</p>
   )
 }

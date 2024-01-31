@@ -11,9 +11,11 @@ import { Button } from './button'
 import React from 'react';
 import { useFetcher } from 'react-router-dom';
 import { Field, Input } from './form-element';
-import { useLoginAction } from '../context/hooks';
+import { useLoginFormAction } from '../context/hooks';
 import { Trigger } from '../utils/trigger';
-
+import { conform, useForm } from '@conform-to/react';
+import { parse } from '@conform-to/zod';
+import { LoginFormSchema } from '../schema/login-form';
 
 const actionHeaderMessage = {
   'login': "Log in",
@@ -21,9 +23,9 @@ const actionHeaderMessage = {
   'reset': "Reset your password"
 }
 
-export function AuthTrigger({triggerElement}: {triggerElement?: React.ReactNode}) {
+export function AuthFormTrigger({triggerElement}: {triggerElement?: React.ReactNode}) {
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const { action } = useLoginAction();
+    const { action } = useLoginFormAction();
     const initialRef = React.useRef(null)
 
     return (
@@ -52,9 +54,6 @@ export function AuthTrigger({triggerElement}: {triggerElement?: React.ReactNode}
     )
 }
 
-
-
-
 const actionMessage = {
   'login': "Log in",
   'signup': "Sign up",
@@ -62,26 +61,30 @@ const actionMessage = {
 }
 
 const AuthForm = React.forwardRef(function AuthForm(_, ref) {
-  const fetcher = useFetcher()
-  const data = fetcher.data;
-  const state = fetcher.state;
-  console.log('fetcher', data, state);
+  const fetcher = useFetcher();
+  const [form, { email, password }] = useForm({
+    lastSubmission: fetcher.data,
+    onValidate({ formData }) {
+      return parse(formData, { schema: LoginFormSchema });
+    },
+    shouldValidate: 'onBlur',
+    shouldRevalidate: 'onInput',
+  })
 
-  const { action, setAction } = useLoginAction();
+  const { action, setAction } = useLoginFormAction();
   const login = action === 'login';
   const reset = action === 'reset';
 
   return (
-    <fetcher.Form method='post'>
-      <Field>
-        <Input type='email' name='email' className='border border-black h-14 focus:border-2' placeholder='email' ref={ref}/>
+    <fetcher.Form method='post' {...form.props}>
+      <Field error={email.error}>
+        <Input error={email.error} type='email' className='border border-black h-14 focus:border-2' placeholder='email' ref={ref} {...conform.input(email)}/>
       </Field>
-      
       {
         reset ?
           null : (
-          <Field>
-            <Input type='password' name='password' className='border border-black h-14 focus:border-2' placeholder='Password'/>
+          <Field error={password.error}>
+            <Input error={password.error} className='border border-black h-14 focus:border-2' placeholder='Password' {...conform.input(password, {type: 'password'})}/>
           </Field>
         )
       }
@@ -114,18 +117,20 @@ const AuthForm = React.forwardRef(function AuthForm(_, ref) {
 });
 
 function AuthFormFooter() {
-  const {action, setAction} = useLoginAction();
+  const {action, setAction} = useLoginFormAction();
   const signup = action === 'signup';
 
-  function switchAction() {
-    if (action === 'login') {
-      setAction('signup');
-    }
-    if (action === 'signup') {
-      setAction('login');
-    }
-    if (action === 'reset') {
-      setAction('signup');
+  function getNextAction() {
+    switch(action) {
+      case 'login':
+        setAction('signup');
+        break;
+      case 'signup':
+        setAction('login');
+        break;
+      case 'reset':
+        setAction('signup');
+        break
     }
   }
   return (
@@ -135,7 +140,7 @@ function AuthFormFooter() {
           { signup ? "Already ": "Don't " }
           have an account?</p>
         <p
-          onClick={switchAction}
+          onClick={getNextAction}
           className='text-sm text-defaultGreen font-bold cursor-pointer hover:text-green-700'>
           { signup ? "Log in" : "Sign up" }
         </p>

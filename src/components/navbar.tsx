@@ -1,8 +1,8 @@
 import { Button } from "./button";
 import { Logo } from "./logo";
 import { Search } from "./search";
-import { useLoginAction } from "../context/hooks";
-import { AuthTrigger } from "./auth-form";
+import { useLoginFormAction } from "../context/hooks";
+import { AuthFormTrigger } from "./auth-form";
 import { Menu } from "./menu";
 import { CartIcon, CartTrigger } from "./cart";
 import { useFirebaseAuth } from "../firebase/auth";
@@ -23,7 +23,7 @@ export function Navbar() {
 }
 
 function ButtonSection() {
-    const { setAction } = useLoginAction();
+    const { setAction } = useLoginFormAction();
     const { loading, complete, data: user }: ReturnType<typeof useFirebaseAuth> = useFirebaseAuth()
 
     if (loading) return null;
@@ -41,14 +41,14 @@ function ButtonSection() {
     }
     return (
         <div className="flex w-80 gap-2 items-center justify-end">
-            <AuthTrigger
+            <AuthFormTrigger
                 triggerElement={
                     <Button size="small" onClick={() => setAction('login')} className="h-8 shadow-custom bg-white hover:bg-gray-100 focus:bg-gray-200 text-black">
                         Log in
                     </Button>
                 }
             />
-            <AuthTrigger
+            <AuthFormTrigger
                 triggerElement={
                     <Button size="small" onClick={() => setAction('signup')} className="h-8 border-none shadow-custom hover:bg-gray-800 focus:bg-gray-700 bg-black text-white">
                         Sign up
