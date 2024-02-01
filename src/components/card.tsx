@@ -1,6 +1,15 @@
 import clsx from "clsx";
 
-type FoodCardProps = { src?: string, className?: string, alt:string, description: string, title: string };
+type FoodCardProps = {
+    src?: string,
+    className?: string,
+    alt:string,
+    description: string,
+    title: string,
+    deliveryTime?: string,
+    offer?: string
+};
+
 export function FoodCard({src, className, alt, title, description}: FoodCardProps) {
     return (
         <li className={clsx("", className)}>
@@ -17,15 +26,17 @@ export function FoodCard({src, className, alt, title, description}: FoodCardProp
     )
 }
 
-export function StoreCard({src, className, alt, title, description}: FoodCardProps) {
+export function StoreCard({src, className, alt, title, description, deliveryTime, offer}: FoodCardProps) {
     return (
-        <li className={clsx("flex justify-start items-center border-2 h-20 rounded-2xl px-2 hover:shadow-custom cursor-pointer", className)}>
+        <li className={clsx("relative flex justify-start items-center border-2 min-h-24 rounded-md px-2 hover:shadow-custom cursor-pointer", className)}>
             <div className="w-20 flex justify-center items-center mr-2">
                 <img className='w-14 h-14 object-cover rounded-full' src={src} alt={alt}/>
             </div>
             <div className=''>
                 <h2 className='text-left text-xl text-black font-semibold'>{title}</h2>
                 <p className='text-left text-xs'>{description}</p>
+                { deliveryTime ? <p className='text-left text-xs text-defaultGreen font-bold'>{deliveryTime}</p> : null }
+                { offer ? <p className='rounded text-[11px] m-1 p-1 text-center bg-yellow-500 font-bold text-white w-14 absolute top-0 right-0'>{offer}</p> : null }
             </div>
         </li>
     )

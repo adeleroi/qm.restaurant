@@ -3,7 +3,7 @@ import { Hero } from "../components/hero";
 import { ArrowButton } from "../components/button";
 import { H2 } from "../utils/typography";
 
-export function Home() {
+export function Root() {
     return (
         <>
             <Hero/>

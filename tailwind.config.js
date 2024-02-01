@@ -50,7 +50,12 @@ export default {
             transform: 'scale(2)',
             opacity: 0,
           }
+      },
+      addToCard: {
+        '0%': { maxWidth: '40px' },
+        '100%': { maxWidth: '100px' }
       }
+
     },
     animation: {
       'slide-right': 'slideToRight 200ms ease-in-out',
@@ -58,6 +63,7 @@ export default {
       'slide-bottom-infinite': 'slideToBottom 900ms ease-in-out infinite',
       'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       'ping': 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite',
+      'add-to-card': 'addToCard 200ms ease-in-out'
     },
     boxShadow: {
       custom: '0px 0px 8px rgba(0, 0, 0, 0.1), 0px 4px 4px rgba(0, 0, 0, 0.04)',

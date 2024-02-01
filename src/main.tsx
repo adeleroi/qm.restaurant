@@ -7,10 +7,11 @@ import {
   RouterProvider
 } from "react-router-dom";
 import { Restaurant } from './views/restaurant.tsx';
-import { Store } from './views/store.tsx';
+import { StoreList } from './views/store-list.tsx';
 import { ErrorPage } from './views/error.tsx';
-import { Home } from './views/home.tsx';
+import { Root } from './views/home.tsx';
 import { action as rootAction } from './App.tsx';
+import { StoreFront } from './views/store-front.tsx';
 
 
 const router = createBrowserRouter([
@@ -22,7 +23,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Home/>
+        element: <Root/>
       },
       {
         path: "restaurant",
@@ -30,7 +31,11 @@ const router = createBrowserRouter([
       },
       {
         path: "store",
-        element: <Store/>
+        element: <StoreList/>
+      },
+      {
+        path: "store/:storeId",
+        element: <StoreFront/>
       },
     ],
   },

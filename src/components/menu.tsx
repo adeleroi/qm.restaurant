@@ -75,7 +75,7 @@ export function Menu() {
                     </MenuIntem>
     
                 </ul>
-                <div className='bg-gray-400 h-2 w-full mb-3'></div>
+                <div className='bg-black h-2 w-full mb-3'></div>
                 <ul>
                     <MenuIntem to="" withIcon={false} onClick={onClose}>
                         Add your commerce
