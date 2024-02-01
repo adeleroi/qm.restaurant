@@ -62,7 +62,7 @@ export function Menu() {
                         <span className="material-symbols-outlined font-medium">login</span>
                         <span className='ml-5'>Sign in | Sign up</span>
                     </MenuIntem>
-                    <MenuIntem hide={loggedOut} to="/" onClick={() => {
+                    <MenuIntem hide={loggedOut} to="/" reloadDocument onClick={() => {
                         onClose();
                         signout();
                     }}>
@@ -98,11 +98,12 @@ type TMenuItem = {
     onClick?: () => void,
     hide?: boolean,
     to: string,
+    reloadDocument?: boolean,
 }
 
-function MenuIntem({ to, className, children, withIcon=true, onClick, hide, ...rest }: TMenuItem) {
+function MenuIntem({ to, className, children, withIcon=true, onClick, hide, reloadDocument, ...rest }: TMenuItem) {
     return (
-        <NavLink to={to}>
+        <NavLink to={to} reloadDocument={reloadDocument}>
             <li onClick={onClick} className={clsx('hover:bg-gray-100 px-3 w-full cursor-pointer', className, {
                 'hidden': hide,
             })} {...rest}>
