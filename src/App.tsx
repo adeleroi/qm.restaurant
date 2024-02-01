@@ -1,55 +1,71 @@
-import { ActionFunctionArgs, Outlet, json, redirect, useNavigate } from 'react-router-dom'
+import React from 'react'
+import { ActionFunctionArgs, Outlet, json, redirect, useLocation, useNavigate } from 'react-router-dom'
 import './App.css'
 import { Navbar } from './components/navbar'
 import { Footer } from './components/footer'
 import { ChakraProvider } from '@chakra-ui/react'
-import { LoginActionsProvider } from './context/login-action-context'
+import { LoginAction, LoginActionsProvider } from './context/login-action-context'
 import { loginEmailPassword, signupEmailPassword, useFirebaseAuth } from './firebase/auth'
-import React from 'react'
 import { FirebaseAuthProvider } from './firebase/provider'
+import { UserCredential } from 'firebase/auth'
+import { LoginFormSchema } from './schema/login-form'
+import { parse } from '@conform-to/zod'
+import {
+  SIGN_UP_ERROR_CODE_TO_MESSAGE,
+  SIGN_UP_ERROR_CODE_PATH,
+  LOG_IN_ERROR_CODE_PATH,
+  LOG_IN_ERROR_CODE_TO_MESSAGE
+} from './firebase/error-code'
+import { z } from 'zod'
 
-
-function validateCredentials() {
-  return true;
-}
-
-export async function loader({request}) {
-  // return redirect('restaurant');
-  return json({});
-}
-
-
+// https://github.com/invertase/react-native-firebase-docs/blob/master/docs/auth/reference/auth.md
+// Good reference for auth error with firebase
 export async function action({request}: ActionFunctionArgs) {
-  console.log('after will');
-  const formData = await request.formData()
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
-  const intent = formData.get('intent') as string;
-  console.log(intent);
 
-  if (validateCredentials()) {
-    if (intent === 'signup') {
-      await signupEmailPassword(email, password);
-    } else if (intent === 'login') {
-      await loginEmailPassword(email, password);
-    }
-  } else {
-    console.log('no validate')
-    return json({status: 'error', email, password});
+  const formData = await request.formData()
+  const intent = formData.get('intent') as LoginAction;
+  const action = intent === 'login' ? loginEmailPassword : signupEmailPassword;
+  const path = intent === 'login' ? LOG_IN_ERROR_CODE_PATH : SIGN_UP_ERROR_CODE_PATH;
+  const message = intent === 'login' ? LOG_IN_ERROR_CODE_TO_MESSAGE : SIGN_UP_ERROR_CODE_TO_MESSAGE;
+
+  let credential: UserCredential;
+  const submission = await parse(formData, {
+    schema: LoginFormSchema.superRefine(async (data, ctx) => {
+      try {
+        credential = await action(data.email, data.password);
+      } catch(e) {
+        console.log('code', e);
+        ctx.addIssue({
+          path: [path[e.code]],
+          code: z.ZodIssueCode.custom,
+          message: message[e.code],
+        });
+        return;
+      }
+    }).transform(data => ({...data, uid: credential?.user?.uid})),
+    async: true,
+  })
+
+  // console.log('submission', submission);
+
+  if (!submission?.value?.uid) {
+    return json({ submission }, {status: 400});
   }
-  return redirect('/');
+
+  return json({submission});
 }
 
 function App() {
   const { loading, loggedIn } = useFirebaseAuth()
+  const location = useLocation()
   const navigate = useNavigate();
 
     React.useEffect(() => {
-      if (loggedIn) {
+      if (loggedIn && location.pathname === '/') {
         navigate('restaurant');
       } 
       
-    }, [loggedIn, navigate])
+    }, [loggedIn, navigate, location])
 
   if (loading) null;
 

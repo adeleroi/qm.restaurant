@@ -1,10 +1,7 @@
-import { useLoginFormAction } from "../context/hooks";
-import { AuthFormTrigger } from "./auth-form";
 import { LanguageSelect } from "./language";
 import { Logo } from "./logo";
 
 export function Footer() {
-    const {setAction} = useLoginFormAction();
     return (
         <footer className="flex justify-center h-[200px] px-24 my-16">
             <div className="flex flex-1 flex-col items-start justify-between mx-24">
@@ -12,7 +9,7 @@ export function Footer() {
                     <Logo/>
                     <ul className="mt-16 flex w-80 justify-between">
                         <LanguageSelect triggerElement={<li className="hover:text-gray-400 cursor-pointer">English</li>}/>
-                        <AuthFormTrigger triggerElement={<li onClick={() => setAction('signup')} className="hover:text-gray-400 cursor-pointer">Sign up</li>}/>
+                        <li className="hover:text-gray-400 cursor-pointer">Signup to deliver</li>
                         <li className="hover:text-gray-400 cursor-pointer">About us</li>
                     </ul>
                 </div>

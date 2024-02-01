@@ -62,14 +62,16 @@ const actionMessage = {
 
 const AuthForm = React.forwardRef(function AuthForm(_, ref) {
   const fetcher = useFetcher();
-  const [form, { email, password }] = useForm({
-    lastSubmission: fetcher.data,
+  console.log('data', fetcher.data)
+  const [form, fields] = useForm({
+    lastSubmission: fetcher.data?.submission,
     onValidate({ formData }) {
       return parse(formData, { schema: LoginFormSchema });
     },
-    shouldValidate: 'onBlur',
+    shouldValidate: 'onSubmit',
     shouldRevalidate: 'onInput',
   })
+
 
   const { action, setAction } = useLoginFormAction();
   const login = action === 'login';
@@ -77,14 +79,14 @@ const AuthForm = React.forwardRef(function AuthForm(_, ref) {
 
   return (
     <fetcher.Form method='post' {...form.props}>
-      <Field error={email.error}>
-        <Input error={email.error} type='email' className='border border-black h-14 focus:border-2' placeholder='email' ref={ref} {...conform.input(email)}/>
+      <Field error={fields.email.error}>
+        <Input error={fields.email.error} type='email' className='border border-black h-14 focus:border-2' placeholder='email' ref={ref} {...conform.input(fields.email)}/>
       </Field>
       {
         reset ?
           null : (
-          <Field error={password.error}>
-            <Input error={password.error} className='border border-black h-14 focus:border-2' placeholder='Password' {...conform.input(password, {type: 'password'})}/>
+          <Field error={fields.password.error}>
+            <Input error={fields.password.error} className='border border-black h-14 focus:border-2' placeholder='Password' {...conform.input(fields.password, {type: 'password'})}/>
           </Field>
         )
       }
@@ -120,7 +122,9 @@ function AuthFormFooter() {
   const {action, setAction} = useLoginFormAction();
   const signup = action === 'signup';
 
-  function getNextAction() {
+  function getNextAction(e) {
+    // reset the form when we use different mode.
+    e.target?.closest('form').reset();
     switch(action) {
       case 'login':
         setAction('signup');
@@ -140,7 +144,7 @@ function AuthFormFooter() {
           { signup ? "Already ": "Don't " }
           have an account?</p>
         <p
-          onClick={getNextAction}
+          onClick={(e) => getNextAction(e)}
           className='text-sm text-defaultGreen font-bold cursor-pointer hover:text-green-700'>
           { signup ? "Log in" : "Sign up" }
         </p>
