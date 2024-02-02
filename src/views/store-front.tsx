@@ -1,3 +1,14 @@
+import clsx from "clsx";
+import React from "react";
+import { ActionFunctionArgs, useFetcher } from "react-router-dom"
+
+
+export async function action({request}: ActionFunctionArgs) {
+    const formData = await request.formData();
+    const count = formData.get('itemCount');
+    return count;
+}
+
 export function StoreFront() {
     return (
         <section className="grid pt-16 max-w-6xl mx-auto">
@@ -29,7 +40,6 @@ export function StoreFront() {
     )
 }
 
-
 export function Product() {
     return (
         <div className="relative border-[1px] rounded-xl overflow-hidden p-2 pb-4 hover:shadow-custom cursor-pointer">
@@ -39,15 +49,69 @@ export function Product() {
             <div>
                 <span className="text-xs">price . chicken breast . 645g</span>
             </div>
-            <div className="absolute right-1 bottom-8 group hover:animate-add-to-card border rounded-3xl flex bg-white shadow-custom items-center">
-                <button className="hidden group-hover:flex hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 text-md font-semibold justify-center items-center">
-                    <span>-</span>
-                </button>
-                <div className="hidden group-hover:flex items-center justify-center px-2">0</div>
-                <button className="flex hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 text-md font-semibold justify-center items-center">
-                    <span>+</span>
-                </button>
+            <div className="absolute right-1 bottom-8">
+                <AddToCartButton/>
             </div>
         </div>
+    )
+}
+
+export function AddToCartButton() {
+    // const fetcher = useFetcher({key: 'bag-count'});
+    const [isOpen, setIsOpen] = React.useState(false)
+    const [ count, setCount ] = React.useState(0);
+
+    const containerRef = React.useRef<HTMLElement|null>(null);
+    function handleBlur(e) {
+        if (!(containerRef?.current as HTMLElement)?.contains(e.target)) {
+            setIsOpen(false);
+        }
+    }
+
+    React.useEffect(() => {
+        if (isOpen) {
+            document.addEventListener('click', handleBlur)
+        }
+        return () => {
+            document.removeEventListener('click', handleBlur);
+        }
+    })
+
+    return (
+        // <fetcher.Form method="post">
+            <div
+                ref={containerRef}
+                onClick={() => {
+                    setIsOpen(true);
+                }}
+                className={clsx("border rounded-3xl flex shadow-custom items-center bg-white", {
+                    "animate-open-add-to-card": isOpen,
+                })}>
+                <button
+                    onClick={() => setCount(count => count == 0 ? 0 : count - 1)}
+                    type="submit"
+                    className={clsx("hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 text-md font-semibold justify-center items-center", {
+                        "flex": isOpen,
+                        "hidden": !isOpen,
+                    })}>
+                    <span>-</span>
+                </button>
+                <div className={clsx("items-center justify-center px-2", {
+                    "flex": isOpen,
+                    "hidden": !isOpen,
+                })}>{count}</div>
+                <button
+                    onClick={() => {
+                        if (isOpen || !isOpen && count === 0) {
+                            setCount(count => count + 1);
+                        }
+                    }}
+                    name="itemCount"
+                    type="submit"
+                    className="flex hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 text-md font-semibold justify-center items-center">
+                    <span>{ !isOpen && count > 0 ? count : "+" }</span>
+                </button>
+            </div>
+        // </fetcher.Form>
     )
 }

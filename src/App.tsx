@@ -62,9 +62,9 @@ function App() {
 
     React.useEffect(() => {
       if (loggedIn && location.pathname === '/') {
-        navigate('restaurant');
+        navigate('store');
       } 
-      
+
     }, [loggedIn, navigate, location])
 
   if (loading) null;

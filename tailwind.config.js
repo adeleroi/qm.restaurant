@@ -51,9 +51,13 @@ export default {
             opacity: 0,
           }
       },
-      addToCard: {
-        '0%': { maxWidth: '40px' },
-        '100%': { maxWidth: '100px' }
+      openAddToCard: {
+        '0%': { width: '40px' },
+        '100%': { width: '100px' }
+      },
+      closeAddToCard: {
+        '0%': { maxWidth: '100px' },
+        '100%': { maxWidth: '40px' },
       }
 
     },
@@ -63,7 +67,8 @@ export default {
       'slide-bottom-infinite': 'slideToBottom 900ms ease-in-out infinite',
       'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       'ping': 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite',
-      'add-to-card': 'addToCard 200ms ease-in-out'
+      'open-add-to-card': 'openAddToCard 200ms ease-in-out',
+      'close-add-to-card': 'closeAddToCard 250ms ease-in-out'
     },
     boxShadow: {
       custom: '0px 0px 8px rgba(0, 0, 0, 0.1), 0px 4px 4px rgba(0, 0, 0, 0.04)',
