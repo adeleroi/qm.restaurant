@@ -62,8 +62,6 @@ export function AddToCartButton() {
     const [isOpen, setIsOpen] = React.useState(false)
     const [ count, setCount ] = React.useState(0);
 
-    const containerRef = React.useRef<HTMLElement|null>(null);
-
     function handleBlur(event) {
         if (!event.currentTarget.contains(event.relatedTarget)) {
             setIsOpen(false);
@@ -84,8 +82,7 @@ export function AddToCartButton() {
 
     return (
         <fetcher.Form method="post" onBlur={handleBlur}>
-            <div ref={containerRef}
-                className={clsx("border rounded-3xl flex shadow-custom items-center bg-white", {
+            <div className={clsx("border rounded-3xl flex shadow-custom items-center bg-white", {
                     "animate-open-add-to-card": isOpen,
                     "animate-close-add-to-card": !isOpen,
                 })}>
