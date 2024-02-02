@@ -62,7 +62,6 @@ const actionMessage = {
 
 const AuthForm = React.forwardRef(function AuthForm(_, ref) {
   const fetcher = useFetcher();
-  console.log('data', fetcher.data)
   const [form, fields] = useForm({
     lastSubmission: fetcher.data?.submission,
     onValidate({ formData }) {

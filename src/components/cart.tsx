@@ -8,6 +8,7 @@ import {
 } from '@chakra-ui/react'
 
 import { Trigger } from '../utils/trigger';
+import { useFetcher, useFetchers } from 'react-router-dom';
 
 export function CartTrigger({ triggerElement }: { triggerElement: React.ReactNode}) {
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -34,7 +35,11 @@ export function CartTrigger({ triggerElement }: { triggerElement: React.ReactNod
     )
 }
 
-export function CartIcon({count = 1}: {count?: number}) {
+export function CartIcon({count = 3}: {count?: number}) {
+    const fetchers = useFetchers();
+    console.log('fetchers', fetchers)
+    const f = fetchers.map(fe => +fe.data).reduce((acc, curr) => acc + curr, count);
+
     const emptyCartIcon = (
         <span className="material-symbols-outlined text-defaultGreen">
             shopping_cart
@@ -52,11 +57,10 @@ export function CartIcon({count = 1}: {count?: number}) {
     return (
         <div className="flex justify-between">
             {count > 0 ? cartIcon : emptyCartIcon}
-            <span className="font-semibold text-defaultGreen">. {count}</span>
+            <span className="font-semibold text-defaultGreen">. {f} </span>
         </div>
     )
 }
-
 
 function Ping() {
     return (

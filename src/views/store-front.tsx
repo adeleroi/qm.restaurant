@@ -26,7 +26,7 @@ export function StoreFront() {
             <div className="mt-10">
                 <ul className="grid grid-cols-4 gap-4">
                     {
-                        Array.from({length: 10}, (_, idx) => {
+                        Array.from({length: 2}, (_, idx) => {
                             return (
                                 <li key={idx}>
                                     <Product/>
@@ -57,25 +57,22 @@ export function Product() {
 }
 
 export function AddToCartButton() {
-    // const fetcher = useFetcher({key: 'bag-count'});
+    const fetcher = useFetcher({key: 'bag-count'});
+    console.log('data', fetcher.data);
     const [isOpen, setIsOpen] = React.useState(false)
     const [ count, setCount ] = React.useState(0);
 
     const containerRef = React.useRef<HTMLElement|null>(null);
 
-    function handleBlur(e) {
-        if (!(containerRef?.current as HTMLElement)?.contains(e.target)) {
+    function handleBlur(event) {
+        if (!event.currentTarget.contains(event.relatedTarget)) {
             setIsOpen(false);
         }
     }
 
     function handleRemoveButton() {
-        if (count === 1) {
-            setCount(0);
-            setIsOpen(false);
-        } else {
-            setCount(count => count == 0 ? 0 : count - 1)
-        }
+        if (count === 1) setIsOpen(false);
+        setCount(count => count == 0 ? 0 : count - 1);
     }
 
     function handleAddButton() {
@@ -85,36 +82,34 @@ export function AddToCartButton() {
         }
     }
 
-    React.useEffect(() => {
-        if (isOpen) {
-            document.addEventListener('click', handleBlur)
-        }
-        return () => {
-            document.removeEventListener('click', handleBlur);
-        }
-    })
-
     return (
-        // <fetcher.Form method="post">
+        <fetcher.Form method="post" onBlur={handleBlur}>
             <div ref={containerRef}
                 className={clsx("border rounded-3xl flex shadow-custom items-center bg-white", {
                     "animate-open-add-to-card": isOpen,
                     "animate-close-add-to-card": !isOpen,
                 })}>
                 <button
+                    value={count}
+                    defaultValue={0}
                     onClick={handleRemoveButton}
                     type="submit"
+                    name="itemCount"
                     className={clsx("hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 text-md font-semibold justify-center items-center", {
                         "flex": isOpen,
                         "hidden": !isOpen,
                     })}>
                     { count !== 1 ? <span className="font-semibold">-</span> : <span className="material-symbols-outlined font-semibold">delete</span> }
                 </button>
-                <div className={clsx("items-center justify-center px-2", {
+                {/** this button[type=button] allows us to handler blur event nicely*/}
+                <button type="button" className={clsx("items-center justify-center px-2", {
                     "flex": isOpen,
                     "hidden": !isOpen,
-                })}>{count}</div>
+                })}>{count}</button>
                 <button
+                    id="test-id"
+                    value={count}
+                    defaultValue={0}
                     onClick={handleAddButton}
                     name="itemCount"
                     type="submit"
@@ -122,6 +117,6 @@ export function AddToCartButton() {
                     <span>{ !isOpen && count > 0 ? count : "+" }</span>
                 </button>
             </div>
-        // </fetcher.Form>
+        </fetcher.Form>
     )
 }
