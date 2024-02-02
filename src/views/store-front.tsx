@@ -69,8 +69,23 @@ export function AddToCartButton() {
         }
     }
 
+    function handleRemoveButton() {
+        if (count === 1) {
+            setCount(0);
+            setIsOpen(false);
+        } else {
+            setCount(count => count == 0 ? 0 : count - 1)
+        }
+    }
+
+    function handleAddButton() {
+        setIsOpen(true);
+        if (isOpen || !isOpen && count === 0) {
+            setCount(count => count + 1);
+        }
+    }
+
     React.useEffect(() => {
-        console.log('isOpen', count);
         if (isOpen) {
             document.addEventListener('click', handleBlur)
         }
@@ -87,15 +102,7 @@ export function AddToCartButton() {
                     "animate-close-add-to-card": !isOpen,
                 })}>
                 <button
-                    onClick={() => {
-                        console.log('clicked');
-                        if (count === 1) {
-                            setCount(0);
-                            setIsOpen(false);
-                        } else {
-                            setCount(count => count == 0 ? 0 : count - 1)
-                        }
-                    }}
+                    onClick={handleRemoveButton}
                     type="submit"
                     className={clsx("hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 text-md font-semibold justify-center items-center", {
                         "flex": isOpen,
@@ -108,12 +115,7 @@ export function AddToCartButton() {
                     "hidden": !isOpen,
                 })}>{count}</div>
                 <button
-                    onClick={() => {
-                        setIsOpen(true);
-                        if (isOpen || !isOpen && count === 0) {
-                            setCount(count => count + 1);
-                        }
-                    }}
+                    onClick={handleAddButton}
                     name="itemCount"
                     type="submit"
                     className="flex hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 text-md font-semibold justify-center items-center">
