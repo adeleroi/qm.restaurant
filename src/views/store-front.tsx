@@ -62,6 +62,7 @@ export function AddToCartButton() {
     const [ count, setCount ] = React.useState(0);
 
     const containerRef = React.useRef<HTMLElement|null>(null);
+
     function handleBlur(e) {
         if (!(containerRef?.current as HTMLElement)?.contains(e.target)) {
             setIsOpen(false);
@@ -69,6 +70,7 @@ export function AddToCartButton() {
     }
 
     React.useEffect(() => {
+        console.log('isOpen', count);
         if (isOpen) {
             document.addEventListener('click', handleBlur)
         }
@@ -79,23 +81,27 @@ export function AddToCartButton() {
 
     return (
         // <fetcher.Form method="post">
-            <div
-                ref={containerRef}
-                onClick={() => {
-                    setIsOpen(true);
-                }}
+            <div ref={containerRef}
                 className={clsx("border rounded-3xl flex shadow-custom items-center bg-white", {
                     "animate-open-add-to-card": isOpen,
                     "animate-close-add-to-card": !isOpen,
                 })}>
                 <button
-                    onClick={() => setCount(count => count == 0 ? 0 : count - 1)}
+                    onClick={() => {
+                        console.log('clicked');
+                        if (count === 1) {
+                            setCount(0);
+                            setIsOpen(false);
+                        } else {
+                            setCount(count => count == 0 ? 0 : count - 1)
+                        }
+                    }}
                     type="submit"
                     className={clsx("hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 text-md font-semibold justify-center items-center", {
                         "flex": isOpen,
                         "hidden": !isOpen,
                     })}>
-                    <span>-</span>
+                    { count !== 1 ? <span className="font-semibold">-</span> : <span className="material-symbols-outlined font-semibold">delete</span> }
                 </button>
                 <div className={clsx("items-center justify-center px-2", {
                     "flex": isOpen,
@@ -103,6 +109,7 @@ export function AddToCartButton() {
                 })}>{count}</div>
                 <button
                     onClick={() => {
+                        setIsOpen(true);
                         if (isOpen || !isOpen && count === 0) {
                             setCount(count => count + 1);
                         }
