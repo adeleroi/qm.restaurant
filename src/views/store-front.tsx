@@ -59,7 +59,7 @@ export function Product() {
 export function AddToCartButton() {
     const fetcher = useFetcher({key: 'bag-count'});
     console.log('data', fetcher.data);
-    const [isOpen, setIsOpen] = React.useState(false)
+    const [isOpen, setIsOpen] = React.useState<boolean|null>(null)
     const [ count, setCount ] = React.useState(0);
 
     function handleBlur(event) {
@@ -84,7 +84,7 @@ export function AddToCartButton() {
         <fetcher.Form method="post" onBlur={handleBlur}>
             <div className={clsx("border rounded-3xl flex shadow-custom items-center bg-white", {
                     "animate-open-add-to-card": isOpen,
-                    "animate-close-add-to-card": !isOpen,
+                    "animate-close-add-to-card": isOpen === false,
                 })}>
                 <button
                     value={count}
