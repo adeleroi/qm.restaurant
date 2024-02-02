@@ -56,8 +56,8 @@ export default {
         '100%': { width: '100px' }
       },
       closeAddToCard: {
-        '0%': { maxWidth: '100px' },
-        '100%': { maxWidth: '40px' },
+        '0%': { width: '100px' },
+        '100%': { width: '40px' },
       }
 
     },

@@ -86,6 +86,7 @@ export function AddToCartButton() {
                 }}
                 className={clsx("border rounded-3xl flex shadow-custom items-center bg-white", {
                     "animate-open-add-to-card": isOpen,
+                    "animate-close-add-to-card": !isOpen,
                 })}>
                 <button
                     onClick={() => setCount(count => count == 0 ? 0 : count - 1)}
