@@ -32,7 +32,7 @@ function ButtonSection() {
         return (
             <CartTrigger
                 triggerElement={
-                    <Button size="small"  className="h-8 shadow-custom bg-white hover:bg-gray-100 focus:bg-gray-200 text-black relative">
+                    <Button size="small"  className="h-8 shadow-custom bg-white hover:bg-gray-100 text-black relative">
                         <CartIcon/>
                     </Button>
                 }

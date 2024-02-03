@@ -11,7 +11,7 @@ import { StoreList } from './views/store-list.tsx';
 import { ErrorPage } from './views/error.tsx';
 import { Root } from './views/home.tsx';
 import { action as rootAction } from './App.tsx';
-import { StoreFront, action as storeFrontAction } from './views/store-front.tsx';
+import { StoreFront, action as storeFrontAction, loader as storeFrontLoader } from './views/store-front.tsx';
 
 
 const router = createBrowserRouter([
@@ -36,7 +36,8 @@ const router = createBrowserRouter([
       {
         path: "store/:storeId",
         element: <StoreFront/>,
-        action: storeFrontAction
+        action: storeFrontAction,
+        loader: storeFrontLoader,
       },
     ],
   },

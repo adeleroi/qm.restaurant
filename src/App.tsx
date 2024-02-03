@@ -34,7 +34,6 @@ export async function action({request}: ActionFunctionArgs) {
       try {
         credential = await action(data.email, data.password);
       } catch(e) {
-        console.log('code', e);
         ctx.addIssue({
           path: [path[e.code]],
           code: z.ZodIssueCode.custom,
@@ -46,7 +45,6 @@ export async function action({request}: ActionFunctionArgs) {
     async: true,
   })
 
-  // console.log('submission', submission);
 
   if (!submission?.value?.uid) {
     return json({ submission }, {status: 400});

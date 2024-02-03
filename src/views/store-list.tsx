@@ -10,7 +10,7 @@ export function StoreList() {
             <ul className='grid grid-cols-3 w-full gap-4 max-w-6xl'>
                 {
                 Array.from({length: 6}).map((_, idx) => (
-                    <Link to="lcbo">
+                    <Link to="lcbo" key={idx}>
                         <StoreCard
                             title="LCBO"
                             description="Groceries . Organic . Alcohol"
