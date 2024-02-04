@@ -1,8 +1,8 @@
 import clsx from "clsx";
 import React from "react";
-import { ActionFunctionArgs, json, useFetcher, useLoaderData } from "react-router-dom"
-import { productCollection, db } from "../firebase/fireStore";
-import { doc, getDocs, updateDoc } from "firebase/firestore";
+import { ActionFunctionArgs, LoaderFunctionArgs, json, useActionData, useFetcher, useLoaderData } from "react-router-dom"
+import { db } from "../firebase/fireStore";
+import { addDoc, collection, doc, getDocs, runTransaction, updateDoc } from "firebase/firestore";
 
 
 export type Product = {
@@ -14,31 +14,44 @@ export type Product = {
     offer: string,
 }
 
-export async function loader() {
+export async function createAndFillCart() {
+    return await Promise.resolve(true);
+}
+
+export async function loader({params}: LoaderFunctionArgs) {
+    const storeId = params.storeId as string;
     const products: Array<Product> = [];
-    const snapshot = await getDocs(productCollection);
+    const snapshot = await getDocs(collection(db, "store", storeId, "product"));
     snapshot.forEach(prod => {
         products.push({id: prod.id, ...prod.data()} as Product)
     })
-    return json({products});
+    console.log('opened drawer', products)
+    return json({products, storeId});
 }
 
-export async function action({request}: ActionFunctionArgs) {
+export async function action({request, params, context}: ActionFunctionArgs) {
     const formData = await request.formData();
-    const count = formData.get('itemCount') as string;
-    const productId = formData.get('productId') as string;
-    if (!productId) throw Error('product without id');
+    const userId = formData.get('userId') as string;
+    const cartDocRef = doc(db, "users", userId, "cart");
+    
+    await runTransaction(db, async (transaction) => {
+        const cartDoc = await transaction.get(cartDocRef);
+        if (!cartDoc.exists()) {
+            await createAndFillCart();
+            return;
+        }
+        const cart = cartDoc.data();
 
-    const productRef = doc(db, 'product', productId);
-    await updateDoc(productRef, {
-        count: +count
     })
-    return +count;
+    
+
+    return json({});
 }
 
 export function StoreFront() {
     const loader = useLoaderData();
-    const data = (loader as unknown as {products: Array<Product>})?.products as Array<Product>;
+    const data = (loader as unknown as {products: Array<Product>, storeId: string})?.products as Array<Product>;
+
     return (
         <section className="grid pt-16 max-w-6xl mx-auto">
             <div className="flex w-full items-center pb-4 bg-brown-bg rounded-lg">
@@ -76,23 +89,23 @@ type ProductProps = {
 
 export function Product({product}: ProductProps) {
     return (
-        <div className="relative border-[1px] rounded-xl overflow-hidden p-2 pb-4 hover:shadow-custom cursor-pointer">
-            <div className="p-4 h-32 bg-smoke mb-4">
+        <div className="rounded-xl overflow-hidden p-2 pb-4 cursor-pointer">
+            <div className="relative p-4 h-44 rounded-lg bg-smoke mb-4">
                 <img src="" alt=""/>
+                <div className="absolute right-2 bottom-2">
+                    <AddToCartButton cartCount={product?.count} productId={product.id}/>
+                </div>
             </div>
             <div>
                 <span className="text-xs">{product.name}</span>
                 <p className="text-xs">{product.description}</p>
-            </div>
-            <div className="absolute right-2 bottom-10">
-                <AddToCartButton cartCount={product?.count} productId={product.id}/>
             </div>
         </div>
     )
 }
 
 export function AddToCartButton({cartCount, productId}: { cartCount: number, productId: string}) {
-    const fetcher = useFetcher({key: 'bag-count'});
+    const fetcher = useFetcher();
     const [isOpen, setIsOpen] = React.useState<boolean|null>(null)
     const [ count, setCount ] = React.useState(cartCount || 0);
 

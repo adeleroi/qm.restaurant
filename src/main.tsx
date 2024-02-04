@@ -7,7 +7,7 @@ import {
   RouterProvider
 } from "react-router-dom";
 import { Restaurant } from './views/restaurant.tsx';
-import { StoreList } from './views/store-list.tsx';
+import { StoreList, loader as StoreListLoader } from './views/store-list.tsx';
 import { ErrorPage } from './views/error.tsx';
 import { Root } from './views/home.tsx';
 import { action as rootAction } from './App.tsx';
@@ -31,7 +31,8 @@ const router = createBrowserRouter([
       },
       {
         path: "store",
-        element: <StoreList/>
+        element: <StoreList/>,
+        loader: StoreListLoader,
       },
       {
         path: "store/:storeId",

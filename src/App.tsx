@@ -17,6 +17,8 @@ import {
   LOG_IN_ERROR_CODE_TO_MESSAGE
 } from './firebase/error-code'
 import { z } from 'zod'
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore'
+import { db } from './firebase/fireStore'
 
 // https://github.com/invertase/react-native-firebase-docs/blob/master/docs/auth/reference/auth.md
 // Good reference for auth error with firebase
@@ -48,6 +50,17 @@ export async function action({request}: ActionFunctionArgs) {
 
   if (!submission?.value?.uid) {
     return json({ submission }, {status: 400});
+  }
+  
+  if (intent === 'signup') {
+    // Added new users to the users collection
+    await setDoc(doc(db, 'users', submission.value.uid), {
+      email: submission.value.email,
+      name: "N'guessan",
+      country: 'Canada',
+      PhoneNumber: '5817774338',
+      timestamp: serverTimestamp(),
+    })
   }
 
   return json({submission});

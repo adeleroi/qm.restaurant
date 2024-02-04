@@ -10,17 +10,17 @@ import { Trigger } from '../utils/trigger';
 import { useFetcher } from 'react-router-dom';
 import React from 'react';
 import { AddToCartButton, Product } from '../views/store-front';
-import { Button } from './button';
 
 
 function useRetrieveCartItem() {
     const fetcher = useFetcher();
-    React.useEffect(() => {
-        if (fetcher.state === "idle" && !fetcher.data) {
-            fetcher.load('store/:storeId');
-        }
-    }, [fetcher])
-    return fetcher.data?.products;
+    // React.useEffect(() => {
+    //     if (fetcher.state === "idle" && !fetcher.data) {
+    //         fetcher.load(`store/${fetcher.data.storeId}`);
+    //     }
+    // }, [fetcher])
+    const products = fetcher.data?.products;
+    return products;
 }
 
 export function CartTrigger({ triggerElement }: { triggerElement: React.ReactNode}) {
@@ -103,20 +103,21 @@ const cartIcon = (
 
 const emptyCartIcon = <span className="material-symbols-outlined text-defaultGreen">shopping_cart</span>
 
-export function CartIcon({count = 0}: {count?: number}) {
+export function CartIcon() {
     const cartItems = useRetrieveCartItem();
     const currCartCount = getTotalItemCount(cartItems).count;
+
     return (
         <div className="flex justify-between">
-            {count > 0 ? cartIcon : emptyCartIcon}
-            <span className="font-semibold text-defaultGreen">. {count || currCartCount} </span>
+            {currCartCount > 0 ? cartIcon : emptyCartIcon}
+            <span className="font-semibold text-defaultGreen">. { currCartCount || 0} </span>
         </div>
     )
 }
 
 function Ping() {
     return (
-        <div className="absolute top-0 right-0">
+        <div data-test-id="cart-ping" className="absolute top-0 right-0">
             <span className="relative flex h-3 w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-defaultGreen opacity-65"></span>
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-defaultGreen"></span>

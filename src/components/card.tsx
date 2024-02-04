@@ -10,6 +10,16 @@ type FoodCardProps = {
     offer?: string
 };
 
+type StoreCard = {
+    src?: string,
+    className?: string,
+    alt:string,
+    description: string,
+    title: string,
+    deliveryTime?: string,
+    offer?: string
+}
+
 export function FoodCard({src, className, alt, title, description}: FoodCardProps) {
     return (
         <li className={clsx("", className)}>
@@ -26,7 +36,7 @@ export function FoodCard({src, className, alt, title, description}: FoodCardProp
     )
 }
 
-export function StoreCard({src, className, alt, title, description, deliveryTime, offer}: FoodCardProps) {
+export function StoreCard({src, className, alt, title, description, deliveryTime, offer}: StoreCard) {
     return (
         <li className={clsx("relative flex justify-start items-center border-2 min-h-24 rounded-md px-2 hover:shadow-custom cursor-pointer", className)}>
             <div className="w-20 flex justify-center items-center mr-2">
