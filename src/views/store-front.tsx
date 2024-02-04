@@ -1,8 +1,9 @@
 import clsx from "clsx";
 import React from "react";
-import { ActionFunctionArgs, LoaderFunctionArgs, json, useActionData, useFetcher, useLoaderData } from "react-router-dom"
+import { ActionFunctionArgs, LoaderFunctionArgs, json, useFetcher, useLoaderData } from "react-router-dom"
 import { db } from "../firebase/fireStore";
-import { addDoc, collection, doc, getDocs, runTransaction, updateDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, runTransaction } from "firebase/firestore";
+import { useFirebaseAuth } from "../firebase/auth";
 
 
 export type Product = {
@@ -14,43 +15,70 @@ export type Product = {
     offer: string,
 }
 
-export async function createAndFillCart() {
-    return await Promise.resolve(true);
+function getUserId() {
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    return params.get('userId');
 }
 
 export async function loader({params}: LoaderFunctionArgs) {
     const storeId = params.storeId as string;
     const products: Array<Product> = [];
-    const snapshot = await getDocs(collection(db, "store", storeId, "product"));
-    snapshot.forEach(prod => {
-        products.push({id: prod.id, ...prod.data()} as Product)
+    const carts: Array<Product> = [];
+    
+    // Not the best way to get the userId but we can hope thing will get better: https://github.com/remix-run/react-router/discussions/9856
+    const userId = getUserId() as string;
+
+    const cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
+    const productSnapshot = await getDocs(collection(db, "store", storeId, "product"));
+    
+    cartSnapshot.forEach(cartItem => {
+        carts.push({id: cartItem.id, ...cartItem.data()} as Product);
     })
-    console.log('opened drawer', products)
+
+    productSnapshot.forEach(prod => {
+        const productInStore = {id: prod.id, count: 0, ...prod.data()} as Product;
+        if (carts.length) {
+            const productInCart = carts.find(prod => prod.id === productInStore.id);
+            if (productInCart) {
+                productInStore.count = Number(productInCart.count);
+            }
+        }
+        products.push(productInStore);
+    });
     return json({products, storeId});
 }
 
-export async function action({request, params, context}: ActionFunctionArgs) {
+export async function action({request, params}: ActionFunctionArgs) {
     const formData = await request.formData();
-    const userId = formData.get('userId') as string;
-    const cartDocRef = doc(db, "users", userId, "cart");
+    const storeId = params?.storeId as string;
+    const productId = formData.get("productId") as string;
+    const count = formData.get('itemCount') as string;
+    const userId = formData.get('userId') as string; // get it from the firestoreProvider in the AddToCartButton
+    
+    const productInStore = await getDoc(doc(db, "store", storeId, "product", productId));
+
+    const productInCartRef = doc(db, "users", userId, "cart", productId);
     
     await runTransaction(db, async (transaction) => {
-        const cartDoc = await transaction.get(cartDocRef);
-        if (!cartDoc.exists()) {
-            await createAndFillCart();
+        const productInCartDoc = await transaction.get(productInCartRef);
+        if (!productInCartDoc.exists()) {
+            transaction.set(productInCartRef, {
+                ...productInStore.data(),
+                count: +count,
+            })
             return;
         }
-        const cart = cartDoc.data();
-
-    })
-    
+        transaction.update(productInCartRef, {count: Number(count)});
+    });
 
     return json({});
 }
 
+
 export function StoreFront() {
-    const loader = useLoaderData();
-    const data = (loader as unknown as {products: Array<Product>, storeId: string})?.products as Array<Product>;
+    const loaderData = useLoaderData();
+    const data = (loaderData as unknown as {products: Array<Product>, storeId: string})?.products as Array<Product>;
 
     return (
         <section className="grid pt-16 max-w-6xl mx-auto">
@@ -82,7 +110,6 @@ export function StoreFront() {
     )
 }
 
-
 type ProductProps = {
     product: Product
 }
@@ -105,9 +132,10 @@ export function Product({product}: ProductProps) {
 }
 
 export function AddToCartButton({cartCount, productId}: { cartCount: number, productId: string}) {
-    const fetcher = useFetcher();
     const [isOpen, setIsOpen] = React.useState<boolean|null>(null)
-    const [ count, setCount ] = React.useState(cartCount || 0);
+    const [ count, setCount ] = React.useState(cartCount ?? 0);
+    const fetcher = useFetcher();
+    const { data } = useFirebaseAuth();
 
     function handleBlur(event) {
         if (!event.currentTarget.contains(event.relatedTarget)) {
@@ -127,12 +155,12 @@ export function AddToCartButton({cartCount, productId}: { cartCount: number, pro
         }
     }
 
-    React.useEffect(() => {
-        setCount(cartCount);
-    }, [cartCount])
+    // React.useEffect(() => {
+    //     setCount(cartCount);
+    // }, [cartCount])
 
     return (
-        <fetcher.Form method="post" onBlur={handleBlur} action="/store/:storeId">
+        <fetcher.Form method="post" onBlur={handleBlur}>
             <div className={clsx("border rounded-3xl flex shadow-custom items-center bg-white", {
                     "animate-open-add-to-card": isOpen,
                     "animate-close-add-to-card": isOpen === false,
@@ -155,6 +183,7 @@ export function AddToCartButton({cartCount, productId}: { cartCount: number, pro
                     "hidden": !isOpen,
                 })}>{count}</button>
                 <input type="hidden" name="productId" value={productId}/>
+                <input type="hidden" name="userId" value={data?.uid || ''}/>
                 <button
                     id="test-id"
                     value={count}

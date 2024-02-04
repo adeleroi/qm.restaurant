@@ -2,6 +2,7 @@ import { Link, json, useLoaderData } from "react-router-dom";
 import { StoreCard } from "../components/card";
 import { getDocs } from "firebase/firestore";
 import { storeCollection } from "../firebase/fireStore";
+import { useFirebaseAuth } from "../firebase/auth";
 
 
 type StoreOffer = {
@@ -51,6 +52,7 @@ export async function loader() {
 
 export function StoreList() {
     const loader = useLoaderData();
+    const { data } = useFirebaseAuth();
     const stores = (loader as unknown as  { stores: Array<Store>})?.stores;
     return (
         <section className="grid mx-auto max-w-6xl">
@@ -60,7 +62,7 @@ export function StoreList() {
             <ul className='grid grid-cols-3 w-full gap-4 max-w-6xl'>
                 {
                     stores.map((store, idx) => (
-                        <Link to={`${store.id}`} key={idx}>
+                        <Link to={`${store.id}?userId=${data?.uid}`} key={idx}>
                             <StoreCard
                                 title={store.name}
                                 description={store?.sells ?? "Groceries . Organic . Alcohol"}
