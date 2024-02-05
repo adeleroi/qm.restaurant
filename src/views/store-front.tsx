@@ -1,10 +1,10 @@
 import clsx from "clsx";
 import React from "react";
-import { ActionFunctionArgs, LoaderFunctionArgs, json, useFetcher, useLoaderData } from "react-router-dom"
+import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect, useFetcher, useLoaderData } from "react-router-dom"
 import { db } from "../firebase/fireStore";
 import { collection, doc, getDoc, getDocs, runTransaction } from "firebase/firestore";
 import { useFirebaseAuth } from "../firebase/auth";
-
+import Cookies from "js-cookie";
 
 export type Product = {
     id: string,
@@ -15,19 +15,14 @@ export type Product = {
     offer: string,
 }
 
-function getUserId() {
-    const url = new URL(window.location.href);
-    const params = new URLSearchParams(url.search);
-    return params.get('userId');
-}
-
 export async function loader({params}: LoaderFunctionArgs) {
     const storeId = params.storeId as string;
     const products: Array<Product> = [];
     const carts: Array<Product> = [];
-    
-    // Not the best way to get the userId but we can hope thing will get better: https://github.com/remix-run/react-router/discussions/9856
-    const userId = getUserId() as string;
+    const userId = Cookies.get('qm_session_id') as string;
+    if (!userId) {
+        return redirect('/',)
+    }
 
     const cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
     const productSnapshot = await getDocs(collection(db, "store", storeId, "product"));
@@ -46,18 +41,16 @@ export async function loader({params}: LoaderFunctionArgs) {
         }
         products.push(productInStore);
     });
+
     return json({products, storeId});
 }
 
 export async function action({request, params}: ActionFunctionArgs) {
     const formData = await request.formData();
     const storeId = params?.storeId as string;
-    const productId = formData.get("productId") as string;
-    const count = formData.get('itemCount') as string;
-    const userId = formData.get('userId') as string; // get it from the firestoreProvider in the AddToCartButton
-    
-    const productInStore = await getDoc(doc(db, "store", storeId, "product", productId));
+    const { productId, itemCount, userId } = Object.fromEntries(formData) as Record<string, string>;
 
+    const productInStore = await getDoc(doc(db, "store", storeId, "product", productId));
     const productInCartRef = doc(db, "users", userId, "cart", productId);
     
     await runTransaction(db, async (transaction) => {
@@ -65,11 +58,11 @@ export async function action({request, params}: ActionFunctionArgs) {
         if (!productInCartDoc.exists()) {
             transaction.set(productInCartRef, {
                 ...productInStore.data(),
-                count: +count,
+                count: +itemCount,
             })
             return;
         }
-        transaction.update(productInCartRef, {count: Number(count)});
+        transaction.update(productInCartRef, {count: +itemCount});
     });
 
     return json({});
@@ -131,7 +124,7 @@ export function Product({product}: ProductProps) {
     )
 }
 
-export function AddToCartButton({cartCount, productId}: { cartCount: number, productId: string}) {
+export function AddToCartButton({cartCount, productId, action=""}: { cartCount: number, productId: string, action?: string}) {
     const [isOpen, setIsOpen] = React.useState<boolean|null>(null)
     const [ count, setCount ] = React.useState(cartCount ?? 0);
     const fetcher = useFetcher();
@@ -155,12 +148,12 @@ export function AddToCartButton({cartCount, productId}: { cartCount: number, pro
         }
     }
 
-    // React.useEffect(() => {
-    //     setCount(cartCount);
-    // }, [cartCount])
+    React.useEffect(() => {
+        setCount(cartCount);
+    }, [cartCount])
 
     return (
-        <fetcher.Form method="post" onBlur={handleBlur}>
+        <fetcher.Form method="post" onBlur={handleBlur} action={action}>
             <div className={clsx("border rounded-3xl flex shadow-custom items-center bg-white", {
                     "animate-open-add-to-card": isOpen,
                     "animate-close-add-to-card": isOpen === false,

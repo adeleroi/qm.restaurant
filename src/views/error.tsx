@@ -6,7 +6,8 @@ export function ErrorPage() {
     const error = useRouteError() as ErrorRoute;
     return (
         <>
-            <div>Oups! Something went wrong...</div>
+            <div>Oups! Nothing to deliver here</div>
+            <p>Go back to home page</p>
             <p>
                 <i>{error.statusText || error.message }</i>
             </p>

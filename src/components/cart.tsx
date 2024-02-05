@@ -7,27 +7,17 @@ import {
     useDisclosure,
 } from '@chakra-ui/react'
 import { Trigger } from '../utils/trigger';
-import { useFetcher } from 'react-router-dom';
+import { useLoaderData } from 'react-router-dom';
 import React from 'react';
 import { AddToCartButton, Product } from '../views/store-front';
 
-
-function useRetrieveCartItem() {
-    const fetcher = useFetcher();
-    // React.useEffect(() => {
-    //     if (fetcher.state === "idle" && !fetcher.data) {
-    //         fetcher.load(`store/${fetcher.data.storeId}`);
-    //     }
-    // }, [fetcher])
-    const products = fetcher.data?.products;
-    return products;
-}
-
 export function CartTrigger({ triggerElement }: { triggerElement: React.ReactNode}) {
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const cartItems = useRetrieveCartItem();
-    const distinctItemCount = cartItems?.length;
-    
+
+    const loaderData = useLoaderData();
+    const cartItems = loaderData?.carts;
+    const distinctItemCount = loaderData?.carts?.length;
+
     return (
         <>
         <Trigger onOpen={onOpen}>
@@ -79,7 +69,7 @@ function CartItem({product}: {product: Product}) {
                     <h1 className='pl-2 text-md font-semibold'>{product.name}</h1>
                 </div>
                 <div className='absolute top-3 right-0'>
-                    <AddToCartButton productId={product.id} cartCount={product.count}/>
+                    <AddToCartButton action='store/:storeId' productId={product.id} cartCount={product.count}/>
                 </div>
             </div>
             <div>
@@ -91,7 +81,7 @@ function CartItem({product}: {product: Product}) {
 }
 
 function getTotalItemCount(arr: Array<Product> = []) {
-    return arr.reduce((acc, curr) => ({...acc, count: acc?.count + curr?.count}), {count: 0});
+    return arr?.reduce((acc, curr) => ({...acc, count: acc?.count + curr?.count}), {count: 0});
 }
 
 const cartIcon = (
@@ -104,8 +94,8 @@ const cartIcon = (
 const emptyCartIcon = <span className="material-symbols-outlined text-defaultGreen">shopping_cart</span>
 
 export function CartIcon() {
-    const cartItems = useRetrieveCartItem();
-    const currCartCount = getTotalItemCount(cartItems).count;
+    const loaderData = useLoaderData();
+    const currCartCount = getTotalItemCount(loaderData.carts).count;
 
     return (
         <div className="flex justify-between">
