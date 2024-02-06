@@ -17,7 +17,7 @@ import {
   LOG_IN_ERROR_CODE_TO_MESSAGE
 } from './firebase/error-code'
 import { z } from 'zod'
-import { DocumentData, QuerySnapshot, collection, doc, getDocs, serverTimestamp, setDoc } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, serverTimestamp, setDoc } from 'firebase/firestore'
 import { db } from './firebase/fireStore'
 import { Product } from './views/store-front'
 import Cookies from 'js-cookie'
@@ -25,19 +25,45 @@ import Cookies from 'js-cookie'
 export async function loader() {
   const userId = Cookies.get('qm_session_id') as string;
   if (!userId) return json({});
-  const carts: Array<Product> = []
-  console.log('before')
-  let cartSnapshot = [] as unknown as Awaited<Promise<QuerySnapshot<DocumentData, DocumentData>>>;
-  try {
-    cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
-  } catch(e) {
-    console.error('Error trying to get the cart');
-  }
+
+  // const carts: Array<Product> = []
+  // let cartSnapshot = [] as unknown as Awaited<Promise<QuerySnapshot<DocumentData, DocumentData>>>;
+  // try {
+  //   cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
+  // } catch(e) {
+  //   console.error('Error trying to get the cart');
+  // }
+  // cartSnapshot.forEach(cartItem => {
+  //     carts.push({id: cartItem.id, ...cartItem.data()} as Product);
+  // })
+  const carts: Array<Product> = [];
+
+  const cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
+
   cartSnapshot.forEach(cartItem => {
       carts.push({id: cartItem.id, ...cartItem.data()} as Product);
   })
-  // console.log('root loader carts', carts);
-  return json({carts})
+
+  const uniqueStoreList = [...new Set(carts.map(item => item.storeId))];
+
+  let storeInfos = await Promise.all(
+      uniqueStoreList.map(storeId => getDoc(doc(db, "store", storeId))),
+  )
+  storeInfos = storeInfos.reduce((acc, curr) => ({ ...acc, [curr.id]: curr.data()}), {});
+  
+  const cartMap: Record<string, Array<Product>> = {};
+  carts.forEach(item => {
+      if (!cartMap[item.storeId]) {
+          cartMap[item.storeId] = [];
+      }
+      cartMap[item.storeId].push(item);
+  })
+
+  for (const [key, value] of Object.entries(storeInfos)) {
+      storeInfos[key]['cart']  = cartMap[key]
+  }
+
+  return json({carts, storeCartInfos: storeInfos})
 }
 
 // https://github.com/invertase/react-native-firebase-docs/blob/master/docs/auth/reference/auth.md

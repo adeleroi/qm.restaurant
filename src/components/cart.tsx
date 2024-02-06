@@ -1,21 +1,28 @@
 import {
+    // Drawer
     Drawer,
     DrawerBody,
     DrawerOverlay,
     DrawerContent,
     DrawerCloseButton,
     useDisclosure,
+    // Menu
+    Menu,
+    MenuButton,
+    MenuList,
 } from '@chakra-ui/react'
+
 import { Trigger } from '../utils/trigger';
-import { useLoaderData } from 'react-router-dom';
+import { useLoaderData, useParams } from 'react-router-dom';
 import React from 'react';
 import { AddToCartButton, Product } from '../views/store-front';
+import { getSubtotal, priceFormat } from '../utils/currency';
 
-export function CartTrigger({ triggerElement }: { triggerElement: React.ReactNode}) {
+export function CarTriggerForCheckout({ triggerElement }: { triggerElement: React.ReactNode}) {
     const { isOpen, onOpen, onClose } = useDisclosure();
-
     const loaderData = useLoaderData();
     const cartItems = loaderData?.carts;
+    const subtotal = getSubtotal(cartItems);
     const distinctItemCount = loaderData?.carts?.length;
 
     return (
@@ -31,13 +38,13 @@ export function CartTrigger({ triggerElement }: { triggerElement: React.ReactNod
             <DrawerOverlay />
             <DrawerContent className=''>
                 <DrawerCloseButton className='left-5' style={{top: '20px'}} />    
-                <DrawerBody className='mt-16' style={{paddingLeft: 0, paddingRight: 0}}>
-                    <div className='relative h-full'>
-                        <div className='px-5'>
+                <DrawerBody className='mt-16 grid' style={{padding: 0}}>
+                    <div className='relative grid'>
+                        <div className='px-5 max-h-screen overflow-scroll'>
                             <h1 className='text-4xl font-bold mb-8'>LCBO</h1>
                             <div className='mb-3 flex justify-between w-full'>
                                 <p className='font-semibold'>{distinctItemCount} {distinctItemCount > 1 ? "items" : "item"}</p>
-                                <p className='text-xl font-semibold'>75.48$</p>
+                                <p className='text-xl font-semibold'>{priceFormat(subtotal)}</p>
                             </div>
                             <ul className=''>
                                 {
@@ -49,8 +56,8 @@ export function CartTrigger({ triggerElement }: { triggerElement: React.ReactNod
                                 }
                             </ul>
                         </div>
-                        <div className='mt-8 w-full shadow-custom border-2 p-2 fixed bottom-0'>
-                            <button className='w-full font-bold text-xl hover:bg-gray-800 bg-black h-16 rounded-xl text-white'>Go to Checkout</button>
+                        <div id="checkout-section" className='sticky bottom-0 w-full h-28  shadow-custom border-2 px-2 grid place-items-center bg-white'>
+                            <button className='w-full font-bold text-xl hover:bg-green-800 bg-defaultGreen h-16 rounded-xl text-white'>Go to Checkout</button>
                         </div>
                     </div>
                 </DrawerBody>
@@ -73,34 +80,36 @@ function CartItem({product}: {product: Product}) {
                 </div>
             </div>
             <div>
-                <span className='font-semibold text-[14px]'>{product.price}$</span>&nbsp;
-                <span className='font-semibold text-white px-1 rounded text-[14px] bg-defaultGreen'>{product.offer}</span>
+                <span className='font-semibold text-[14px]'>{priceFormat(product.price)}</span>&nbsp;
+                { product.offer ? <span className='font-semibold text-white px-1 rounded text-[14px] bg-defaultGreen'>{product.offer}</span>: null }
             </div>
         </li>
     )
 }
 
-function getTotalItemCount(arr: Array<Product> = []) {
-    return arr?.reduce((acc, curr) => ({...acc, count: acc?.count + curr?.count}), {count: 0});
+function getSubtotalAndCount(arr: Array<Product> = []) {
+    return arr?.reduce((acc, curr) => ({...acc, count: acc?.count + curr?.count, price: acc?.price + curr?.price}), {count: 0, price: 0});
 }
 
-const cartIcon = (
-    <>
-        <span className="material-symbols-outlined text-defaultGreen">remove_shopping_cart</span>
-        <Ping/>
-    </>
-);
+const cartIcon = <><span className="material-symbols-outlined text-defaultGreen">remove_shopping_cart</span><Ping/></>;
 
 const emptyCartIcon = <span className="material-symbols-outlined text-defaultGreen">shopping_cart</span>
 
+function getCountByStore(storeId: string, storeCartInfos) {
+    const { count } = getSubtotalAndCount(storeCartInfos[storeId]?.cart || []);
+    return count;
+}
+
 export function CartIcon() {
-    const loaderData = useLoaderData();
-    const currCartCount = getTotalItemCount(loaderData.carts).count;
+    const { carts, storeCartInfos } = useLoaderData();
+    const { count: totalCount } = getSubtotalAndCount(carts);
+    const { storeId } = useParams();
+    const currStoreCount = getCountByStore(storeId, storeCartInfos);
 
     return (
-        <div className="flex justify-between">
-            {currCartCount > 0 ? cartIcon : emptyCartIcon}
-            <span className="font-semibold text-defaultGreen">. { currCartCount || 0} </span>
+        <div className="flex justify-center">
+            { totalCount > 0 ? cartIcon : emptyCartIcon }
+            <span className="font-semibold text-defaultGreen">. { storeId ? currStoreCount : totalCount} </span>
         </div>
     )
 }
@@ -113,5 +122,50 @@ function Ping() {
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-defaultGreen"></span>
             </span>
         </div>
+    )
+}
+
+export function CartButtonWithPopOver({ storeCartInfos }) {
+    const stores = Object.values(storeCartInfos);
+    return (
+        <Menu direction='rtl'>
+            <MenuButton as="button" className='rounded-3xl h-8 shadow-custom w-[6rem] px-2 py-5 text-md cursor-pointer text relative flex justify-center items-center hover:bg-gray-100'>
+                <CartIcon/>
+            </MenuButton>
+            <MenuList padding={0} className='rounded-3xl cursor-pointer' style={{borderRadius: '20px', overflow: 'hidden'}}>
+                <ul>
+                    {
+                        stores?.map(store => {
+                            return <Cart key={store?.name} store={store}/>
+                        })
+                    }
+                </ul>
+            </MenuList>
+        </Menu>
+    )
+}
+
+function Cart({ store }) {
+    const { count, price: subtotal } = getSubtotalAndCount(store?.cart);
+
+    return (
+        <li className='flex w-[25rem] justify-between border-t-[1px] p-4 hover:bg-smoke first:border-none'>
+            <div className='flex justify-between items-center w-full'>
+                <div className='flex justify-center items-center'>
+                    <div className='h-12 w-12 bg-blue-600 rounded-full'></div>
+                    <div className='ml-4'>
+                        <p className='text-[14px] font-bold'>{ store?.name }</p>
+                        <p className='text-[14px] font-semibold'>Subtotal: ${ subtotal }</p>
+                        <p className='text-[14px] font-bold'>{  }</p>
+                        <p className='text-[14px] font-bold text-defaultGreen'>{Math.random() * 10 > 4 ? "Closed . Open in 58 min": null }</p>
+                    </div>
+                </div>
+                <div>
+                    <div className='w-6 h-6 bg-defaultGreen relative rounded-full flex items-center justify-center font-bold'>
+                        <span className='text-white text-xs'>{ count }</span>
+                    </div>
+                </div>
+            </div>
+        </li>
     )
 }

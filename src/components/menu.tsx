@@ -73,9 +73,8 @@ export function Menu() {
                         <span className="material-symbols-outlined font-medium">translate</span>
                         <span className='ml-5'>English</span>
                     </MenuIntem>
-    
                 </ul>
-                <div className='bg-black h-2 w-full mb-3'></div>
+                <div className='bg-defaultGreen h-[2px] w-full mb-3 mt-1'></div>
                 <ul>
                     <MenuIntem to="" withIcon={false} onClick={onClose}>
                         Add your commerce
@@ -104,12 +103,11 @@ type TMenuItem = {
 function MenuIntem({ to, className, children, withIcon=true, onClick, hide, reloadDocument, ...rest }: TMenuItem) {
     return (
         <NavLink to={to} reloadDocument={reloadDocument}>
-            <li onClick={onClick} className={clsx('hover:bg-gray-100 px-3 w-full cursor-pointer', className, {
+            <li onClick={onClick} className={clsx('hover:bg-gray-100 px-3 w-full cursor-pointer last:border-none', className, {
                 'hidden': hide,
+                'border-b-[1px]': withIcon
             })} {...rest}>
-                <div className={clsx('font-medium text-lg h-12 px-3 flex justify-start items-center', {
-                    'border-b-[1px]': withIcon
-                })}>
+                <div className={clsx('font-medium text-lg h-12 px-3 flex justify-start items-center')}>
                     { children }
                 </div>
             </li>

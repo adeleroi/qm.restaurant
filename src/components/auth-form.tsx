@@ -121,9 +121,9 @@ function AuthFormFooter() {
   const {action, setAction} = useLoginFormAction();
   const signup = action === 'signup';
 
-  function getNextAction(e) {
+  function getNextAction(e: React.SyntheticEvent<HTMLElement>) {
     // reset the form when we use different mode.
-    e.target?.closest('form').reset();
+    (e.target as HTMLElement)?.closest('form')?.reset();
     switch(action) {
       case 'login':
         setAction('signup');

@@ -2,8 +2,8 @@ import clsx from "clsx";
 import React from "react";
 import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect, useFetcher, useLoaderData } from "react-router-dom"
 import { db } from "../firebase/fireStore";
-import { collection, doc, getDoc, getDocs, runTransaction } from "firebase/firestore";
-import { useFirebaseAuth } from "../firebase/auth";
+import { collection, doc, getDoc, getDocs, runTransaction, serverTimestamp } from "firebase/firestore";
+// import { useFirebaseAuth } from "../firebase/auth";
 import Cookies from "js-cookie";
 
 export type Product = {
@@ -13,6 +13,7 @@ export type Product = {
     description: string,
     price: number,
     offer: string,
+    storeId: string,
 }
 
 export async function loader({params}: LoaderFunctionArgs) {
@@ -26,7 +27,7 @@ export async function loader({params}: LoaderFunctionArgs) {
 
     const cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
     const productSnapshot = await getDocs(collection(db, "store", storeId, "product"));
-    
+
     cartSnapshot.forEach(cartItem => {
         carts.push({id: cartItem.id, ...cartItem.data()} as Product);
     })
@@ -42,13 +43,35 @@ export async function loader({params}: LoaderFunctionArgs) {
         products.push(productInStore);
     });
 
+    // const uniqueStoreList = [...new Set(carts.map(item => item.storeId))];
+
+    // let storeInfos = await Promise.all(
+    //     uniqueStoreList.map(storeId => getDoc(doc(db, "store", storeId))),
+    // )
+    // storeInfos = storeInfos.reduce((acc, curr) => ({ ...acc, [curr.id]: curr.data()}), {});
+    
+    // const cartMap: Record<string, Array<Product>> = {};
+    // carts.forEach(item => {
+    //     if (!cartMap[item.storeId]) {
+    //         cartMap[item.storeId] = [];
+    //     }
+    //     cartMap[item.storeId].push(item);
+    // })
+
+    // for (const [key, _] of Object.entries(storeInfos)) {
+    //     storeInfos[key]['cart']  = cartMap[key]
+    // }
+    // console.log('storeInfos', storeInfos);
+    // // console.log('cartMap', cartMap);
+
     return json({products, storeId});
 }
 
 export async function action({request, params}: ActionFunctionArgs) {
     const formData = await request.formData();
     const storeId = params?.storeId as string;
-    const { productId, itemCount, userId } = Object.fromEntries(formData) as Record<string, string>;
+    const userId = Cookies.get('qm_session_id') as string;
+    const { productId, itemCount } = Object.fromEntries(formData) as Record<string, string>;
 
     const productInStore = await getDoc(doc(db, "store", storeId, "product", productId));
     const productInCartRef = doc(db, "users", userId, "cart", productId);
@@ -58,16 +81,21 @@ export async function action({request, params}: ActionFunctionArgs) {
         if (!productInCartDoc.exists()) {
             transaction.set(productInCartRef, {
                 ...productInStore.data(),
+                timestamp: serverTimestamp(),
                 count: +itemCount,
+                storeId,
             })
             return;
         }
-        transaction.update(productInCartRef, {count: +itemCount});
+        if (+itemCount !== 0) {
+            transaction.update(productInCartRef, {count: +itemCount, timestamp: serverTimestamp()});
+        } else {
+            transaction.delete(productInCartRef);
+        }
     });
 
     return json({});
 }
-
 
 export function StoreFront() {
     const loaderData = useLoaderData();
@@ -128,7 +156,7 @@ export function AddToCartButton({cartCount, productId, action=""}: { cartCount: 
     const [isOpen, setIsOpen] = React.useState<boolean|null>(null)
     const [ count, setCount ] = React.useState(cartCount ?? 0);
     const fetcher = useFetcher();
-    const { data } = useFirebaseAuth();
+    // const { data } = useFirebaseAuth();
 
     function handleBlur(event) {
         if (!event.currentTarget.contains(event.relatedTarget)) {
@@ -176,7 +204,7 @@ export function AddToCartButton({cartCount, productId, action=""}: { cartCount: 
                     "hidden": !isOpen,
                 })}>{count}</button>
                 <input type="hidden" name="productId" value={productId}/>
-                <input type="hidden" name="userId" value={data?.uid || ''}/>
+                {/* <input type="hidden" name="userId" value={data?.uid || ''}/> */}
                 <button
                     id="test-id"
                     value={count}

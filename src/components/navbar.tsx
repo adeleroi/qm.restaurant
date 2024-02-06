@@ -4,8 +4,9 @@ import { Search } from "./search";
 import { useLoginFormAction } from "../context/hooks";
 import { AuthFormTrigger } from "./auth-form";
 import { Menu } from "./menu";
-import { CartIcon, CartTrigger } from "./cart";
+import { CarTriggerForCheckout, CartButtonWithPopOver, CartIcon } from "./cart";
 import { useFirebaseAuth } from "../firebase/auth";
+import { useLoaderData, useParams } from "react-router-dom";
 
 export function Navbar() {
     return (
@@ -24,20 +25,24 @@ export function Navbar() {
 
 function ButtonSection() {
     const { setAction } = useLoginFormAction();
+    const { storeCartInfos } = useLoaderData();
     const { loading, complete, data: user }: ReturnType<typeof useFirebaseAuth> = useFirebaseAuth()
+    const params = useParams()
 
     if (loading) return null;
 
     if (complete && user) {
         return (
-            <CartTrigger
-                triggerElement={
-                    <Button size="small"  className="h-8 shadow-custom bg-white hover:bg-gray-100 text-black relative">
-                        <CartIcon/>
-                    </Button>
+            <>
+                {
+                    params.storeId ? (
+                    <CarTriggerForCheckout triggerElement={<Button size="small"  className="h-8 shadow-custom bg-white hover:bg-gray-100 text-black relative"><CartIcon/></Button>}/>
+                    ) : (
+                        <CartButtonWithPopOver storeCartInfos={storeCartInfos}/>
+                    )
                 }
-            />
-            )
+            </>
+        )
     }
     return (
         <div className="flex w-80 gap-2 items-center justify-end">
