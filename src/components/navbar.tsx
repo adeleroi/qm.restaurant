@@ -9,10 +9,11 @@ import { useFirebaseAuth } from "../firebase/auth";
 import { useLoaderData, useParams } from "react-router-dom";
 
 export function Navbar() {
+    const { loggedIn } = useFirebaseAuth();
     return (
         <nav className="flex justify-between w-full py-[0.5rem] px-16 items-center bg-white shadow-xl gap-2 top-0 z-20  sticky">
             <div className="w-68 flex items-center justify-start gap-4">
-                <Menu/>
+                { loggedIn ? <Menu/> : null }
                 <Logo/>
             </div>
             <div className="hidden">
@@ -26,8 +27,8 @@ export function Navbar() {
 function ButtonSection() {
     const { setAction } = useLoginFormAction();
     const { storeCartInfos } = useLoaderData();
-    const { loading, complete, data: user }: ReturnType<typeof useFirebaseAuth> = useFirebaseAuth()
-    const params = useParams()
+    const { loading, complete, data: user }: ReturnType<typeof useFirebaseAuth> = useFirebaseAuth();
+    const params = useParams();
 
     if (loading) return null;
 
@@ -38,7 +39,9 @@ function ButtonSection() {
                     params.storeId ? (
                     <CarTriggerForCheckout triggerElement={<Button size="small"  className="h-8 shadow-custom bg-white hover:bg-gray-100 text-black relative"><CartIcon/></Button>}/>
                     ) : (
-                        <CartButtonWithPopOver storeCartInfos={storeCartInfos}/>
+                        <CartButtonWithPopOver storeCartInfos={storeCartInfos}>
+                            <CartIcon/>
+                        </CartButtonWithPopOver>
                     )
                 }
             </>

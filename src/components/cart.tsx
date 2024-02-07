@@ -11,17 +11,20 @@ import {
     MenuButton,
     MenuList,
 } from '@chakra-ui/react'
-
 import { Trigger } from '../utils/trigger';
-import { useLoaderData, useParams } from 'react-router-dom';
+import { Link, useFetcher, useLoaderData, useParams } from 'react-router-dom';
 import React from 'react';
 import { AddToCartButton, Product } from '../views/store-front';
 import { getSubtotal, priceFormat } from '../utils/currency';
+import clsx from 'clsx';
 
 export function CarTriggerForCheckout({ triggerElement }: { triggerElement: React.ReactNode}) {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const loaderData = useLoaderData();
-    const cartItems = loaderData?.carts;
+    const { storeId } = useParams();
+    const storeCartInfos = loaderData?.storeCartInfos;
+    const storeInfos = storeCartInfos[storeId];
+    const cartItems = storeInfos.cart;
     const subtotal = getSubtotal(cartItems);
     const distinctItemCount = loaderData?.carts?.length;
 
@@ -36,15 +39,27 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
             placement='right'
             onClose={onClose}>
             <DrawerOverlay />
-            <DrawerContent className=''>
-                <DrawerCloseButton className='left-5' style={{top: '20px'}} />    
-                <DrawerBody className='mt-16 grid' style={{padding: 0}}>
-                    <div className='relative grid'>
-                        <div className='px-5 max-h-screen overflow-scroll'>
-                            <h1 className='text-4xl font-bold mb-8'>LCBO</h1>
+            <DrawerContent>
+                <DrawerBody className='pt-a grid ' style={{padding: 0, position: 'relative', height: '100vh'}}>
+                    <div className=''>
+                        <div className='flex justify-between'>
+                            <div className='flex justify-end w-full px-6 mt-4 z-20 text-md right-5 font-bold'>
+                                <DrawerCloseButton style={{zIndex: 2, fontSize: '16px', borderRadius: '50%', padding: '0px', left: '10px'}} />
+                                <CartButtonWithPopOver storeCartInfos={storeCartInfos} as="div" withNavigation={false}>
+                                    <span className='hover:underline cursor-pointer'>
+                                        Cart list(3)
+                                    </span>
+                                </CartButtonWithPopOver>
+                            </div> 
+                        </div>
+                        <div className='px-5'>
+                            <div className='mt-12 mb-14'>
+                                <h1 className='text-2xl text-center font-bold'>{ storeInfos.name }</h1>
+                                <p className='text-center text-xs text-gray-500'>{ storeInfos.location.address }</p>
+                            </div>
                             <div className='mb-3 flex justify-between w-full'>
                                 <p className='font-semibold'>{distinctItemCount} {distinctItemCount > 1 ? "items" : "item"}</p>
-                                <p className='text-xl font-semibold'>{priceFormat(subtotal)}</p>
+                                <p className='text-md font-semibold'>{priceFormat(subtotal)}</p>
                             </div>
                             <ul className=''>
                                 {
@@ -56,14 +71,23 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
                                 }
                             </ul>
                         </div>
-                        <div id="checkout-section" className='sticky bottom-0 w-full h-28  shadow-custom border-2 px-2 grid place-items-center bg-white'>
-                            <button className='w-full font-bold text-xl hover:bg-green-800 bg-defaultGreen h-16 rounded-xl text-white'>Go to Checkout</button>
-                        </div>
                     </div>
                 </DrawerBody>
+                <CheckoutButton subtotal={subtotal}/>
             </DrawerContent>
         </Drawer>
         </>
+    )
+}
+
+function CheckoutButton({subtotal}) {
+    return (
+        <div id="checkout-section" className='sticky top-full w-full h-28  shadow-custom border-2 px-2 grid place-items-center bg-white'>
+            <button className='w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen h-14 rounded-3xl text-white flex justify-between items-center px-4'>
+                <span>Checkout</span>
+                <span>{priceFormat(subtotal)}</span>
+            </button>   
+        </div>
     )
 }
 
@@ -91,25 +115,20 @@ function getSubtotalAndCount(arr: Array<Product> = []) {
     return arr?.reduce((acc, curr) => ({...acc, count: acc?.count + curr?.count, price: acc?.price + curr?.price}), {count: 0, price: 0});
 }
 
-const cartIcon = <><span className="material-symbols-outlined text-defaultGreen">remove_shopping_cart</span><Ping/></>;
+const fullCartIcon = <><span className="material-symbols-outlined text-defaultGreen">remove_shopping_cart</span><Ping/></>;
 
 const emptyCartIcon = <span className="material-symbols-outlined text-defaultGreen">shopping_cart</span>
 
-function getCountByStore(storeId: string, storeCartInfos) {
-    const { count } = getSubtotalAndCount(storeCartInfos[storeId]?.cart || []);
-    return count;
-}
-
 export function CartIcon() {
-    const { carts, storeCartInfos } = useLoaderData();
-    const { count: totalCount } = getSubtotalAndCount(carts);
+    const {  storeCartInfos } = useLoaderData();
     const { storeId } = useParams();
-    const currStoreCount = getCountByStore(storeId, storeCartInfos);
+    const { count: totalCount } = getSubtotalAndCount(storeCartInfos[storeId]?.cart);
+    const currStoreCount = Object.keys(storeCartInfos)?.length;
 
     return (
         <div className="flex justify-center">
-            { totalCount > 0 ? cartIcon : emptyCartIcon }
-            <span className="font-semibold text-defaultGreen">. { storeId ? currStoreCount : totalCount} </span>
+            { currStoreCount > 0 ? fullCartIcon : emptyCartIcon }
+            <span className="font-semibold text-defaultGreen">. { !storeId ? currStoreCount : totalCount} </span>
         </div>
     )
 }
@@ -125,23 +144,43 @@ function Ping() {
     )
 }
 
-export function CartButtonWithPopOver({ storeCartInfos }) {
-    const stores = Object.values(storeCartInfos);
+
+export function CartButtonWithPopOver({ children, storeCartInfos, withNavigation=true, as="button" }) {
+    const stores = Object.entries(storeCartInfos);
+
     return (
         <Menu direction='rtl'>
-            <MenuButton as="button" className='rounded-3xl h-8 shadow-custom w-[6rem] px-2 py-5 text-md cursor-pointer text relative flex justify-center items-center hover:bg-gray-100'>
-                <CartIcon/>
-            </MenuButton>
-            <MenuList padding={0} className='rounded-3xl cursor-pointer' style={{borderRadius: '20px', overflow: 'hidden'}}>
-                <ul>
-                    {
-                        stores?.map(store => {
-                            return <Cart key={store?.name} store={store}/>
-                        })
-                    }
-                </ul>
-            </MenuList>
+            {({onClose}) => (
+                <>
+                    <MenuButton as={as} className={clsx("", {'rounded-3xl h-8 shadow-custom w-[6rem] px-2 py-5 text-md cursor-pointer text relative flex justify-center items-center hover:bg-gray-100': as === 'button'})}>
+                        { children }
+                    </MenuButton>
+                    <MenuList padding={0} className='rounded-3xl cursor-pointer' style={{borderRadius: '20px', overflow: 'hidden'}}>
+                        {
+                            stores?.map(store => {
+                                return (
+                                    <CartMenuItem withNavigation={withNavigation} onClose={onClose} storeId={store[0]} key={store[1]?.name}>
+                                        <Cart store={store[1]}/>
+                                    </CartMenuItem>
+                                )
+                            })
+                        }
+                    </MenuList>
+                </>
+            )}
         </Menu>
+    )
+}
+
+function CartMenuItem({ withNavigation=true, storeId, children, onClose }) {
+    // const fetcher = useFetcher();
+    if (withNavigation) {
+        return <Link onClick={onClose} to={`store/${storeId}`}>{children}</Link>
+    }
+    return (
+        <div onClick={onClose}>
+            {children}
+        </div>
     )
 }
 

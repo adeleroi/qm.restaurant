@@ -43,28 +43,10 @@ export async function loader({params}: LoaderFunctionArgs) {
         products.push(productInStore);
     });
 
-    // const uniqueStoreList = [...new Set(carts.map(item => item.storeId))];
+    const storeDoc = await getDoc(doc(db, "store", storeId));
+    const storeInfos = { id: storeDoc, ...storeDoc.data() }
 
-    // let storeInfos = await Promise.all(
-    //     uniqueStoreList.map(storeId => getDoc(doc(db, "store", storeId))),
-    // )
-    // storeInfos = storeInfos.reduce((acc, curr) => ({ ...acc, [curr.id]: curr.data()}), {});
-    
-    // const cartMap: Record<string, Array<Product>> = {};
-    // carts.forEach(item => {
-    //     if (!cartMap[item.storeId]) {
-    //         cartMap[item.storeId] = [];
-    //     }
-    //     cartMap[item.storeId].push(item);
-    // })
-
-    // for (const [key, _] of Object.entries(storeInfos)) {
-    //     storeInfos[key]['cart']  = cartMap[key]
-    // }
-    // console.log('storeInfos', storeInfos);
-    // // console.log('cartMap', cartMap);
-
-    return json({products, storeId});
+    return json({products, storeInfos});
 }
 
 export async function action({request, params}: ActionFunctionArgs) {
@@ -75,7 +57,7 @@ export async function action({request, params}: ActionFunctionArgs) {
 
     const productInStore = await getDoc(doc(db, "store", storeId, "product", productId));
     const productInCartRef = doc(db, "users", userId, "cart", productId);
-    
+
     await runTransaction(db, async (transaction) => {
         const productInCartDoc = await transaction.get(productInCartRef);
         if (!productInCartDoc.exists()) {
@@ -99,8 +81,9 @@ export async function action({request, params}: ActionFunctionArgs) {
 
 export function StoreFront() {
     const loaderData = useLoaderData();
-    const data = (loaderData as unknown as {products: Array<Product>, storeId: string})?.products as Array<Product>;
-
+    console.log('loaderData', loaderData);
+    const productList = (loaderData as unknown as {products: Array<Product>, storeId: string})?.products as Array<Product>;
+    const storeInfos = loaderData.storeInfos;
     return (
         <section className="grid pt-16 max-w-6xl mx-auto">
             <div className="flex w-full items-center pb-4 bg-brown-bg rounded-lg">
@@ -109,15 +92,15 @@ export function StoreFront() {
                         <img className='w-20 h-20 object-cover rounded-full' src="https://cdn.theorg.com/f1bbabce-f3da-42a0-89fe-8be4f53af00f_thumb.jpg" alt="lcbo-logo"/>
                     </div>
                     <div className="text-black">
-                        <p className="font-bold text-3xl">LCBO</p>
-                        <span className="text-xs font-semibold">Delivery fee (3.69$) . 275 Rideau St, Ottawa, K1N5Y3</span>
+                        <p className="font-bold text-3xl">{ storeInfos?.name }</p>
+                        <span className="text-xs font-semibold">Delivery fee (3.69$) . {storeInfos.location.address}</span>
                     </div>
                 </div>
             </div>
             <div className="mt-10">
                 <ul className="grid grid-cols-4 gap-4">
                     {
-                        data.map((prod, idx) => {
+                        productList?.map((prod, idx) => {
                             return (
                                 <li key={idx}>
                                     <Product product={prod}/>

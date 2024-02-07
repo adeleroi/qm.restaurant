@@ -55,15 +55,15 @@ export function ArrowPulseButton({text, direction='right', ...rest}:{text?: stri
 
 export function CirclePulseButton({ themeColor }: { themeColor?: string}) {
   const bgColor = 'bg-' + themeColor;
-  const frColor = 'focus:ring-' + themeColor;
+  const frColor = 'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500' + themeColor;
   const borderColor = 'border-' + themeColor;
   const ghtColor = 'group-hover:text-' + themeColor;
   return (
     <div className='absolute top-1/2 -translate-y-1/2 right-2 group'>
-      <button className={clsx('w-[40px] h-[40px] rounded-full border-2  flex items-center justify-center group-hover:bg-[#EEEEEE] focus:ring-2 focus:ring-offset-2 ', 
+      <button className={clsx('w-[40px] h-[40px] rounded-full border-2  flex items-center justify-center group-hover:bg-[#EEEEEE]', 
         bgColor, borderColor, frColor
       )}>
-        <span className={clsx("ml-1 material-symbols-outlined animate-slide-right-infinite text-white", ghtColor)} >arrow_forward</span>
+        <span className={clsx("ml-1 text-white material-symbols-outlined animate-slide-right-infinite", ghtColor)} >arrow_forward</span>
       </button>
     </div>
   )
