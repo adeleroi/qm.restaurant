@@ -26,16 +26,6 @@ export async function loader() {
   const userId = Cookies.get('qm_session_id') as string;
   if (!userId) return json({});
 
-  // const carts: Array<Product> = []
-  // let cartSnapshot = [] as unknown as Awaited<Promise<QuerySnapshot<DocumentData, DocumentData>>>;
-  // try {
-  //   cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
-  // } catch(e) {
-  //   console.error('Error trying to get the cart');
-  // }
-  // cartSnapshot.forEach(cartItem => {
-  //     carts.push({id: cartItem.id, ...cartItem.data()} as Product);
-  // })
   const carts: Array<Product> = [];
 
   const cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
@@ -63,7 +53,7 @@ export async function loader() {
       storeInfos[key]['cart']  = cartMap[key]
   }
 
-  return json({carts, storeCartInfos: storeInfos})
+  return json({carts, storeCartInfos: storeInfos, cartCount: uniqueStoreList.length})
 }
 
 // https://github.com/invertase/react-native-firebase-docs/blob/master/docs/auth/reference/auth.md

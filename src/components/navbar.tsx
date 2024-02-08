@@ -28,7 +28,7 @@ function ButtonSection() {
     const { setAction } = useLoginFormAction();
     const { storeCartInfos } = useLoaderData();
     const { loading, complete, data: user }: ReturnType<typeof useFirebaseAuth> = useFirebaseAuth();
-    const params = useParams();
+    const { storeId } = useParams();
 
     if (loading) return null;
 
@@ -36,10 +36,10 @@ function ButtonSection() {
         return (
             <>
                 {
-                    params.storeId ? (
-                    <CarTriggerForCheckout triggerElement={<Button size="small"  className="h-8 shadow-custom bg-white hover:bg-gray-100 text-black relative"><CartIcon/></Button>}/>
+                    storeId ? (
+                    <CarTriggerForCheckout triggerElement={<Button size="small"  className="h-8 shadow-custom bg-defaultGreen hover:bg-green-800 text-black relative"><CartIcon/></Button>}/>
                     ) : (
-                        <CartButtonWithPopOver storeCartInfos={storeCartInfos}>
+                        <CartButtonWithPopOver className="relative bg-defaultGreen p-2 rounded-3xl px-3 cursor-pointer hover:bg-green-800" storeCartInfos={storeCartInfos}>
                             <CartIcon/>
                         </CartButtonWithPopOver>
                     )

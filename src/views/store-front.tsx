@@ -81,7 +81,6 @@ export async function action({request, params}: ActionFunctionArgs) {
 
 export function StoreFront() {
     const loaderData = useLoaderData();
-    console.log('loaderData', loaderData);
     const productList = (loaderData as unknown as {products: Array<Product>, storeId: string})?.products as Array<Product>;
     const storeInfos = loaderData.storeInfos;
     return (
