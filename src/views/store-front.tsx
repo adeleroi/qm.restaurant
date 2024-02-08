@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import React from "react";
-import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect, useFetcher, useLoaderData } from "react-router-dom"
+import { ActionFunctionArgs, Link, LoaderFunctionArgs, Outlet, json, redirect, useFetcher, useLoaderData } from "react-router-dom"
 import { db } from "../firebase/fireStore";
 import { collection, doc, getDoc, getDocs, runTransaction, serverTimestamp } from "firebase/firestore";
 // import { useFirebaseAuth } from "../firebase/auth";
@@ -102,13 +102,16 @@ export function StoreFront() {
                         productList?.map((prod, idx) => {
                             return (
                                 <li key={idx}>
-                                    <Product product={prod}/>
+                                    <Link to={`product/${prod.id}`}>
+                                        <Product product={prod}/>
+                                    </Link>
                                 </li>
                             )
                         })
                     }
                 </ul>
             </div>
+            <Outlet/>
         </section>
     )
 }

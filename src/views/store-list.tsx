@@ -3,7 +3,6 @@ import { StoreCard } from "../components/card";
 import { getDocs } from "firebase/firestore";
 import { storeCollection } from "../firebase/fireStore";
 
-
 type StoreOffer = {
     isPercentage: boolean,
     value: number,
@@ -72,7 +71,7 @@ export function StoreList() {
                                 key={idx}
                             />
                         </Link>
-                ))
+                    ))
                 }
             </ul>
         </section>

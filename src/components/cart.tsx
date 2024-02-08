@@ -127,9 +127,9 @@ function getSubtotalAndCount(arr: Array<Product> = []) {
     return arr?.reduce((acc, curr) => ({...acc, count: acc?.count + curr?.count, price: acc?.price + curr?.price}), {count: 0, price: 0});
 }
 
-const fullCartIcon = <><span className="material-symbols-outlined text-white">remove_shopping_cart</span></>;
+const fullCartIcon = <><span className="material-symbols-outlined text-white font-bold text-2xl">remove_shopping_cart</span></>;
 
-const emptyCartIcon = <span className="material-symbols-outlined text-white">shopping_cart</span>
+const emptyCartIcon = <span className="material-symbols-outlined text-white font-bold">shopping_cart</span>
 
 export function CartIcon() {
     const {  storeCartInfos, carts } = useLoaderData();
@@ -139,9 +139,9 @@ export function CartIcon() {
     // const numberOfCart = Object.keys(storeCartInfos)?.length;
 
     return (
-        <div className="flex justify-center text-white font-semibold">
+        <div className="flex justify-center items-center text-white text-xl">
             { storeId && numberOfCartItemByStore == 0 || !storeId && totalNumberOfCartItem == 0 ? emptyCartIcon : fullCartIcon }
-            <span className=""> { storeId ? numberOfCartItemByStore : totalNumberOfCartItem }</span>
+            <span className="px-2 font-bold"> { storeId ? numberOfCartItemByStore : totalNumberOfCartItem }</span>
         </div>
     )
 }
@@ -176,7 +176,7 @@ function Ping({color="defaultGreen"}: {color?: string}) {
 
 
 export function CartButtonWithPopOver({ onClick, className, children, storeCartInfos, withNavigation=true, as="button" }) {
-    const stores = Object.entries(storeCartInfos);
+    const stores = storeCartInfos && Object.entries(storeCartInfos);
 
     return (
         <Menu direction='rtl'>
