@@ -95,7 +95,7 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
 function CheckoutButton({subtotal}) {
     return (
         <div id="checkout-section" className='sticky top-full w-full py-2  shadow-custom border-2 px-2 grid place-items-center bg-white'>
-            <button className='w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen h-14 rounded-3xl text-white flex justify-between items-center px-4'>
+            <button className='w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen h-14 rounded-xl text-white flex justify-between items-center px-4'>
                 <span>Checkout</span>
                 <span>{priceFormat(subtotal)}</span>
             </button>   
@@ -146,24 +146,7 @@ export function CartIcon() {
     )
 }
 
-// export function CartIcon() {
-//     const {  storeCartInfos, carts } = useLoaderData();
-//     const { storeId } = useParams();
-//     const totalNumberOfCartItem = getSubtotalAndCount(carts).count;
-//     const { count: numberOfCartItemByStore } = getSubtotalAndCount(storeCartInfos[storeId]?.cart);
-//     const numberOfCart = Object.keys(storeCartInfos)?.length;
-
-//     return (
-//         <div className="flex justify-center text-white font-semibold">
-//             <span className='pr-1'>{ numberOfCart }</span>
-//             { numberOfCart > 0 ? fullCartIcon : emptyCartIcon }
-//             <span className='px-2'>|</span>
-//             <span className=""> { storeId ? numberOfCartItemByStore : totalNumberOfCartItem } articles</span>
-//         </div>
-//     )
-// }
-
-function Ping({color="defaultGreen"}: {color?: string}) {
+export function Ping({color="defaultGreen"}: {color?: string}) {
     return (
         <div data-test-id="cart-ping" className="absolute top-0 right-0">
             <span className="relative flex h-3 w-3">
