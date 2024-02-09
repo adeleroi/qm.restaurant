@@ -14,7 +14,7 @@ export type TUseFirebaseAuth = {
     loggedOut: boolean,
 }
 
-export function FirebaseAuthProvider( {children }: { children?: React.ReactNode}) {
+export function FirebaseAuthProvider( { children }: { children?: React.ReactNode}) {
     const [ status, setStatus ] = React.useState<Status>('idle');
     const [ user, setUser ] = React.useState<User|null>(null);
 

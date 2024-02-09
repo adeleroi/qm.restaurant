@@ -70,9 +70,7 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
                                     <ul className=''>
                                         {
                                             cartItems?.map((prod:Product) => {
-                                                return (
-                                                    <CartItem key={prod.id} product={prod}/>
-                                                )          
+                                                return <CartItem product={prod} storeId={storeId} key={prod.id}/>
                                             })
                                         }
                                     </ul>
@@ -85,39 +83,46 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
                         }
                     </div>
                 </DrawerBody>
-                { cartItems?.length ? <CheckoutButton subtotal={subtotal}/> : null }
+                { cartItems?.length ?
+
+                    <div className='sticky top-full w-full py-2  shadow-custom border-2 px-2 grid place-items-center bg-white'>
+                        <ButtonActionAndValue subtotal={subtotal}>Chekout</ButtonActionAndValue>
+                    </div> :
+                    null }
             </DrawerContent>
         </Drawer>
         </>
     )
 }
 
-function CheckoutButton({subtotal}) {
+export function ButtonActionAndValue({subtotal, children}: { subtotal: number, children: React.ReactNode }) {
     return (
-        <div id="checkout-section" className='sticky top-full w-full py-2  shadow-custom border-2 px-2 grid place-items-center bg-white'>
-            <button className='w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen h-14 rounded-xl text-white flex justify-between items-center px-4'>
-                <span>Checkout</span>
-                <span>{priceFormat(subtotal)}</span>
-            </button>   
-        </div>
+        <button className='w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen h-14 rounded-xl text-white flex justify-between items-center px-4'>
+            <span>{ children }</span>
+            <span>{priceFormat(subtotal)}</span>
+        </button>   
     )
 }
 
-function CartItem({product}: {product: Product}) {
+function CartItem({ product, storeId }: { product: Product, storeId?: string}) {
     return (
-        <li className='relative w-full items-end py-3 pb-6 border-t-2 cursor-pointer hover:bg-smoke'>
-            <div className='h-full flex justify-between items-start'>
-                <div className='flex items-start'>
-                    <div className='w-12 h-12 bg-gray-400 mb-2'></div>
-                    <h1 className='pl-2 text-md font-semibold'>{product.name}</h1>
+        <li className='relative'>
+            <Link key={product.id} to={`store/${storeId}/product/${product.id}`}>
+                <div className='w-full items-end py-3 pb-6 border-t-2 cursor-pointer hover:bg-smoke'>
+                    <div className='h-full flex justify-between items-start'>
+                        <div className='flex items-start'>
+                            <div className='w-12 h-12 bg-gray-400 mb-2'></div>
+                            <h1 className='pl-2 text-md font-semibold'>{product.name}</h1>
+                        </div>
+                    </div>
+                    <div>
+                        <span className='font-semibold text-[14px]'>{priceFormat(product.price)}</span>&nbsp;
+                        { product.offer ? <span className='font-semibold text-white px-1 rounded text-[14px] bg-defaultGreen'>{product.offer}</span>: null }
+                    </div>
                 </div>
-                <div className='absolute top-3 right-0'>
-                    <AddToCartButton action='store/:storeId' productId={product.id} cartCount={product.count}/>
-                </div>
-            </div>
-            <div>
-                <span className='font-semibold text-[14px]'>{priceFormat(product.price)}</span>&nbsp;
-                { product.offer ? <span className='font-semibold text-white px-1 rounded text-[14px] bg-defaultGreen'>{product.offer}</span>: null }
+            </Link>
+            <div className='absolute top-4 right-0 z-0'>
+                <AddToCartButton action='store/:storeId' productId={product.id} cartCount={product.count}/>
             </div>
         </li>
     )

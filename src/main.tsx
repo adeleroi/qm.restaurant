@@ -12,7 +12,7 @@ import { ErrorPage } from './views/error.tsx';
 import { Root } from './views/home.tsx';
 import { action as rootAction, loader as rootLoader } from './App.tsx';
 import { StoreFront, action as storeFrontAction, loader as storeFrontLoader } from './views/store-front.tsx';
-import { ProductModal } from './views/productModal.tsx';
+import { ProductModal, loader as ProductModalLoader } from './views/productModal.tsx';
 
 
 const router = createBrowserRouter([
@@ -45,7 +45,8 @@ const router = createBrowserRouter([
         children: [
           {
             path: "product/:productId",
-            element: <ProductModal/>
+            element: <ProductModal/>,
+            loader: ProductModalLoader,
           }
         ]
       },

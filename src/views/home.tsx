@@ -1,7 +1,18 @@
-import { BasicCard, FoodCard, StoreCard } from "../components/card";
+import { BasicCard, CountryCard, StoreCard } from "../components/card";
 import { Hero } from "../components/hero";
 import { ArrowButton } from "../components/button";
 import { H2 } from "../utils/typography";
+import Nigeria from '../assets/country-flag/nigeria.png';
+import China from '../assets/country-flag/china.png';
+import Italy from '../assets/country-flag/italy.png';
+import IvoryCoast from '../assets/country-flag/ivory-coast.png';
+
+const COUNTRY_FOODS = [
+    { image: "https://restaurantclicks.com/wp-content/uploads/2022/06/Popular-Nigerian-Food.jpg", flag: Nigeria, name: "Nigeria", description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. blanditiis." },
+    { image: "https://images.pexels.com/photos/6896514/pexels-photo-6896514.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1", flag: China, name: "China", description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. blanditiis." },
+    { image: "https://www.cuisineo.com/images/pays/recettes-espagnole-pieuvres.jpg", flag: Italy, name: "Italy", description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. blanditiis." },
+    { image: "https://i.ytimg.com/vi/0auGEKaFYdk/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDz6NBMRS0p_4UNYQ6GU8sJymA09A", flag: IvoryCoast, name: "Côte d'Ivoire", description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. blanditiis." },
+]
 
 export function Root() {
     return (
@@ -37,12 +48,12 @@ export function Root() {
             </div>
             <ul className='flex w-full gap-4 max-w-6xl'>
                 {
-                Array.from({length: 4}).map((_, idx) => (
-                    <FoodCard
-                        title="Nigeria"
-                        description="Lorem ipsum dolor sit amet, consectetur adipisicing elit. blanditiis."
-                        alt="img"
-                        src="https://images.pexels.com/photos/5929/food-salad-dinner-eating.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                COUNTRY_FOODS.map((country, idx) => (
+                    <CountryCard
+                        name={country.name}
+                        description={country.description}
+                        flag={country.flag}
+                        image={country.image}
                         className='group relative bg-rose-300 h-[380px] overflow-hidden flex-1 cursor-pointer hover:grow-[1.3] transition-all'
                         key={idx}
                     />

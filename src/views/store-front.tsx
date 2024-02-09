@@ -102,9 +102,7 @@ export function StoreFront() {
                         productList?.map((prod, idx) => {
                             return (
                                 <li key={idx}>
-                                    <Link to={`product/${prod.id}`}>
-                                        <Product product={prod}/>
-                                    </Link>
+                                    <Product product={prod}/>
                                 </li>
                             )
                         })
@@ -122,16 +120,18 @@ type ProductProps = {
 
 export function Product({product}: ProductProps) {
     return (
-        <div className="rounded-xl overflow-hidden p-2 pb-4 cursor-pointer">
-            <div className="relative p-4 h-44 rounded-lg bg-smoke mb-4">
-                <img src="" alt=""/>
-                <div className="absolute right-2 bottom-2">
-                    <AddToCartButton cartCount={product?.count} productId={product.id}/>
+        <div className="relative rounded-xl overflow-hidden p-2 pb-4 cursor-pointer">
+            <Link to={`product/${product.id}`}>
+                <div className="p-4 h-44 rounded-lg bg-smoke mb-4">
+                    <img src="" alt=""/>
                 </div>
-            </div>
-            <div>
-                <span className="text-xs">{product.name}</span>
-                <p className="text-xs">{product.description}</p>
+                <div>
+                    <span className="text-xs">{product.name}</span>
+                    <p className="text-xs">{product.description}</p>
+                </div>
+            </Link>
+            <div className="absolute right-4 bottom-20">
+                <AddToCartButton cartCount={product?.count} productId={product.id}/>
             </div>
         </div>
     )

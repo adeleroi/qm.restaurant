@@ -1,11 +1,11 @@
 import clsx from "clsx";
 
-type FoodCardProps = {
+
+type BasicCard = {
     src?: string,
     className?: string,
     alt:string,
     description: string,
-    title: string,
     deliveryTime?: string,
     offer?: string
 };
@@ -20,13 +20,26 @@ type StoreCard = {
     offer?: string
 }
 
-export function FoodCard({src, className, alt, title, description}: FoodCardProps) {
+type CountryCard = {
+    flag: string,
+    image: string,
+    className: string,
+    name: string,
+    description: string,
+}
+
+export function CountryCard({flag, image, className, name, description}: CountryCard) {
     return (
-        <li className={clsx("", className)}>
-            <img className='absolute inset-0 h-full w-full object-cover' src={src} alt={alt}/>
+        <li className={clsx(className)}>
+            <img className='absolute inset-0 h-full w-full object-cover' src={image} alt={`${name}-image`}/>
             <div style={{bottom: 0}} className='absolute inset-x-0 bg-gradient-to-t from-black/70 from-50%'>
                 <div className='w-52'>
-                <h2 className='p-4 text-2xl text-white font-semibold'>{title}</h2>
+                    <div className="flex items-center gap-1 pl-4">
+                        <div className="w-8 h-8 border-black border-[1px] rounded-full">
+                            <img src={flag} alt={`${name}-flag`} className="object-contain"/>
+                        </div>
+                        <h2 className='py-4 text-2xl text-white font-semibold'>{name}</h2>
+                    </div>
                 <div className="grid grid-rows-[0fr] transition-all pb-4 group-hover:grid-rows-[1fr]">
                     <p className='overflow-hidden px-3 font-medium text-white opacity-0 transition duration-300 group-hover:opacity-100'>{description}</p>
                 </div>
@@ -52,7 +65,7 @@ export function StoreCard({src, className, alt, title, description, deliveryTime
     )
 }
 
-export function BasicCard({src, className, alt, description}: Omit<FoodCardProps, 'title'>) {
+export function BasicCard({src, className, alt, description}: BasicCard) {
     return (
         <li className={clsx("", className)}>
             <div className="h-44 w-full">
