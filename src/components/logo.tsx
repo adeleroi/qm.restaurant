@@ -2,10 +2,10 @@ import { Link } from "react-router-dom";
 import { useFirebaseAuth } from "../firebase/auth"
 
 
-export function Logo() {
+export function Logo({ to="restaurant" }: { to?: string }) {
     const { loggedIn } = useFirebaseAuth();
     return (
-        <Link to={loggedIn ? "store" : '/'}>
+        <Link to={loggedIn ? to : '/'}>
             <div className="cursor-pointer">
                 <p className="font-roboto font-bold text-2xl">
                     <span className="text-defaultGreen">Q</span>

@@ -11,7 +11,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import React from 'react';
 import { LoaderFunctionArgs, json, useLoaderData, useNavigate } from 'react-router-dom';
 import { db } from '../firebase/fireStore';
-import { ButtonActionAndValue } from '../components/cart';
+import { ButtonActionAndValue } from '../components/cart/cart';
 
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -34,7 +34,7 @@ export function ProductModal() {
             imgRef.current.style.transform = "translate(0px, 0px) scale(1)";
     }
 
-    function handleMouseMove(e) {
+    function handleMouseMove(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
         const clientRect = imgContainerRef.current?.getBoundingClientRect();
         if (clientRect && imgRef.current) {
             const width = clientRect.width;
@@ -66,10 +66,10 @@ export function ProductModal() {
             <ModalBody>
                 <div className='grid grid-cols-2 gap-10 p-3 mt-8'>
                     <div onMouseLeave={handleMouseLeave} onMouseMove={handleMouseMove} ref={imgContainerRef}
-                        className='cursor-crosshair h-96 overflow-hidden relative flex justify-center items-center'>
+                        className='cursor-crosshair h-96 overflow-hidden relative flex justify-center items-center border-2'>
                         <img ref={imgRef} className='absolute object-fit h-5/6 w-fuull' src='https://img.cdn4dd.com/cdn-cgi/image/fit=contain,width=1200,height=672,format=auto/https://doordash-static.s3.amazonaws.com/media/photosV2/a54d9543-62b4-47bc-8c59-d6605d86a0a1-retina-large.jpg'/>
                     </div>
-                    <div className='h-96 border-2 rounded-3xl px-5 py-5'>
+                    <div className='h-96 px-5 py-5'>
                         <h1 className='text-left text-3xl font-bold mb-2'>{ product.name }</h1>
                         <p className='text-gray-600'>$3.99/kg</p>
                         <p className='text-left text-xl font-semibold'>${ product.price }</p>

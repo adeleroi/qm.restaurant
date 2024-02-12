@@ -53,9 +53,7 @@ export function StoreList() {
     const stores = (loader as unknown as  { stores: Array<Store>})?.stores;
     return (
         <section className="grid mx-auto max-w-6xl">
-            <div className="mt-20">
-                <h1 className="text-4xl font-bold mb-8">Grocery store</h1>
-            </div>
+            <h1 className="text-4xl font-bold mb-8 mt-20">Grocery store</h1>
             <ul className='grid grid-cols-3 w-full gap-4 max-w-6xl'>
                 {
                     stores.map((store, idx) => (

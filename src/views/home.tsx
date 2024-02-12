@@ -14,7 +14,7 @@ const COUNTRY_FOODS = [
     { image: "https://i.ytimg.com/vi/0auGEKaFYdk/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDz6NBMRS0p_4UNYQ6GU8sJymA09A", flag: IvoryCoast, name: "Côte d'Ivoire", description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. blanditiis." },
 ]
 
-export function Root() {
+export function Home() {
     return (
         <>
             <Hero/>
@@ -25,16 +25,16 @@ export function Root() {
             </div>
             <ul className='grid grid-cols-3 w-full gap-4 max-w-6xl'>
                 {
-                Array.from({length: 6}).map((_, idx) => (
-                    <StoreCard
-                        title="LCBO"
-                        description="Lorem ipsum dolor sit amet, consectetur adipisicing elit. blanditiis."
-                        alt="img"
-                        src="https://cdn.theorg.com/f1bbabce-f3da-42a0-89fe-8be4f53af00f_thumb.jpg"
-                        className=''
-                        key={idx}
-                    />
-                ))
+                    Array.from({length: 6}).map((_, idx) => (
+                        <StoreCard
+                            title="LCBO"
+                            description="Lorem ipsum dolor sit amet, consectetur adipisicing elit. blanditiis."
+                            alt="img"
+                            src="https://cdn.theorg.com/f1bbabce-f3da-42a0-89fe-8be4f53af00f_thumb.jpg"
+                            className=''
+                            key={idx}
+                        />
+                    ))
                 }
             </ul>
             <div className='my-20'>
@@ -48,16 +48,16 @@ export function Root() {
             </div>
             <ul className='flex w-full gap-4 max-w-6xl'>
                 {
-                COUNTRY_FOODS.map((country, idx) => (
-                    <CountryCard
-                        name={country.name}
-                        description={country.description}
-                        flag={country.flag}
-                        image={country.image}
-                        className='group relative bg-rose-300 h-[380px] overflow-hidden flex-1 cursor-pointer hover:grow-[1.3] transition-all'
-                        key={idx}
-                    />
-                ))
+                    COUNTRY_FOODS.map((country, idx) => (
+                        <CountryCard
+                            name={country.name}
+                            description={country.description}
+                            flag={country.flag}
+                            image={country.image}
+                            className='group relative bg-rose-300 h-[380px] overflow-hidden flex-1 cursor-pointer hover:grow-[1.3] transition-all'
+                            key={idx}
+                        />
+                    ))
                 }
             </ul>
             <div className='my-20'>
@@ -71,14 +71,14 @@ export function Root() {
             </div>
             <ul className='flex w-full gap-4 max-w-6xl'>
                 {
-                Array.from({length: 4}).map((_, idx) => (
-                    <BasicCard
-                        description="Lorem ipsum dolor sit amet, consectetur adipisicing elit. blanditiis."
-                        alt="img"
-                        src="https://images.pexels.com/photos/5929/food-salad-dinner-eating.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-                        key={idx}
-                    />
-                ))
+                    Array.from({length: 4}).map((_, idx) => (
+                        <BasicCard
+                            description="Lorem ipsum dolor sit amet, consectetur adipisicing elit. blanditiis."
+                            alt="img"
+                            src="https://images.pexels.com/photos/5929/food-salad-dinner-eating.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                            key={idx}
+                        />
+                    ))
                 }
             </ul>
             </section>
@@ -87,7 +87,7 @@ export function Root() {
                     {/** put those in image in a container with gray background. Good for web vital */}
                 <img className='absolute w-52 h-52 ring-4 ring-purple-600 object-cover -top-2 -left-16 origin-center rotate-45' src="https://as2.ftcdn.net/v2/jpg/06/66/40/51/1000_F_666405168_oPJGLEWNZxq83VhFTyHAzQYwS6V6VnuH.jpg" />
                 <img className='absolute w-52 h-52 ring-4 ring-orange-500 object-cover left-20 origin-bottom rotate-12' src="https://images.pexels.com/photos/5929/food-salad-dinner-eating.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" />
-                <img className='absolute w-52 h-52 ring-4 ring-black -bottom-8 -left-10 origin-bottom -rotate-12' src="https://images.unsplash.com/photo-1611712142269-12b7433e28e9?q=80&w=3024&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+                <img className='absolute w-52 h-52 ring-4 ring-yellow-500 -bottom-8 -left-10 origin-bottom -rotate-12' src="https://images.unsplash.com/photo-1611712142269-12b7433e28e9?q=80&w=3024&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
                 </div>
                 <div className='mb-9 grid place-items-center'>
                 <H2 variant='black' className='text-black font-semibold text-center mb-2'>There is more to explore</H2>

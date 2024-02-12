@@ -24,41 +24,44 @@ import Cookies from 'js-cookie'
 
 export async function loader() {
   const userId = Cookies.get('qm_session_id') as string;
-  if (!userId) return json({});
-
-  const carts: Array<Product> = [];
-
-  const cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
-
-  cartSnapshot.forEach(cartItem => {
-      carts.push({id: cartItem.id, ...cartItem.data()} as Product);
-  })
-
-  const uniqueStoreList = [...new Set(carts.map(item => item.storeId))];
-
-  let storeInfos = await Promise.all(
-      uniqueStoreList.map(storeId => getDoc(doc(db, "store", storeId))),
-  )
-  storeInfos = storeInfos.reduce((acc, curr) => ({ ...acc, [curr.id]: curr.data()}), {});
+  if (userId) {
+    console.log('connected');
+    const carts: Array<Product> = [];
   
-  const cartMap: Record<string, Array<Product>> = {};
-  carts.forEach(item => {
-      if (!cartMap[item.storeId]) {
-          cartMap[item.storeId] = [];
-      }
-      cartMap[item.storeId].push(item);
-  })
-
-  for (const [key, value] of Object.entries(storeInfos)) {
-      storeInfos[key]['cart']  = cartMap[key]
+    const cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
+  
+    cartSnapshot.forEach(cartItem => {
+        carts.push({id: cartItem.id, ...cartItem.data()} as Product);
+    })
+  
+    const uniqueStoreList = [...new Set(carts.map(item => item.storeId))];
+  
+    let storeInfos = await Promise.all(
+        uniqueStoreList.map(storeId => getDoc(doc(db, "store", storeId))),
+    )
+    storeInfos = storeInfos.reduce((acc, curr) => ({ ...acc, [curr.id]: curr.data()}), {});
+    
+    const cartMap: Record<string, Array<Product>> = {};
+    carts.forEach(item => {
+        if (!cartMap[item.storeId]) {
+            cartMap[item.storeId] = [];
+        }
+        cartMap[item.storeId].push(item);
+    })
+  
+    for (const [key, ] of Object.entries(storeInfos)) {
+        storeInfos[key]['cart']  = cartMap[key]
+    }
+  
+    return json({carts, storeCartInfos: storeInfos, cartCount: uniqueStoreList.length})
   }
+  return json({carts: [], storeCartInfos: [], cartCount: 0})
 
-  return json({carts, storeCartInfos: storeInfos, cartCount: uniqueStoreList.length})
 }
 
 // https://github.com/invertase/react-native-firebase-docs/blob/master/docs/auth/reference/auth.md
 // Good reference for auth error with firebase
-export async function action({request}: ActionFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
 
   const formData = await request.formData()
   const intent = formData.get('intent') as LoginAction;
@@ -109,12 +112,12 @@ function App() {
 
     React.useEffect(() => {
       if (loggedIn && location.pathname === '/') {
-        navigate('store');
+        navigate('restaurant');
       } 
 
     }, [loggedIn, navigate, location])
 
-  if (loading) null;
+  if (loading) return null;
 
   return (
     <>

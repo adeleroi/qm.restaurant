@@ -4,7 +4,7 @@ import { Search } from "./search";
 import { useLoginFormAction } from "../context/hooks";
 import { AuthFormTrigger } from "./auth-form";
 import { Menu } from "./menu";
-import { CarTriggerForCheckout, CartButtonWithPopOver, CartIcon } from "./cart";
+import { CarTriggerForCheckout, CartButtonWithPopOver, CartIcon } from "./cart/cart";
 import { useFirebaseAuth } from "../firebase/auth";
 import { useLoaderData, useParams } from "react-router-dom";
 
@@ -35,15 +35,7 @@ function ButtonSection() {
     if (complete && user) {
         return (
             <>
-                {
-                    storeId ? (
-                    <CarTriggerForCheckout triggerElement={<Button size="small"  className="h-8 shadow-custom bg-defaultGreen hover:bg-green-800 text-black relative"><CartIcon/></Button>}/>
-                    ) : (
-                        <CartButtonWithPopOver className="relative bg-defaultGreen p-2 rounded-3xl px-3 cursor-pointer hover:bg-green-800" storeCartInfos={storeCartInfos}>
-                            <CartIcon/>
-                        </CartButtonWithPopOver>
-                    )
-                }
+                <CarTriggerForCheckout triggerElement={<Button size="small"  className="h-8 shadow-custom bg-defaultGreen hover:bg-green-800 text-black relative"><CartIcon/></Button>}/>
             </>
         )
     }

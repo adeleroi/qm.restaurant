@@ -24,7 +24,7 @@ export async function loader({params}: LoaderFunctionArgs) {
     if (!userId) {
         return redirect('/',)
     }
-
+    console.log('called store-front loader', userId, 'storeId', storeId);
     const cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
     const productSnapshot = await getDocs(collection(db, "store", storeId, "product"));
 
