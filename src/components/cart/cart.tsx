@@ -169,10 +169,10 @@ function CartItem({ product, storeId }: { product: Product, storeId?: string}) {
                             <div className='w-10 h-10 mb-2'>
                                 <img src={product?.imgUrl}/>
                             </div>
-                            <div>
-                                <h1 className='pl-2 text-xs font-semibold'>{product.name}</h1>
-                                <span className='pl-2 font-semibold text-xs'>{priceFormat(product.price)}</span>&nbsp;
-                                { product.offer ? <span className='font-semibold text-white px-1 rounded text-xs bg-defaultGreen'>{product.offer}</span>: null }
+                            <div className='text-[14px]'>
+                                <h1 className='pl-2 font-semibold'>{product.name}</h1>
+                                <span className='pl-2 font-semibold'>{priceFormat(product.price)}</span>&nbsp;
+                                { product.offer ? <span className='font-semibold text-white px-1 rounded bg-defaultGreen'>{product.offer}</span>: null }
                             </div>
                         </div>
                     </div>
@@ -189,7 +189,7 @@ function getSubtotalAndCount(arr: Array<Product> = []) {
     return arr?.reduce((acc, curr) => ({...acc, count: acc?.count + curr?.count, price: curr?.price * curr?.count + acc?.price}), {count: 0, price: 0});
 }
 
-const fullCartIcon = <><span className="material-symbols-outlined text-white font-bold text-2xl">remove_shopping_cart</span></>;
+const fullCartIcon = <><span className="material-symbols-outlined text-white font-bold text-xl">remove_shopping_cart</span></>;
 
 const emptyCartIcon = <span className="material-symbols-outlined text-white font-bold">shopping_cart</span>
 
@@ -201,9 +201,9 @@ export function CartIcon() {
     const showEmptyCartIcon = storeId && numberOfCartItemByStore == 0 || !storeId && totalNumberOfCartItem == 0;
 
     return (
-        <div className="flex justify-center items-center text-white text-xl">
+        <div className="flex justify-between items-center text-white w-full px-1">
             { showEmptyCartIcon ? emptyCartIcon : fullCartIcon }
-            <span className="px-2 font-bold"> { storeId ? numberOfCartItemByStore : totalNumberOfCartItem }</span>
+            <span className="font-bold"> { storeId ? numberOfCartItemByStore : totalNumberOfCartItem }</span>
         </div>
     )
 }

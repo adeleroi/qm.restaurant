@@ -4,9 +4,8 @@ import { Search } from "./search";
 import { useLoginFormAction } from "../context/hooks";
 import { AuthFormTrigger } from "./auth-form";
 import { Menu } from "./menu";
-import { CarTriggerForCheckout, CartButtonWithPopOver, CartIcon } from "./cart/cart";
+import { CarTriggerForCheckout, CartIcon } from "./cart/cart";
 import { useFirebaseAuth } from "../firebase/auth";
-import { useLoaderData, useParams } from "react-router-dom";
 
 export function Navbar() {
     const { loggedIn } = useFirebaseAuth();
@@ -26,16 +25,14 @@ export function Navbar() {
 
 function ButtonSection() {
     const { setAction } = useLoginFormAction();
-    const { storeCartInfos } = useLoaderData();
     const { loading, complete, data: user }: ReturnType<typeof useFirebaseAuth> = useFirebaseAuth();
-    const { storeId } = useParams();
 
     if (loading) return null;
 
     if (complete && user) {
         return (
             <>
-                <CarTriggerForCheckout triggerElement={<Button size="small"  className="h-8 shadow-custom bg-defaultGreen hover:bg-green-800 text-black relative"><CartIcon/></Button>}/>
+                <CarTriggerForCheckout triggerElement={<Button size="small"  className="h-5  w-[70px] shadow-custom bg-defaultGreen hover:bg-green-800 text-black relative"><CartIcon/></Button>}/>
             </>
         )
     }

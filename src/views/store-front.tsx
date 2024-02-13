@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import React from "react";
-import { ActionFunctionArgs, Link, LoaderFunctionArgs, Outlet, json, redirect, useFetcher, useLoaderData } from "react-router-dom"
+import { ActionFunctionArgs, Link, LoaderFunctionArgs, Outlet, json, redirect, useFetcher, useLoaderData, useNavigate } from "react-router-dom"
 import { db } from "../firebase/fireStore";
 import { collection, doc, getDoc, getDocs, runTransaction, serverTimestamp } from "firebase/firestore";
 import Cookies from "js-cookie";
@@ -109,17 +109,18 @@ export function StoreFront() {
     const categories = Object.keys(productMap);
     return (
         <section className="pt-16 px-16">
-            <div className="flex w-full items-center pb-4 bg-brown-bg rounded-lg">
-                <div className="pl-10">
+            <div className="flex w-full items-center pb-4 bg-[#99002b] rounded-lg">
+                <div className="pl-8">
                     <div className="w-20 h-20 border-[1px] bg-white rounded-full flex justify-center items-center mr-2 my-4 px-2">
                         <img className="object-contain" src={storeInfos.imgUrl} alt="lcbo-logo"/>
                     </div>
-                    <div className="text-black">
+                    <div className="text-white">
                         <p className="font-bold text-3xl">{ storeInfos?.name }</p>
                         <span className="text-xs font-semibold">Delivery fee (3.69$) . {storeInfos.location.address}</span>
                     </div>
                 </div>
             </div>
+            <CategoryFilter categories={categories} />
             <div className="mt-10">
                 <div>
                     {
@@ -173,6 +174,40 @@ export function Product({product}: ProductProps) {
     )
 }
 
+function CategoryFilter({ categories }: { categories: Array<string> }) {
+    const [ selected, setSelected ] = React.useState('');
+    const navigate = useNavigate();
+
+    function handleSelection(value: string) {
+        if (selected === value) {
+            return;
+        } else {
+            setSelected(value);
+        }
+        navigate(`?category=${value}`);
+    }
+
+    return (
+        <ul className="mt-10 flex gap-2">
+            { categories.map(category => (
+                <Pill key={category} text={category} selected={selected === category} handleSelection={handleSelection} />
+            ))}
+        </ul>
+    )
+}
+
+export function Pill({ selected, handleSelection, text } : { selected: boolean, text: string, handleSelection: (t:string) => void }) {
+    return (
+        <>
+        <li onClick={() => handleSelection(text)} className={clsx("capitalize flex justify-center min-w-16 py-2 px-3 text-black font-black rounded-3xl border-2 text-[12px] \
+            cursor-pointer hover:shadow-custom", {
+                'bg-black text-white border-black': selected,
+                'bg-gray-200 border-black': !selected,
+            })}>{ text }</li>
+        </>
+    )
+}
+
 export function AddToCartButton({cartCount, productId, action=""}: { cartCount: number, productId: string, action?: string}) {
     const [isOpen, setIsOpen] = React.useState<boolean|null>(null)
     const [ count, setCount ] = React.useState(cartCount ?? 0);
@@ -219,12 +254,11 @@ export function AddToCartButton({cartCount, productId, action=""}: { cartCount: 
                     { count !== 1 ? <span className="font-semibold">-</span> : <span className="material-symbols-outlined font-semibold">delete</span> }
                 </button>
                 {/** this button[type=button] allows us to handler blur event nicely*/}
-                <button type="button" className={clsx("items-center justify-center px-2", {
+                <button type="button" className={clsx("items-center justify-center px-2 cursor-default", {
                     "flex": isOpen,
                     "hidden": !isOpen,
                 })}>{count}</button>
                 <input type="hidden" name="productId" value={productId}/>
-                {/* <input type="hidden" name="userId" value={data?.uid || ''}/> */}
                 <button
                     id="test-id"
                     value={count}
