@@ -51,9 +51,9 @@ export function CountryCard({flag, image, className, name, description}: Country
 
 export function StoreCard({src, className, alt, title, description, deliveryTime, offer}: StoreCard) {
     return (
-        <li className={clsx("relative flex justify-start items-center border-2 min-h-24 rounded-md px-2 hover:shadow-custom cursor-pointer", className)}>
-            <div className="w-20 flex justify-center items-center mr-2">
-                <img className='w-14 h-14 object-cover rounded-full' src={src} alt={alt}/>
+        <li className={clsx("relative flex justify-start items-center border-[1px] min-h-36 rounded-lg px-2 hover:shadow-custom cursor-pointer", className)}>
+            <div className="w-20 h-20 border-[1px] p-2 rounded-full flex justify-center items-center mr-2">
+                <img className='object-contain' src={src} alt={alt}/>
             </div>
             <div className=''>
                 <h2 className='text-left text-xl text-black font-semibold'>{title}</h2>

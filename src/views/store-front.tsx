@@ -5,6 +5,7 @@ import { db } from "../firebase/fireStore";
 import { collection, doc, getDoc, getDocs, runTransaction, serverTimestamp } from "firebase/firestore";
 // import { useFirebaseAuth } from "../firebase/auth";
 import Cookies from "js-cookie";
+import { priceFormat } from "../utils/currency";
 
 export type Product = {
     id: string,
@@ -14,6 +15,7 @@ export type Product = {
     price: number,
     offer: string,
     storeId: string,
+    imgUrl: string,
 }
 
 export async function loader({params}: LoaderFunctionArgs) {
@@ -24,7 +26,6 @@ export async function loader({params}: LoaderFunctionArgs) {
     if (!userId) {
         return redirect('/',)
     }
-    console.log('called store-front loader', userId, 'storeId', storeId);
     const cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
     const productSnapshot = await getDocs(collection(db, "store", storeId, "product"));
 
@@ -84,11 +85,11 @@ export function StoreFront() {
     const productList = (loaderData as unknown as {products: Array<Product>, storeId: string})?.products as Array<Product>;
     const storeInfos = loaderData.storeInfos;
     return (
-        <section className="grid pt-16 max-w-6xl mx-auto">
+        <section className="grid pt-16 px-8">
             <div className="flex w-full items-center pb-4 bg-brown-bg rounded-lg">
                 <div className="pl-10">
-                    <div className="w-20 flex justify-center items-center mr-2 my-4">
-                        <img className='w-20 h-20 object-cover rounded-full' src="https://cdn.theorg.com/f1bbabce-f3da-42a0-89fe-8be4f53af00f_thumb.jpg" alt="lcbo-logo"/>
+                    <div className="w-20 h-20 border-[1px] bg-white rounded-full flex justify-center items-center mr-2 my-4 px-2">
+                        <img className="object-contain" src={storeInfos.imgUrl} alt="lcbo-logo"/>
                     </div>
                     <div className="text-black">
                         <p className="font-bold text-3xl">{ storeInfos?.name }</p>
@@ -97,7 +98,7 @@ export function StoreFront() {
                 </div>
             </div>
             <div className="mt-10">
-                <ul className="grid grid-cols-4 gap-4">
+                <ul className="flex gap-2">
                     {
                         productList?.map((prod, idx) => {
                             return (
@@ -120,17 +121,18 @@ type ProductProps = {
 
 export function Product({product}: ProductProps) {
     return (
-        <div className="relative rounded-xl overflow-hidden p-2 pb-4 cursor-pointer">
+        <div className="relative  overflow-hidden p-2 pb-4 cursor-pointer w-64">
             <Link to={`product/${product.id}`}>
-                <div className="p-4 h-44 rounded-lg bg-smoke mb-4">
-                    <img src="" alt=""/>
+                <div className="p-4 rounded-xl mb-4 bg-smoke h-64">
+                    <img className="object-contain" src={product.imgUrl} alt=""/>
                 </div>
                 <div>
-                    <span className="text-xs">{product.name}</span>
-                    <p className="text-xs">{product.description}</p>
+                    <p className="text-lg font-bold">{priceFormat(product.price)}</p>
+                    <span className="text-md capitalize">{product.name}</span>
+                    <p className="text-md capitalize">{product.description}</p>
                 </div>
             </Link>
-            <div className="absolute right-4 bottom-20">
+            <div className="absolute right-4 top-52">
                 <AddToCartButton cartCount={product?.count} productId={product.id}/>
             </div>
         </div>

@@ -22,16 +22,15 @@ import clsx from 'clsx';
 export function CarTriggerForCheckout({ triggerElement }: { triggerElement: React.ReactNode}) {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const loaderData = useLoaderData();
-    const { storeId } = useParams();
+    const { storeId, restaurantId } = useParams();
     // const [ selectedStoreId, setSelectedStoreId ] = React.useState(storeId);
     const cartCount = loaderData?.cartCount;
     const data = loaderData?.storeCartInfos;
     const storeAndCartSummary = Object.values(data);
-    
 
     const storeInfos = data[storeId];
     const cartItems = storeInfos?.cart;
-    const subtotal = getSubtotal(cartItems || []);
+    const subtotal = getSubtotal(cartItems);
 
     return (
         <>
@@ -71,8 +70,12 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
                         cartCount === 0 ?
                             <EmptyCart onClose={onClose} /> :
                             <>
-                                <Cart onClose={onclose} subtotal={subtotal} cartItems={cartItems} storeInfos={storeInfos} storeId={storeId}/>
-                                <CartList list={storeAndCartSummary} />
+                                {
+                                   storeId || restaurantId ?
+                                   <Cart onClose={onClose} subtotal={subtotal} cartItems={cartItems} storeInfos={storeInfos} storeId={storeId}/>
+                                   : null
+                                }
+                                <CartList list={storeAndCartSummary} showTitle={storeId || restaurantId}/>
                             </>
                     }
                 </DrawerBody>
@@ -95,23 +98,30 @@ export function EmptyCart({ onClose }: {onClose: () => void}) {
                 <button
                     onClick={onClose}
                     className='bg-defaultGreen h-8 rounded-3xl hover:bg-green-800 p-5 text-white text-lg font-bold flex items-center'>Start shopping</button>
-                <img src="https://cdn.dribbble.com/users/461802/screenshots/4421003/media/fe4da78809fdc3c7dd634c2704a6aee8.gif"/>
             </div>
         </div>
     )
 }
 
-export function CartList({list}) {
+function cartListFilteredFunc(list: Array<any>, against:string) {
+    return list?.filter(elem => elem.cart[0].storeId !== against);
+}
+
+export function CartList({list, showTitle}) {
+    const { storeId } = useParams() as Record<string, string>;
+    const filteredList = cartListFilteredFunc(list, storeId);
     return (
-        <div className='relative bg-white'>
-            <h1 className='px-5 mb-4 mt-8 font-semibold text-[14px]'>Your other carts:</h1>
-            <div className=' bg-white mb-8'>
-                <ul>
-                    { list?.map((summary) => { return <StoreCartSummary key={summary.name} store={summary} /> }) }
-                </ul>    
+        filteredList?.length ? (
+            <div className='relative bg-white'>
+                { showTitle ? <h1 className='px-5 mb-4 mt-8 font-semibold text-[14px]'>Your other carts:</h1> : null }
+                <div className=' bg-white mb-8'>
+                    <ul>
+                        { filteredList?.map((summary) => { return <StoreCartSummary key={summary.name} store={summary} /> }) }
+                    </ul>    
+                </div>
             </div>
-        </div>
-        )
+        ) : null
+    )
 }
 
 export function Cart({cartItems, storeInfos, storeId, subtotal, onClose}) {
@@ -159,11 +169,11 @@ function CartItem({ product, storeId }: { product: Product, storeId?: string}) {
     return (
         <li className='relative border-t-[1px] px-5 bg-white hover:bg-smoke last:border-b-[1px] last:mb-10'>
             <Link key={product.id} to={`store/${storeId}/product/${product.id}`}>
-                <div className='w-full items-end py-3 pb-6  cursor-pointer'>
-                    <div className='h-full flex justify-between items-start'>
-                        <div className='flex items-start'>
-                            <div className='w-8 h-8 bg-gray-400 mb-2'>
-                                <img src='https://www.instacart.com/image-server/36x/filters:fill(FFF,true):format(jpg)/d2lnr5mha7bycj.cloudfront.net/product-image/file/large_5c42c12c-2ee4-466b-a441-07bdc2d260b5.png'/>
+                <div className='w-full items-end py-4  cursor-pointer'>
+                    <div className='h-full flex justify-between items-center'>
+                        <div className='flex items-center'>
+                            <div className='w-10 h-10 mb-2'>
+                                <img src={product?.imgUrl}/>
                             </div>
                             <div>
                                 <h1 className='pl-2 text-xs font-semibold'>{product.name}</h1>
@@ -174,7 +184,7 @@ function CartItem({ product, storeId }: { product: Product, storeId?: string}) {
                     </div>
                 </div>
             </Link>
-            <div className='absolute top-2 right-5 z-0'>
+            <div className='absolute top-1/2 -translate-y-1/2 right-5 z-0'>
                 <AddToCartButton action='store/:storeId' productId={product.id} cartCount={product.count}/>
             </div>
         </li>
@@ -182,7 +192,7 @@ function CartItem({ product, storeId }: { product: Product, storeId?: string}) {
 }
 
 function getSubtotalAndCount(arr: Array<Product> = []) {
-    return arr?.reduce((acc, curr) => ({...acc, count: acc?.count + curr?.count, price: acc?.price + curr?.price}), {count: 0, price: 0});
+    return arr?.reduce((acc, curr) => ({...acc, count: acc?.count + curr?.count, price: curr?.price * curr?.count + acc?.price}), {count: 0, price: 0});
 }
 
 const fullCartIcon = <><span className="material-symbols-outlined text-white font-bold text-2xl">remove_shopping_cart</span></>;
@@ -271,8 +281,8 @@ function StoreCartSummary({ store }) {
         <li className='flex px-5 justify-between border-t-[1px] hover:bg-smoke hover:cursor-pointer group min-h-24 last:border-b-[1px]'>
             <div className='flex justify-between items-center w-full'>
                 <div className='flex justify-center items-center'>
-                    <div className='h-12 w-12 rounded-full border-[1px]'>
-                        <img src='https://www.instacart.com/assets/domains/warehouse/logo/311/e206e4c7-3dd9-48b1-8dc2-f4ce50df7414.png'/>
+                    <div className='px-1 h-14 w-14 flex rounded-full border-[1px]'>
+                        <img className='object-contain' src={store?.imgUrl} alt={store?.name}/>
                     </div>
                     <div className='ml-4'>
                         <p className='text-[14px] font-bold'>{ store?.name }</p>
@@ -281,8 +291,8 @@ function StoreCartSummary({ store }) {
                         <p className='text-[14px] font-bold text-defaultGreen'>{Math.random() * 10 > 4 ? "Closed . Open in 58 min": null }</p>
                     </div>
                 </div>
-                <div className='flex bg-defaultGreen rounded-xl'>
-                    <div className='w-6 h-6  relative rounded-full flex items-center justify-center font-bold'>
+                <div className='flex bg-defaultGreen rounded-xl justify-between items-center'>
+                    <div className='w-6 relative rounded-full flex items-center justify-center font-bold'>
                         <span className='text-white text-md font-bold'>{ count }</span>
                     </div>
                     <span className={clsx("text-white material-symbols-outlined group-hover:animate-slide-right-infinite")} >arrow_forward</span>

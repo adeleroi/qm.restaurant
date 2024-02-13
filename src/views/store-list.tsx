@@ -31,7 +31,7 @@ type Store = {
     phoneNumber: string,
     description: string,
     deliveryTime: Date,
-    imageUrl: string,
+    imgUrl: string,
     offers: StoreOffer,
     sells: string,
     closingHour: Date,
@@ -62,9 +62,8 @@ export function StoreList() {
                                 title={store.name}
                                 description={store?.sells ?? "Groceries . Organic . Alcohol"}
                                 alt={store?.name + 'img'}
-                                src={store?.imageUrl ?? "https://cdn.theorg.com/f1bbabce-f3da-42a0-89fe-8be4f53af00f_thumb.jpg"}
+                                src={store?.imgUrl ?? "https://cdn.theorg.com/f1bbabce-f3da-42a0-89fe-8be4f53af00f_thumb.jpg"}
                                 className=''
-                                offer={store?.offers?.description ?? "20% off"}
                                 deliveryTime="Delivery by 11am"
                                 key={idx}
                             />

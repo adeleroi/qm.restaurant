@@ -34,13 +34,13 @@ export function Menu() {
                         <span className="material-symbols-outlined font-medium">shoppingmode</span>
                         <span className='ml-5'>Offers</span>
                     </MenuIntem>
-                    <MenuIntem to="" onClick={onClose}>
+                    <MenuIntem to="store" onClick={onClose}>
                         <span className="material-symbols-outlined font-medium">local_mall</span>
-                        <span className='ml-5'>Groceries</span>
+                        <span className='ml-5'>stores</span>
                     </MenuIntem>
-                    <MenuIntem to="" onClick={onClose}>
+                    <MenuIntem to="restaurant" onClick={onClose}>
                         <span className="material-symbols-outlined font-medium">takeout_dining</span>
-                        <span className='ml-5'>Foods</span>
+                        <span className='ml-5'>Restaurants</span>
                     </MenuIntem>
                     <MenuIntem hide={loggedOut} to="" onClick={onClose}>
                         <span className="material-symbols-outlined font-medium">receipt_long</span>

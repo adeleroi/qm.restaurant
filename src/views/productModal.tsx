@@ -12,6 +12,7 @@ import React from 'react';
 import { LoaderFunctionArgs, json, useLoaderData, useNavigate } from 'react-router-dom';
 import { db } from '../firebase/fireStore';
 import { ButtonActionAndValue } from '../components/cart/cart';
+import { priceFormat } from '../utils/currency';
 
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -66,15 +67,14 @@ export function ProductModal() {
             <ModalBody>
                 <div className='grid grid-cols-2 gap-10 p-3 mt-8'>
                     <div onMouseLeave={handleMouseLeave} onMouseMove={handleMouseMove} ref={imgContainerRef}
-                        className='cursor-crosshair h-96 overflow-hidden relative flex justify-center items-center border-2'>
-                        <img ref={imgRef} className='absolute object-fit h-5/6 w-fuull' src='https://img.cdn4dd.com/cdn-cgi/image/fit=contain,width=1200,height=672,format=auto/https://doordash-static.s3.amazonaws.com/media/photosV2/a54d9543-62b4-47bc-8c59-d6605d86a0a1-retina-large.jpg'/>
+                        className='cursor-crosshair h-72 overflow-hidden relative flex justify-center items-center'>
+                        <img ref={imgRef} className='absolute object-fit h-56' src={product?.imgUrl} alt={product?.name}/>
                     </div>
                     <div className='h-96 px-5 py-5'>
                         <h1 className='text-left text-3xl font-bold mb-2'>{ product.name }</h1>
-                        <p className='text-gray-600'>$3.99/kg</p>
-                        <p className='text-left text-xl font-semibold'>${ product.price }</p>
+                        <p className='text-gray-600'>{priceFormat(product?.price)}</p>
                         <br/>
-                        <ButtonActionAndValue subtotal={3.99} >Add to cart</ButtonActionAndValue>
+                        <ButtonActionAndValue subtotal={product?.price} >Add to cart</ButtonActionAndValue>
                         <div className='w-full border-[1px] my-4'></div>
                         <h1 className='font-bold text-md text-gray-800'>Details:</h1>
                         <p className='text-gray-600'>{ product.description }</p>
