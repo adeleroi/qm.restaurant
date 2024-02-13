@@ -6,7 +6,7 @@ export function priceFormat(value: number) {
 }
 
 // very simple version just for now
-export function getSubtotal(cart: Array<any>) {
+export function getSubtotal(cart: Array<{count: number, price: number}>) {
     if (!cart || !cart?.length) return 0;
     return cart.map(item => item.price * item.count).reduce((acc, curr) => acc + curr, 0);
 }

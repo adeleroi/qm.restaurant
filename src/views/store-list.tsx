@@ -23,7 +23,7 @@ type Location = {
     geoLocation: Geolocation
 } 
 
-type Store = {
+export type Store = {
     id: string,
     name: string,
     availablityStatus: string,

@@ -1,15 +1,10 @@
 import {
-    // Drawer
     Drawer,
     DrawerBody,
     DrawerOverlay,
     DrawerContent,
     DrawerCloseButton,
     useDisclosure,
-    // Menu
-    Menu,
-    MenuButton,
-    MenuList,
     DrawerHeader,
 } from '@chakra-ui/react';
 import { Trigger } from '../../utils/trigger';
@@ -23,7 +18,7 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
     const { isOpen, onOpen, onClose } = useDisclosure();
     const loaderData = useLoaderData();
     const { storeId, restaurantId } = useParams();
-    // const [ selectedStoreId, setSelectedStoreId ] = React.useState(storeId);
+
     const cartCount = loaderData?.cartCount;
     const data = loaderData?.storeCartInfos;
     const storeAndCartSummary = Object.values(data);
@@ -42,7 +37,6 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
             isOpen={isOpen}
             placement='right'
             onClose={() => {
-                // setSelectedStoreId(storeId);
                 onClose();
         }}>
             <DrawerOverlay />
@@ -124,7 +118,7 @@ export function CartList({list, showTitle}) {
     )
 }
 
-export function Cart({cartItems, storeInfos, storeId, subtotal, onClose}) {
+export function Cart({cartItems, storeId, subtotal, onClose}) {
     const isCurrentStoreCartEmpty = cartItems?.length;
     return (
         <>
@@ -204,11 +198,11 @@ export function CartIcon() {
     const { storeId } = useParams();
     const totalNumberOfCartItem = getSubtotalAndCount(carts).count;
     const { count: numberOfCartItemByStore } = getSubtotalAndCount(storeCartInfos[storeId]?.cart);
-    // const numberOfCart = Object.keys(storeCartInfos)?.length;
+    const showEmptyCartIcon = storeId && numberOfCartItemByStore == 0 || !storeId && totalNumberOfCartItem == 0;
 
     return (
         <div className="flex justify-center items-center text-white text-xl">
-            { storeId && numberOfCartItemByStore == 0 || !storeId && totalNumberOfCartItem == 0 ? emptyCartIcon : fullCartIcon }
+            { showEmptyCartIcon ? emptyCartIcon : fullCartIcon }
             <span className="px-2 font-bold"> { storeId ? numberOfCartItemByStore : totalNumberOfCartItem }</span>
         </div>
     )
@@ -221,55 +215,6 @@ export function Ping({color="defaultGreen"}: {color?: string}) {
                 <span className={clsx("animate-ping absolute inline-flex h-full w-full rounded-full opacity-65", `bg-${color}`)}></span>
                 <span className={clsx("relative inline-flex rounded-full h-3 w-3", `bg-${color}`)}></span>
             </span>
-        </div>
-    )
-}
-
-
-// export function CartButtonWithPopOver({ onClick, className, children, storeCartInfos, withNavigation=true, as="button" }) {
-//     const stores = storeCartInfos && Object.entries(storeCartInfos);
-
-//     return (
-//         <Menu direction='rtl'>
-//             {({onClose}) => (
-//                 <>
-//                     <MenuButton as={as} className={clsx(className, {'rounded-3xl h-8 shadow-custom w-[6rem] px-2 py-5 text-md cursor-pointer text relative flex justify-center items-center hover:bg-gray-100': as === 'button'})}>
-//                         { children }
-//                     </MenuButton>
-//                     <MenuList padding={0} className='rounded-3xl cursor-pointer' style={{borderRadius: '20px', overflow: 'hidden'}}>
-//                         {
-//                             stores.length ? (
-//                                 stores?.map(store => {
-//                                     return (
-//                                         <CartMenuItem withNavigation={withNavigation} onClick={onClick} onClose={onClose} storeId={store[0]} key={store[1]?.name}>
-//                                             <Cart store={store[1]}/>
-//                                         </CartMenuItem>
-//                                     )
-//                                 })
-//                             ): (
-//                                 <li className='flex w-[25rem] justify-between border-t-[1px] p-4 hover:bg-smoke first:border-none'>
-//                                     <span> You have nothing in your cart yet...</span>
-//                                 </li>
-//                             )
-//                         }
-//                     </MenuList>
-//                 </>
-//             )}
-//         </Menu>
-//     )
-// }
-
-function CartMenuItem({ onClick, withNavigation=true, storeId, children, onClose }) {
-    // const fetcher = useFetcher();
-    if (withNavigation) {
-        return <Link onClick={onClose} to={`store/${storeId}`}>{children}</Link>
-    }
-    return (
-        <div onClick={() => {
-            onClose();
-            onClick(storeId)
-        }}>
-            {children}
         </div>
     )
 }
@@ -295,7 +240,6 @@ function StoreCartSummary({ store }) {
                     <div className='w-6 relative rounded-full flex items-center justify-center font-bold'>
                         <span className='text-white text-md font-bold'>{ count }</span>
                     </div>
-                    <span className={clsx("text-white material-symbols-outlined group-hover:animate-slide-right-infinite")} >arrow_forward</span>
                 </div>
             </div>
         </li>

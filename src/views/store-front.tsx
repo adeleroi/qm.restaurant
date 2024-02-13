@@ -3,9 +3,9 @@ import React from "react";
 import { ActionFunctionArgs, Link, LoaderFunctionArgs, Outlet, json, redirect, useFetcher, useLoaderData } from "react-router-dom"
 import { db } from "../firebase/fireStore";
 import { collection, doc, getDoc, getDocs, runTransaction, serverTimestamp } from "firebase/firestore";
-// import { useFirebaseAuth } from "../firebase/auth";
 import Cookies from "js-cookie";
 import { priceFormat } from "../utils/currency";
+import { Store } from "./store-list";
 
 export type Product = {
     id: string,
@@ -16,12 +16,27 @@ export type Product = {
     offer: string,
     storeId: string,
     imgUrl: string,
+    category: string;
 }
+
+function groupProductByCategory(products: Array<Product>) {
+    const productMap: Record<string, Array<Product>> = {};
+    products.forEach(product => {
+        const { category } = product
+        if (!productMap[category]) {
+            productMap[category] = [];
+        }
+        productMap[category].push(product);
+    })
+    return productMap;
+  }
 
 export async function loader({params}: LoaderFunctionArgs) {
     const storeId = params.storeId as string;
     const products: Array<Product> = [];
     const carts: Array<Product> = [];
+    const cartItemIds = new Map<string, number>();
+    const productMap: Record<string, Array<Product>> = {};
     const userId = Cookies.get('qm_session_id') as string;
     if (!userId) {
         return redirect('/',)
@@ -30,24 +45,26 @@ export async function loader({params}: LoaderFunctionArgs) {
     const productSnapshot = await getDocs(collection(db, "store", storeId, "product"));
 
     cartSnapshot.forEach(cartItem => {
-        carts.push({id: cartItem.id, ...cartItem.data()} as Product);
+        const data = cartItem.data();
+        carts.push({id: cartItem.id, ...data} as Product);
+        cartItemIds.set(cartItem.id, data.count);
     })
 
     productSnapshot.forEach(prod => {
-        const productInStore = {id: prod.id, count: 0, ...prod.data()} as Product;
-        if (carts.length) {
-            const productInCart = carts.find(prod => prod.id === productInStore.id);
-            if (productInCart) {
-                productInStore.count = Number(productInCart.count);
-            }
+        const productInStore = { id: prod.id, count: 0, ...prod.data() } as Product;
+        if (cartItemIds.has(prod.id)) {
+            productInStore.count = Number(cartItemIds.get(prod.id));
         }
-        products.push(productInStore);
+        const { category } = productInStore;
+        if (!productMap[category]) {
+            productMap[category] = [];
+        }
+        productMap[category].push(productInStore);
     });
 
     const storeDoc = await getDoc(doc(db, "store", storeId));
     const storeInfos = { id: storeDoc, ...storeDoc.data() }
-
-    return json({products, storeInfos});
+    return json({ productMap, storeInfos });
 }
 
 export async function action({request, params}: ActionFunctionArgs) {
@@ -80,12 +97,18 @@ export async function action({request, params}: ActionFunctionArgs) {
     return json({});
 }
 
+type StoreInfos = Store & { cart: Array<Product> }
+
+type StoreFrontLoader = {
+    productMap: Record<string,
+    Array<Product>>, storeInfos: StoreInfos
+}
+
 export function StoreFront() {
-    const loaderData = useLoaderData();
-    const productList = (loaderData as unknown as {products: Array<Product>, storeId: string})?.products as Array<Product>;
-    const storeInfos = loaderData.storeInfos;
+    const { storeInfos, productMap } = useLoaderData() as StoreFrontLoader;
+    const categories = Object.keys(productMap);
     return (
-        <section className="grid pt-16 px-8">
+        <section className="pt-16 px-16">
             <div className="flex w-full items-center pb-4 bg-brown-bg rounded-lg">
                 <div className="pl-10">
                     <div className="w-20 h-20 border-[1px] bg-white rounded-full flex justify-center items-center mr-2 my-4 px-2">
@@ -98,17 +121,28 @@ export function StoreFront() {
                 </div>
             </div>
             <div className="mt-10">
-                <ul className="flex gap-2">
+                <div>
                     {
-                        productList?.map((prod, idx) => {
+                        categories?.map(category => {
                             return (
-                                <li key={idx}>
-                                    <Product product={prod}/>
-                                </li>
+                                <div key={category}>
+                                    <h1 className="text-2xl font-bold capitalize">{category}</h1>
+                                    <div className="item-list my-5 flex overflow-x-auto snap-x scroll-smooth">
+                                        {
+                                            productMap[category].map((prod, idx) => {
+                                                return (
+                                                    <div key={idx} className="snap-center">
+                                                        <Product product={prod}/>
+                                                    </div>
+                                                )
+                                            })
+                                        }
+                                    </div>
+                                </div>
                             )
                         })
                     }
-                </ul>
+                </div>
             </div>
             <Outlet/>
         </section>
@@ -121,18 +155,18 @@ type ProductProps = {
 
 export function Product({product}: ProductProps) {
     return (
-        <div className="relative  overflow-hidden p-2 pb-4 cursor-pointer w-64">
+        <div className="relative  overflow-hidden p-2 pb-4 cursor-pointer w-52">
             <Link to={`product/${product.id}`}>
-                <div className="p-4 rounded-xl mb-4 bg-smoke h-64">
+                <div className="p-4 rounded-xl mb-4 bg-smoke h-48">
                     <img className="object-contain" src={product.imgUrl} alt=""/>
                 </div>
                 <div>
-                    <p className="text-lg font-bold">{priceFormat(product.price)}</p>
-                    <span className="text-md capitalize">{product.name}</span>
-                    <p className="text-md capitalize">{product.description}</p>
+                    <p className="font-bold">{priceFormat(product.price)}</p>
+                    <span className="text-[14px] capitalize text-gray-600">{product.name}</span>
+                    <p className="text-[14px] capitalize text-gray-600">{product.description}</p>
                 </div>
             </Link>
-            <div className="absolute right-4 top-52">
+            <div className="absolute right-4 top-36">
                 <AddToCartButton cartCount={product?.count} productId={product.id}/>
             </div>
         </div>
@@ -143,7 +177,6 @@ export function AddToCartButton({cartCount, productId, action=""}: { cartCount: 
     const [isOpen, setIsOpen] = React.useState<boolean|null>(null)
     const [ count, setCount ] = React.useState(cartCount ?? 0);
     const fetcher = useFetcher();
-    // const { data } = useFirebaseAuth();
 
     function handleBlur(event) {
         if (!event.currentTarget.contains(event.relatedTarget)) {
