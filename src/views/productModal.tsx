@@ -62,21 +62,28 @@ export function ProductModal() {
             }}>
           <ModalOverlay />
           <ModalContent className='p-4 min-h-[90vh]' style={{borderRadius: '20px'}}>
-            <ModalCloseButton style={{borderRadius: '50%', fontWeight: 'bold', fontSize: '16px', left: '8px'}}/>
+            <ModalCloseButton style={{borderRadius: '50%', fontWeight: 'bold', fontSize: '16px', left: '16px', top: '16px', outline: 'none'}}/>
             <ModalBody>
                 <div className='grid grid-cols-2 gap-10 p-3 mt-8'>
                     <div onMouseLeave={handleMouseLeave} onMouseMove={handleMouseMove} ref={imgContainerRef}
-                        className='cursor-crosshair h-72 overflow-hidden relative flex justify-center items-center'>
+                        className='cursor-crosshair h-96 overflow-hidden relative flex justify-center items-center border-2 rounded-3xl'>
                         <img ref={imgRef} className='absolute object-fit h-56' src={product?.imgUrl} alt={product?.name}/>
                     </div>
-                    <div className='h-96 px-5 py-5'>
-                        <h1 className='text-left text-3xl font-bold mb-2'>{ product.name }</h1>
-                        <p className='text-gray-600'>{priceFormat(product?.price)}</p>
-                        <br/>
-                        <ButtonActionAndValue subtotal={product?.price} >Add to cart</ButtonActionAndValue>
-                        <div className='w-full border-[1px] my-4'></div>
-                        <h1 className='font-bold text-md text-gray-800'>Details:</h1>
-                        <p className='text-gray-600'>{ product.description }</p>
+                    <div className='h-96 px-5 py-5 border-2 rounded-3xl grid grid-rows-3'>
+                        <div>
+                            <h1 className='text-left text-3xl font-bold mb-2 capitalize'>{ product.name }</h1>
+                            <p className='text-gray-600'>{priceFormat(product?.price)}</p>
+                            {/* <br/> */}
+                        </div>
+                        <div className='grid gap-2'>
+                            <button className='rounded-3xl bg-gray-200 py-3 w-full'>1</button>
+                            <ButtonActionAndValue subtotal={product?.price} >Add to cart</ButtonActionAndValue>
+                        </div>
+                        <div>
+                            <div className='w-full border-[1px] my-4'></div>
+                            <h1 className='font-bold text-md text-gray-800'>Details:</h1>
+                            <p className='text-gray-600'>{ product.description }</p>
+                        </div>
                     </div>
                 </div>
             </ModalBody>

@@ -120,7 +120,7 @@ export function StoreFront() {
     const { storeInfos, productMap, categories } = useLoaderData() as StoreFrontLoader;
     return (
         <section className="pt-16 px-16">
-            <div className={clsx(`flex w-full items-center pb-4 rounded-lg bg-[${storeInfos?.backgroundColor}]`)}>
+            <div style={{backgroundColor: storeInfos?.backgroundColor}} className="flex w-full items-center pb-4 rounded-lg">
                 <div className="pl-8">
                     <div className="w-20 h-20 border-[1px] bg-white rounded-full flex justify-center items-center mr-2 my-4 px-2">
                         <img className="object-contain" src={storeInfos.imgUrl} alt="lcbo-logo"/>
@@ -133,37 +133,95 @@ export function StoreFront() {
             </div>
             <CategoryFilter categories={categories} />
             <div className="mt-10">
-                <div>
-                    {
-                        categories?.map(category => {
-                            return (
-                                <>
-                                    {
-                                       productMap[category]?.length ? (
-                                        <div className="my-16" key={category}>
-                                                <h1 className="text-2xl font-bold capitalize">{category}</h1>
-                                                <div className="item-list my-5 flex overflow-x-auto snap-x scroll-smooth">
-                                                    {
-                                                        productMap[category]?.map((prod, idx) => {
-                                                            return (
-                                                                <div key={idx} className="snap-center">
-                                                                    <Product product={prod}/>
-                                                                </div>
-                                                            )
-                                                        })
-                                                    }
-                                                </div>
-                                            </div>
-                                       ) : null
-                                    }
-                                </>
-                            )
-                        })
-                    }
-                </div>
+                {
+                    categories?.map(category => (
+                        <div key={category}>{ productMap[category]?.length ? <ScrollableCategory category={category} /> : null }</div>
+                    ))
+                }
             </div>
             <Outlet/>
         </section>
+    )
+}
+
+
+export function ScrollableCategory({ category, productMap }: { category?: string, productMap?: Array<any>}) {
+    const slideRef = React.useRef<HTMLDivElement | null>(null);
+    const [ slideCount, setSlideCount ] = React.useState(0);
+    const [ max, setMax ] = React.useState<number>(0);
+
+    function handleLeftScroll() {
+        const el = slideRef.current;
+        if (!el) return;
+
+        if (slideCount - 1 >= 0) {
+            const newCount = slideCount - 1;
+            // console.log("left", newCount, el.scrollWidth, el.offsetWidth);
+            el.scrollBy({
+                left: - el.offsetWidth,
+                behavior: "smooth",
+            });
+            setSlideCount(newCount);
+        }
+    }
+
+    function handleRightScroll() {
+        const el = slideRef.current;
+        if (!el) return;
+
+        if (slideCount + 1 < max) {
+            const newCount = slideCount + 1;
+            // console.log("right", newCount, el.scrollWidth, el.offsetWidth);
+            el.scrollBy({
+                left: el.offsetWidth,
+                behavior: "smooth",
+            });
+            setSlideCount(newCount);
+        }
+    }
+
+    React.useEffect(() => {
+        if (slideRef.current) {
+            setMax(slideRef.current.scrollWidth/slideRef.current.offsetWidth);
+        }
+    });
+
+    return (
+        <div className="my-16" key={category}>
+            <div className="flex justify-between w-full">
+                <h1 className="text-2xl font-bold capitalize">{category}</h1>
+                <div className="flex gap-2">
+                    <button disabled={slideCount - 1 < 0} onClick={handleLeftScroll} className="disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:bg-gray-200 rounded-full w-10 h-10 bg-gray-200 hover:bg-gray-300 text-black grid place-items-center">
+                        <span className="material-symbols-outlined text-[16px] font-bold">
+                            arrow_back_ios
+                        </span>
+                    </button>
+                    <button disabled={slideCount + 1 >= max} onClick={handleRightScroll} className="disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:bg-gray-200  rounded-full w-10 h-10 bg-gray-200 hover:bg-gray-300 text-black grid place-items-center">
+                        <span className="material-symbols-outlined text-[16px] font-bold">
+                            arrow_forward_ios
+                        </span>
+                    </button>
+                </div>
+            </div>
+            <div className="item-list my-5 flex overflow-x-auto snap-x scroll-smooth" ref={slideRef}>
+                {
+                    Array.from({length: 26})?.map((_, idx) => {
+                        return (
+                            <div key={idx} className="snap-center">
+                                <Product product={{name: 'alloco', price: 3.99, offer: "20% off"}}/>
+                            </div>
+                        )
+                    })
+                    // productMap[category]?.map((prod, idx) => {
+                    //     return (
+                    //         <div key={idx} className="snap-center">
+                    //             <Product product={prod}/>
+                    //         </div>
+                    //     )
+                    // })
+                }
+            </div>
+        </div>
     )
 }
 
@@ -234,7 +292,8 @@ export function Pill({ selected, handleSelection, text } : { selected: boolean, 
     )
 }
 
-export function AddToCartButton({cartCount, productId, action=""}: { cartCount: number, productId: string, action?: string}) {
+type  AddToCartButtonProps = { cartCount: number, productId: string, action?: string, textStyle?: "medium" | "small"}
+export function AddToCartButton({cartCount, productId, action="", textStyle="medium"}: AddToCartButtonProps) {
     const [isOpen, setIsOpen] = React.useState<boolean|null>(null)
     const [ count, setCount ] = React.useState(cartCount ?? 0);
     const fetcher = useFetcher();
@@ -273,9 +332,10 @@ export function AddToCartButton({cartCount, productId, action=""}: { cartCount: 
                     onClick={handleRemoveButton}
                     type="submit"
                     name="itemCount"
-                    className={clsx("hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 text-md font-semibold justify-center items-center", {
+                    className={clsx("hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 justify-center items-center", {
                         "flex": isOpen,
                         "hidden": !isOpen,
+                        "text-lg font-bold": textStyle === 'medium',
                     })}>
                     { count !== 1 ? <span className="font-semibold">-</span> : <span className="material-symbols-outlined font-semibold">delete</span> }
                 </button>
@@ -292,7 +352,9 @@ export function AddToCartButton({cartCount, productId, action=""}: { cartCount: 
                     onClick={handleAddButton}
                     name="itemCount"
                     type="submit"
-                    className="flex hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 text-md font-semibold justify-center items-center">
+                    className={clsx("flex hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 justify-center items-center", {
+                        "text-lg font-bold": textStyle === "medium"
+                    })}>
                     <span>{ !isOpen && count > 0 ? count : "+" }</span>
                 </button>
             </div>

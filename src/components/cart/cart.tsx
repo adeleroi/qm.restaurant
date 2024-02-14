@@ -62,20 +62,21 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
                 <DrawerBody className='pt-a grid bg-gray-100' style={{padding: 0, position: 'relative'}}>
                     {
                         cartCount === 0 ?
-                            <EmptyCart onClose={onClose} /> :
+                            <NoCart onClose={onClose} /> :
                             <>
                                 {
                                    storeId || restaurantId ?
                                    <Cart onClose={onClose} subtotal={subtotal} cartItems={cartItems} storeInfos={storeInfos} storeId={storeId}/>
                                    : null
                                 }
-                                <CartList list={storeAndCartSummary} showTitle={storeId || restaurantId}/>
+                                <CartList onClose={onClose} list={storeAndCartSummary} showTitle={storeId || restaurantId}/>
                             </>
                     }
                 </DrawerBody>
                 { cartItems?.length ?
-                    <div className='sticky top-full w-full py-2  shadow-custom border-2 px-2 grid place-items-center bg-white'>
-                        <ButtonActionAndValue subtotal={subtotal}>Chekout</ButtonActionAndValue>
+                    <div className='sticky top-full w-full py-5 gap-2 shadow-custom border-2 px-2 grid place-items-center bg-white'>
+                        <ButtonActionAndValue subtotal={subtotal}>Checkout</ButtonActionAndValue>
+                        <button onClick={onClose} className='bg-gray-200 py-2 rounded-3xl font-bold w-full hover:bg-gray-100'>Add more items</button>
                     </div> : null
                 }
             </DrawerContent>
@@ -84,7 +85,7 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
     )
 }
 
-export function EmptyCart({ onClose }: {onClose: () => void}) {
+export function NoCart({ onClose }: {onClose: () => void}) {
     return (
         <div className='h-full grid place-items-center'>
             <div className='flex items-center justify-center flex-col'>
@@ -101,16 +102,16 @@ function cartListFilteredFunc(list: Array<any>, against:string) {
     return list?.filter(elem => elem.cart[0].storeId !== against);
 }
 
-export function CartList({list, showTitle}) {
+export function CartList({ list, showTitle, onClose }) {
     const { storeId } = useParams() as Record<string, string>;
     const filteredList = cartListFilteredFunc(list, storeId);
     return (
         filteredList?.length ? (
-            <div className='relative bg-white'>
-                { showTitle ? <h1 className='px-5 mb-4 mt-8 font-semibold text-[14px]'>Your other carts:</h1> : null }
-                <div className=' bg-white mb-8'>
+            <div className='relative bg-gray-100 '>
+                { showTitle ? <h1 className='px-5 mb-4 mt-8 font-bold text-lg'>Your other carts:</h1> : null }
+                <div className='mb-8'>
                     <ul>
-                        { filteredList?.map((summary) => { return <StoreCartSummary key={summary.name} store={summary} /> }) }
+                        { filteredList?.map((summary) => { return <CartSummary onClose={onClose} key={summary.name} store={summary} /> }) }
                     </ul>    
                 </div>
             </div>
@@ -120,15 +121,15 @@ export function CartList({list, showTitle}) {
 
 export function Cart({cartItems, storeId, subtotal, onClose}) {
     const isCurrentStoreCartEmpty = cartItems?.length;
+    const formattedSubtotal = priceFormat(subtotal);
     return (
         <>
             {
                 isCurrentStoreCartEmpty ? (
-                    <div className='bg-white pt-8'>
-
+                    <div className='bg-white pt-8 mb-10'>
                         <div className='mb-3 flex justify-between w-full px-5 text-[14px]'>
                             <p className='font-bold'>{cartItems?.length} {cartItems?.length > 1 ? "items" : "item"}</p>
-                            <p className='text-md font-bold'>{priceFormat(subtotal)}</p>
+                            <p className='text-md font-bold'>{formattedSubtotal}</p>
                         </div>
                         <ul className=''>
                             {
@@ -137,31 +138,41 @@ export function Cart({cartItems, storeId, subtotal, onClose}) {
                                 })
                             }
                         </ul>
+                        <div className='flex w-full justify-between px-5 pb-5'>
+                            <p className='font-bold text-xl'>Subtotal </p>
+                            <p className='font-bold'>{formattedSubtotal}</p>
+                        </div>
                     </div>
                 ):
-                <div className='px-5 flex items-center flex-col justify-center gap-2'>
-                    <h1 className='text-center'>
-                        You have no item from this store in your cart
-                    </h1>
-                    <button onClick={onClose} className='p-2 rounded-3xl hover:bg-green-800  bg-defaultGreen hover:green-800 text-white font-bold'>Start shopping</button>
-                </div>
+                <EmptyCart onClose={onClose} />
             }
         </>
     )
 }
 
+function EmptyCart({ onClose }: { onClose: () => void}) {
+    return (
+        <div className='px-5 flex items-center flex-col justify-center gap-2'>
+            <h1 className='text-center'>
+                You have no item from this store in your cart
+            </h1>
+            <button onClick={onClose} className='p-2 rounded-3xl hover:bg-green-800  bg-defaultGreen hover:green-800 text-white font-bold'>Start shopping</button>
+        </div>
+    )
+}
+
 export function ButtonActionAndValue({subtotal, children}: { subtotal: number, children: React.ReactNode }) {
     return (
-        <button className='w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen h-14 rounded-xl text-white flex justify-between items-center px-4'>
+        <button className='relative group w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4'>
             <span>{ children }</span>
-            <span>{priceFormat(subtotal)}</span>
+            <span className='absolute right-2 bg-green-900 px-2 rounded-3xl text-[14px] group-hover:bg-defaultGreen'>{priceFormat(subtotal)}</span>
         </button>   
     )
 }
 
 function CartItem({ product, storeId }: { product: Product, storeId?: string}) {
     return (
-        <li className='relative border-t-[1px] px-5 bg-white hover:bg-smoke last:border-b-[1px] last:mb-10'>
+        <li className='relative border-t-[1px] px-5 py-4 bg-white hover:bg-smoke last:border-b-[1px] last:mb-3'>
             <Link key={product.id} to={`store/${storeId}/product/${product.id}`}>
                 <div className='w-full items-end py-4  cursor-pointer'>
                     <div className='h-full flex justify-between items-center'>
@@ -169,7 +180,7 @@ function CartItem({ product, storeId }: { product: Product, storeId?: string}) {
                             <div className='w-10 h-10 mb-2'>
                                 <img src={product?.imgUrl}/>
                             </div>
-                            <div className='text-[14px]'>
+                            <div className='text-[16px] capitalize'>
                                 <h1 className='pl-2 font-semibold'>{product.name}</h1>
                                 <span className='pl-2 font-semibold'>{priceFormat(product.price)}</span>&nbsp;
                                 { product.offer ? <span className='font-semibold text-white px-1 rounded bg-defaultGreen'>{product.offer}</span>: null }
@@ -179,7 +190,7 @@ function CartItem({ product, storeId }: { product: Product, storeId?: string}) {
                 </div>
             </Link>
             <div className='absolute top-1/2 -translate-y-1/2 right-5 z-0'>
-                <AddToCartButton action='store/:storeId' productId={product.id} cartCount={product.count}/>
+                <AddToCartButton textStyle='small' action='store/:storeId' productId={product.id} cartCount={product.count}/>
             </div>
         </li>
     )
@@ -219,11 +230,11 @@ export function Ping({color="defaultGreen"}: {color?: string}) {
     )
 }
 
-function StoreCartSummary({ store }) {
+function CartSummary({ store, onClose }) {
     const { count, price: subtotal } = getSubtotalAndCount(store?.cart);
 
     return (
-        <li className='flex px-5 justify-between border-t-[1px] hover:bg-smoke hover:cursor-pointer group min-h-24 last:border-b-[1px]'>
+        <li className='bg-white rounded-xl shadow-custom mx-2 mb-8 flex flex-col py-8 px-5 justify-between group min-h-24'>
             <div className='flex justify-between items-center w-full'>
                 <div className='flex justify-center items-center'>
                     <div className='px-1 h-14 w-14 flex rounded-full border-[1px]'>
@@ -241,6 +252,12 @@ function StoreCartSummary({ store }) {
                         <span className='text-white text-md font-bold'>{ count }</span>
                     </div>
                 </div>
+            </div>
+            <div className='mt-10 grid gap-2'>
+            <button className='bg-gray-200 py-2 rounded-3xl font-bold w-full hover:bg-gray-100'>Checkout</button>
+                <Link to={`store/${store?.storeId}`} onClick={() => onClose()}>
+                    <button className='bg-gray-200 py-2 rounded-3xl font-bold w-full hover:bg-gray-100'>Add more items</button>
+                </Link>
             </div>
         </li>
     )

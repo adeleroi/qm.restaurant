@@ -51,6 +51,7 @@ export async function loader() {
   
     for (const [key, ] of Object.entries(storeInfos)) {
         storeInfos[key]['cart']  = cartMap[key]
+        storeInfos[key]['storeId'] = key;
     }
   
     return json({carts, storeCartInfos: storeInfos, cartCount: uniqueStoreList.length})
@@ -141,4 +142,5 @@ function AppWithProvider() {
     </ChakraProvider>
   )
 }
+
 export default AppWithProvider

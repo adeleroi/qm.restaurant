@@ -7,9 +7,9 @@ export function Logo({ to="restaurant" }: { to?: string }) {
     return (
         <Link to={loggedIn ? to : '/'}>
             <div className="cursor-pointer">
-                <p className="font-roboto font-bold text-2xl">
-                    <span className="text-defaultGreen">Q</span>
-                    <span>uickmarket</span>
+                <p className="font-montserrat font-bold text-2xl">
+                    <span className="text-defaultGreen">Quick</span>
+                    <span className="">Market</span>
                 </p>
             </div>
         </Link>
