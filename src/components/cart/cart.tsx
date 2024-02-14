@@ -189,9 +189,9 @@ function getSubtotalAndCount(arr: Array<Product> = []) {
     return arr?.reduce((acc, curr) => ({...acc, count: acc?.count + curr?.count, price: curr?.price * curr?.count + acc?.price}), {count: 0, price: 0});
 }
 
-const fullCartIcon = <><span className="material-symbols-outlined text-white font-bold text-xl">remove_shopping_cart</span></>;
+const fullCartIcon = <span className="material-symbols-outlined text-white font-bold text-xl">remove_shopping_cart</span>;
 
-const emptyCartIcon = <span className="material-symbols-outlined text-white font-bold">shopping_cart</span>
+const emptyCartIcon = <span className="material-symbols-outlined text-white font-bold text-xl">shopping_cart</span>
 
 export function CartIcon() {
     const {  storeCartInfos, carts } = useLoaderData();
@@ -201,9 +201,9 @@ export function CartIcon() {
     const showEmptyCartIcon = storeId && numberOfCartItemByStore == 0 || !storeId && totalNumberOfCartItem == 0;
 
     return (
-        <div className="flex justify-between items-center text-white w-full px-1">
+        <div className="flex justify-between items-center text-white w-full gap-2">
             { showEmptyCartIcon ? emptyCartIcon : fullCartIcon }
-            <span className="font-bold"> { storeId ? numberOfCartItemByStore : totalNumberOfCartItem }</span>
+            <span className="font-bold text-[14px]"> { storeId ? numberOfCartItemByStore : totalNumberOfCartItem }</span>
         </div>
     )
 }

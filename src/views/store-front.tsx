@@ -36,14 +36,24 @@ export async function loader({params, request}: LoaderFunctionArgs) {
     const carts: Array<Product> = [];
     const cartItemIds = new Map<string, number>();
     const productMap: Record<string, Array<Product>> = {};
+    const categories: Array<string> = [];
+
     const productListRef = collection(db, "store", storeId, "product"); 
     const categoryQuery = query(productListRef, where('category', '==', category));
 
-    const categorySnapshot = await getDocs(query(productListRef, where('category', "==", true)));
-    const cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
-    const productSnapshot = await getDocs(category ? categoryQuery : productListRef);
+    const [
+        cartSnapshot,
+        productSnapshot,
+        categorySnapshot,
+    ] = await Promise.all([
+        await getDocs(collection(db, "users", userId, "cart")),
+        await getDocs(category ? categoryQuery : productListRef),
+        await getDocs(productListRef),
+    ]);
 
-    categorySnapshot.forEach(cat => console.log(cat.id, '==>', cat.data()))
+    categorySnapshot.forEach(cat => {
+        categories.push(cat.data().category);
+    });
 
     cartSnapshot.forEach(cartItem => {
         const data = cartItem.data();
@@ -65,7 +75,7 @@ export async function loader({params, request}: LoaderFunctionArgs) {
 
     const storeDoc = await getDoc(doc(db, "store", storeId));
     const storeInfos = { id: storeDoc, ...storeDoc.data() }
-    return json({ productMap, storeInfos });
+    return json({ productMap, storeInfos, categories });
 }
 
 export async function action({request, params}: ActionFunctionArgs) {
@@ -101,16 +111,16 @@ export async function action({request, params}: ActionFunctionArgs) {
 type StoreInfos = Store & { cart: Array<Product> }
 
 type StoreFrontLoader = {
-    productMap: Record<string,
-    Array<Product>>, storeInfos: StoreInfos
+    productMap: Record<string, Array<Product>>,
+    storeInfos: StoreInfos
+    categories: Array<string>,
 }
 
 export function StoreFront() {
-    const { storeInfos, productMap } = useLoaderData() as StoreFrontLoader;
-    const categories = Object.keys(productMap);
+    const { storeInfos, productMap, categories } = useLoaderData() as StoreFrontLoader;
     return (
         <section className="pt-16 px-16">
-            <div className="flex w-full items-center pb-4 bg-[#99002b] rounded-lg">
+            <div className={clsx(`flex w-full items-center pb-4 rounded-lg bg-[${storeInfos?.backgroundColor}]`)}>
                 <div className="pl-8">
                     <div className="w-20 h-20 border-[1px] bg-white rounded-full flex justify-center items-center mr-2 my-4 px-2">
                         <img className="object-contain" src={storeInfos.imgUrl} alt="lcbo-logo"/>
@@ -127,20 +137,26 @@ export function StoreFront() {
                     {
                         categories?.map(category => {
                             return (
-                                <div key={category}>
-                                    <h1 className="text-2xl font-bold capitalize">{category}</h1>
-                                    <div className="item-list my-5 flex overflow-x-auto snap-x scroll-smooth">
-                                        {
-                                            productMap[category].map((prod, idx) => {
-                                                return (
-                                                    <div key={idx} className="snap-center">
-                                                        <Product product={prod}/>
-                                                    </div>
-                                                )
-                                            })
-                                        }
-                                    </div>
-                                </div>
+                                <>
+                                    {
+                                       productMap[category]?.length ? (
+                                        <div className="my-16" key={category}>
+                                                <h1 className="text-2xl font-bold capitalize">{category}</h1>
+                                                <div className="item-list my-5 flex overflow-x-auto snap-x scroll-smooth">
+                                                    {
+                                                        productMap[category]?.map((prod, idx) => {
+                                                            return (
+                                                                <div key={idx} className="snap-center">
+                                                                    <Product product={prod}/>
+                                                                </div>
+                                                            )
+                                                        })
+                                                    }
+                                                </div>
+                                            </div>
+                                       ) : null
+                                    }
+                                </>
                             )
                         })
                     }
@@ -188,14 +204,18 @@ function CategoryFilter({ categories }: { categories: Array<string> }) {
     const navigate = useNavigate();
 
     function handleSelection(value: string) {
-        if (selected === value) return;
+        if (selected === value) {
+            setSelected("");
+            navigate(".");
+            return;
+        }
         setSelected(value);
         navigate(`?category=${encodeURIComponent(value)}`);
     }
 
     return (
         <ul className="mt-10 flex gap-2">
-            { categories.map(category => (
+            { categories?.map(category => (
                 <Pill key={category} text={category} selected={selected === category} handleSelection={handleSelection} />
             ))}
         </ul>
@@ -205,10 +225,10 @@ function CategoryFilter({ categories }: { categories: Array<string> }) {
 export function Pill({ selected, handleSelection, text } : { selected: boolean, text: string, handleSelection: (t:string) => void }) {
     return (
         <>
-        <li onClick={() => handleSelection(text)} className={clsx("capitalize flex justify-center min-w-16 py-2 px-3 text-black font-black rounded-3xl border-2 text-[13px] \
+        <li onClick={() => handleSelection(text)} className={clsx("capitalize flex justify-center min-w-16 py-2 px-3 text-black font-black rounded-3xl text-[13px] \
             cursor-pointer hover:shadow-custom", {
-                'bg-black text-white border-black': selected,
-                'bg-gray-200 border-black': !selected,
+                'bg-black text-white': selected,
+                'bg-gray-200 hover:bg-gray-100': !selected,
             })}>{ text }</li>
         </>
     )
