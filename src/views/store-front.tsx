@@ -1,8 +1,8 @@
 import clsx from "clsx";
 import React from "react";
-import { ActionFunctionArgs, Link, LoaderFunctionArgs, Outlet, json, redirect, useFetcher, useLoaderData, useNavigate } from "react-router-dom"
+import { ActionFunctionArgs, Link, LoaderFunctionArgs, Outlet, json, redirect, useFetcher, useLoaderData, useLocation, useNavigate } from "react-router-dom"
 import { db } from "../firebase/fireStore";
-import { collection, doc, getDoc, getDocs, runTransaction, serverTimestamp } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, runTransaction, serverTimestamp, where } from "firebase/firestore";
 import Cookies from "js-cookie";
 import { priceFormat } from "../utils/currency";
 import { Store } from "./store-list";
@@ -19,36 +19,37 @@ export type Product = {
     category: string;
 }
 
-function groupProductByCategory(products: Array<Product>) {
-    const productMap: Record<string, Array<Product>> = {};
-    products.forEach(product => {
-        const { category } = product
-        if (!productMap[category]) {
-            productMap[category] = [];
-        }
-        productMap[category].push(product);
-    })
-    return productMap;
-  }
+function getQueryParams(url: string): string | null {
+    const searchParams = new URL(url).searchParams;
+    const category = searchParams.get('category');
+    return category;
+}
 
-export async function loader({params}: LoaderFunctionArgs) {
-    const storeId = params.storeId as string;
-    const products: Array<Product> = [];
-    const carts: Array<Product> = [];
-    const cartItemIds = new Map<string, number>();
-    const productMap: Record<string, Array<Product>> = {};
+export async function loader({params, request}: LoaderFunctionArgs) {
     const userId = Cookies.get('qm_session_id') as string;
     if (!userId) {
         return redirect('/',)
     }
+
+    const category = getQueryParams(request.url);
+    const storeId = params.storeId as string;
+    const carts: Array<Product> = [];
+    const cartItemIds = new Map<string, number>();
+    const productMap: Record<string, Array<Product>> = {};
+    const productListRef = collection(db, "store", storeId, "product"); 
+    const categoryQuery = query(productListRef, where('category', '==', category));
+
+    const categorySnapshot = await getDocs(query(productListRef, where('category', "==", true)));
     const cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
-    const productSnapshot = await getDocs(collection(db, "store", storeId, "product"));
+    const productSnapshot = await getDocs(category ? categoryQuery : productListRef);
+
+    categorySnapshot.forEach(cat => console.log(cat.id, '==>', cat.data()))
 
     cartSnapshot.forEach(cartItem => {
         const data = cartItem.data();
         carts.push({id: cartItem.id, ...data} as Product);
         cartItemIds.set(cartItem.id, data.count);
-    })
+    });
 
     productSnapshot.forEach(prod => {
         const productInStore = { id: prod.id, count: 0, ...prod.data() } as Product;
@@ -174,17 +175,22 @@ export function Product({product}: ProductProps) {
     )
 }
 
+function useCategory(): string {
+    const location = useLocation();
+    const url = new URLSearchParams(location.search);
+    const currentCategory = url.get('category');
+    return currentCategory || '';
+}
+
 function CategoryFilter({ categories }: { categories: Array<string> }) {
-    const [ selected, setSelected ] = React.useState('');
+    const currentCategory = useCategory();
+    const [ selected, setSelected ] = React.useState(currentCategory || '');
     const navigate = useNavigate();
 
     function handleSelection(value: string) {
-        if (selected === value) {
-            return;
-        } else {
-            setSelected(value);
-        }
-        navigate(`?category=${value}`);
+        if (selected === value) return;
+        setSelected(value);
+        navigate(`?category=${encodeURIComponent(value)}`);
     }
 
     return (
@@ -199,7 +205,7 @@ function CategoryFilter({ categories }: { categories: Array<string> }) {
 export function Pill({ selected, handleSelection, text } : { selected: boolean, text: string, handleSelection: (t:string) => void }) {
     return (
         <>
-        <li onClick={() => handleSelection(text)} className={clsx("capitalize flex justify-center min-w-16 py-2 px-3 text-black font-black rounded-3xl border-2 text-[12px] \
+        <li onClick={() => handleSelection(text)} className={clsx("capitalize flex justify-center min-w-16 py-2 px-3 text-black font-black rounded-3xl border-2 text-[13px] \
             cursor-pointer hover:shadow-custom", {
                 'bg-black text-white border-black': selected,
                 'bg-gray-200 border-black': !selected,

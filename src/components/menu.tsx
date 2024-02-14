@@ -23,7 +23,7 @@ export function Menu() {
             onClose={onClose}>
             <DrawerOverlay />
             <DrawerContent className=''>
-            <DrawerCloseButton className='left-5' style={{top: '20px'}} />    
+            <DrawerCloseButton className='left-5' style={{top: '20px', fontSize: '16px', borderRadius: '50%'}} />    
             <DrawerBody className='mt-16' style={{paddingLeft: 0, paddingRight: 0}}>
                 <ul>
                     <MenuIntem to={loggedIn ? '/restaurant' : '/'} onClick={onClose}>
