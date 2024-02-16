@@ -1,11 +1,11 @@
 import clsx from "clsx";
 import React from "react";
-import { ActionFunctionArgs, Link, LoaderFunctionArgs, Outlet, json, redirect, useFetcher, useLoaderData, useLocation, useNavigate } from "react-router-dom"
-import { db } from "../firebase/fireStore";
+import { ActionFunctionArgs, Link, LoaderFunctionArgs, Location, Outlet, json, redirect, useFetcher, useLoaderData, useLocation, useNavigate, useNavigation, useParams } from "react-router-dom"
+import { db } from "../../firebase/fireStore";
 import { collection, doc, getDoc, getDocs, query, runTransaction, serverTimestamp, where } from "firebase/firestore";
 import Cookies from "js-cookie";
-import { priceFormat } from "../utils/currency";
-import { Store } from "./store-list";
+import { priceFormat } from "../../utils/currency";
+import { Store } from "../store-list";
 
 export type Product = {
     id: string,
@@ -19,19 +19,12 @@ export type Product = {
     category: string;
 }
 
-function getQueryParams(url: string): string | null {
-    const searchParams = new URL(url).searchParams;
-    const category = searchParams.get('category');
-    return category;
-}
-
-export async function loader({params, request}: LoaderFunctionArgs) {
+export async function loader({params}: LoaderFunctionArgs) {
     const userId = Cookies.get('qm_session_id') as string;
     if (!userId) {
         return redirect('/',)
     }
 
-    const category = getQueryParams(request.url);
     const storeId = params.storeId as string;
     const carts: Array<Product> = [];
     const cartItemIds = new Map<string, number>();
@@ -39,7 +32,6 @@ export async function loader({params, request}: LoaderFunctionArgs) {
     const categories: Array<string> = [];
 
     const productListRef = collection(db, "store", storeId, "product"); 
-    const categoryQuery = query(productListRef, where('category', '==', category));
 
     const [
         cartSnapshot,
@@ -47,7 +39,7 @@ export async function loader({params, request}: LoaderFunctionArgs) {
         categorySnapshot,
     ] = await Promise.all([
         await getDocs(collection(db, "users", userId, "cart")),
-        await getDocs(category ? categoryQuery : productListRef),
+        await getDocs(productListRef),
         await getDocs(productListRef),
     ]);
 
@@ -74,8 +66,9 @@ export async function loader({params, request}: LoaderFunctionArgs) {
     });
 
     const storeDoc = await getDoc(doc(db, "store", storeId));
-    const storeInfos = { id: storeDoc, ...storeDoc.data() }
-    return json({ productMap, storeInfos, categories });
+    const storeInfos = { id: storeDoc.id, ...storeDoc.data() }
+
+    return json({ productMap, storeInfos, categories: [...new Set(categories)] });
 }
 
 export async function action({request, params}: ActionFunctionArgs) {
@@ -110,7 +103,7 @@ export async function action({request, params}: ActionFunctionArgs) {
 
 type StoreInfos = Store & { cart: Array<Product> }
 
-type StoreFrontLoader = {
+export type StoreFrontLoader = {
     productMap: Record<string, Array<Product>>,
     storeInfos: StoreInfos
     categories: Array<string>,
@@ -132,93 +125,84 @@ export function StoreFront() {
                 </div>
             </div>
             <CategoryFilter categories={categories} />
-            <div className="mt-10">
-                {
-                    categories?.map(category => (
-                        <div key={category}>{ productMap[category]?.length ? <ScrollableCategory category={category} /> : null }</div>
-                    ))
-                }
-            </div>
             <Outlet/>
         </section>
     )
 }
 
 
-export function ScrollableCategory({ category, productMap }: { category?: string, productMap?: Array<any>}) {
+export function ScrollableCategory({ category, productMap }: { category: string, productMap: Record<string, Array<Product>>}) {
     const slideRef = React.useRef<HTMLDivElement | null>(null);
-    const [ slideCount, setSlideCount ] = React.useState(0);
-    const [ max, setMax ] = React.useState<number>(0);
+    const [ disabledNextBtn, setDisabledNextBtn ] = React.useState(false);
+    const [ disabledPrevBtn, setDisabledPrevBtn ] = React.useState(true);
 
-    function handleLeftScroll() {
+    const [ displayScrollBtn, setDisplayScrollBtn ] = React.useState(false);
+
+    function handleClick(position: 'left' | 'right') {
         const el = slideRef.current;
         if (!el) return;
-
-        if (slideCount - 1 >= 0) {
-            const newCount = slideCount - 1;
-            // console.log("left", newCount, el.scrollWidth, el.offsetWidth);
-            el.scrollBy({
-                left: - el.offsetWidth,
-                behavior: "smooth",
-            });
-            setSlideCount(newCount);
-        }
+        el.scrollBy({
+            left: position === 'left' ? - el.offsetWidth : el.offsetWidth,
+            behavior: "smooth",
+        });
     }
 
-    function handleRightScroll() {
-        const el = slideRef.current;
+    function handleScroll() {
+        const el = slideRef.current
         if (!el) return;
+        const prevBtnActivationTreshold = 0; // 0.5 * el.offsetWidth;
+        if (el.scrollLeft > prevBtnActivationTreshold) {
+            setDisabledPrevBtn(false)
+        } else {
+            setDisabledPrevBtn(true)
+        }
 
-        if (slideCount + 1 < max) {
-            const newCount = slideCount + 1;
-            // console.log("right", newCount, el.scrollWidth, el.offsetWidth);
-            el.scrollBy({
-                left: el.offsetWidth,
-                behavior: "smooth",
-            });
-            setSlideCount(newCount);
+        const hasReachedTheRightEndSide = el.scrollLeft + el.offsetWidth == el.scrollWidth;
+        if (hasReachedTheRightEndSide) {
+            setDisabledNextBtn(true);
+        } else {
+            setDisabledNextBtn(false)
         }
     }
 
     React.useEffect(() => {
-        if (slideRef.current) {
-            setMax(slideRef.current.scrollWidth/slideRef.current.offsetWidth);
+        const el = slideRef.current;
+        if (el) {
+            setDisplayScrollBtn(el.scrollWidth > el.offsetWidth);
         }
-    });
+    }, [])
 
     return (
         <div className="my-16" key={category}>
             <div className="flex justify-between w-full">
                 <h1 className="text-2xl font-bold capitalize">{category}</h1>
-                <div className="flex gap-2">
-                    <button disabled={slideCount - 1 < 0} onClick={handleLeftScroll} className="disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:bg-gray-200 rounded-full w-10 h-10 bg-gray-200 hover:bg-gray-300 text-black grid place-items-center">
-                        <span className="material-symbols-outlined text-[16px] font-bold">
-                            arrow_back_ios
-                        </span>
-                    </button>
-                    <button disabled={slideCount + 1 >= max} onClick={handleRightScroll} className="disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:bg-gray-200  rounded-full w-10 h-10 bg-gray-200 hover:bg-gray-300 text-black grid place-items-center">
-                        <span className="material-symbols-outlined text-[16px] font-bold">
-                            arrow_forward_ios
-                        </span>
-                    </button>
-                </div>
-            </div>
-            <div className="item-list my-5 flex overflow-x-auto snap-x scroll-smooth" ref={slideRef}>
                 {
-                    Array.from({length: 26})?.map((_, idx) => {
+                  displayScrollBtn ? (
+                    <div className="flex gap-2">
+                        <button disabled={disabledPrevBtn} onClick={() => handleClick('left')} className="disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:bg-gray-200 rounded-full w-10 h-10 bg-gray-200 hover:bg-gray-300 text-black grid place-items-center">
+                            <span className="material-symbols-outlined text-[16px] font-bold">
+                                arrow_back_ios
+                            </span>
+                        </button>
+                        <button disabled={disabledNextBtn} onClick={() => handleClick('right')} className="disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:bg-gray-200  rounded-full w-10 h-10 bg-gray-200 hover:bg-gray-300 text-black grid place-items-center">
+                            <span className="material-symbols-outlined text-[16px] font-bold">
+                                arrow_forward_ios
+                            </span>
+                        </button>
+                    </div>
+                    ): null
+
+                }
+            </div>
+            <div className="item-list my-5 py-4 mb-10 flex overflow-x-auto snap-x scroll-smooth" ref={slideRef} onScroll={handleScroll}>
+                {
+                    productMap?.[category]?.map((prod, idx) => {
                         return (
                             <div key={idx} className="snap-center">
-                                <Product product={{name: 'alloco', price: 3.99, offer: "20% off"}}/>
+                                <Product product={prod}/>
                             </div>
                         )
                     })
-                    // productMap[category]?.map((prod, idx) => {
-                    //     return (
-                    //         <div key={idx} className="snap-center">
-                    //             <Product product={prod}/>
-                    //         </div>
-                    //     )
-                    // })
                 }
             </div>
         </div>
@@ -226,15 +210,16 @@ export function ScrollableCategory({ category, productMap }: { category?: string
 }
 
 type ProductProps = {
-    product: Product
+    product: Product,
+    action?: string,
 }
 
-export function Product({product}: ProductProps) {
+export function Product({product, action}: ProductProps) {
     return (
-        <div className="relative  overflow-hidden p-2 pb-4 cursor-pointer w-52">
+        <div className="relative overflow-hidden p-2 pb-4 cursor-pointer w-56">
             <Link to={`product/${product.id}`}>
-                <div className="p-4 rounded-xl mb-4 bg-smoke h-48">
-                    <img className="object-contain" src={product.imgUrl} alt=""/>
+                <div className="p-4 rounded-xl mb-4 h-52 bg-gray-100 relative">
+                    {/* <img className="object-contain" src={product.imgUrl} alt=""/> */}
                 </div>
                 <div>
                     <p className="font-bold">{priceFormat(product.price)}</p>
@@ -242,39 +227,29 @@ export function Product({product}: ProductProps) {
                     <p className="text-[14px] capitalize text-gray-600">{product.description}</p>
                 </div>
             </Link>
-            <div className="absolute right-4 top-36">
+            <div className="absolute right-4 top-40">
                 <AddToCartButton cartCount={product?.count} productId={product.id}/>
             </div>
         </div>
     )
 }
 
-function useCategory(): string {
-    const location = useLocation();
-    const url = new URLSearchParams(location.search);
-    const currentCategory = url.get('category');
-    return currentCategory || '';
-}
-
 function CategoryFilter({ categories }: { categories: Array<string> }) {
-    const currentCategory = useCategory();
-    const [ selected, setSelected ] = React.useState(currentCategory || '');
+    const { categoryId: currentCategory } = useParams();
     const navigate = useNavigate();
 
     function handleSelection(value: string) {
-        if (selected === value) {
-            setSelected("");
-            navigate(".");
+        if (currentCategory === value) {
+            navigate("./", { relative: 'path' });
             return;
         }
-        setSelected(value);
-        navigate(`?category=${encodeURIComponent(value)}`);
+        navigate(`category/${encodeURIComponent(value)}`);
     }
 
     return (
         <ul className="mt-10 flex gap-2">
             { categories?.map(category => (
-                <Pill key={category} text={category} selected={selected === category} handleSelection={handleSelection} />
+                <Pill key={category} text={category} selected={currentCategory === category} handleSelection={handleSelection} />
             ))}
         </ul>
     )
@@ -283,7 +258,7 @@ function CategoryFilter({ categories }: { categories: Array<string> }) {
 export function Pill({ selected, handleSelection, text } : { selected: boolean, text: string, handleSelection: (t:string) => void }) {
     return (
         <>
-        <li onClick={() => handleSelection(text)} className={clsx("capitalize flex justify-center min-w-16 py-2 px-3 text-black font-black rounded-3xl text-[13px] \
+        <li onClick={() => handleSelection(text)} className={clsx("capitalize flex items-center justify-center min-w-16 py-2 px-3 text-black font-black rounded-3xl text-[13px] \
             cursor-pointer hover:shadow-custom", {
                 'bg-black text-white': selected,
                 'bg-gray-200 hover:bg-gray-100': !selected,
@@ -293,9 +268,10 @@ export function Pill({ selected, handleSelection, text } : { selected: boolean, 
 }
 
 type  AddToCartButtonProps = { cartCount: number, productId: string, action?: string, textStyle?: "medium" | "small"}
-export function AddToCartButton({cartCount, productId, action="", textStyle="medium"}: AddToCartButtonProps) {
+
+export function AddToCartButton({cartCount=0, productId, action="", textStyle="medium"}: AddToCartButtonProps) {
     const [isOpen, setIsOpen] = React.useState<boolean|null>(null)
-    const [ count, setCount ] = React.useState(cartCount ?? 0);
+    const [ count, setCount ] = React.useState(cartCount);
     const fetcher = useFetcher();
 
     function handleBlur(event) {
@@ -316,9 +292,9 @@ export function AddToCartButton({cartCount, productId, action="", textStyle="med
         }
     }
 
-    React.useEffect(() => {
-        setCount(cartCount);
-    }, [cartCount])
+    // React.useEffect(() => {
+    //     setCount(cartCount);
+    // }, [cartCount])
 
     return (
         <fetcher.Form method="post" onBlur={handleBlur} action={action}>

@@ -9,9 +9,9 @@ import {
 import { doc, getDoc } from 'firebase/firestore';
 import React from 'react';
 import { LoaderFunctionArgs, json, useLoaderData, useNavigate } from 'react-router-dom';
-import { db } from '../firebase/fireStore';
-import { ButtonActionAndValue } from '../components/cart/cart';
-import { priceFormat } from '../utils/currency';
+import { db } from '../../../firebase/fireStore';
+import { ButtonActionAndValue } from '../../../components/cart/cart';
+import { priceFormat } from '../../../utils/currency';
 
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -51,6 +51,7 @@ export function ProductModal() {
 
     React.useEffect(() => {
         onOpen();
+        return() => onClose();
     }, [])
 
     return (

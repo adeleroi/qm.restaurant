@@ -11,8 +11,10 @@ import { StoreList, loader as StoreListLoader } from './views/store-list.tsx';
 import { ErrorPage } from './views/error.tsx';
 import { Home } from './views/home.tsx';
 import { action as rootAction, loader as rootLoader } from './App.tsx';
-import { StoreFront, action as storeFrontAction, loader as storeFrontLoader } from './views/store-front.tsx';
-import { ProductModal, loader as ProductModalLoader } from './views/productModal.tsx';
+import { StoreFront, action as storeFrontAction, loader as storeFrontLoader } from './views/store-front/index.tsx';
+import { ProductModal, loader as ProductModalLoader } from './views/store-front/product-modal.tsx/index.tsx';
+import { FilteredProductList, loader as FilteredProductLoader } from './views/store-front/product-list-filtered-category/index.tsx';
+import { ProductList } from './views/store-front/product-list/index.tsx';
 
 
 const router = createBrowserRouter([
@@ -46,10 +48,21 @@ const router = createBrowserRouter([
 
         children: [
           {
+            index: true,
+            element: <ProductList />,
+            loader: storeFrontLoader,
+            action: storeFrontAction,
+          },
+          {
+            path: "category/:categoryId",
+            element: <FilteredProductList />,
+            loader: FilteredProductLoader,
+          },
+          {
             path: "product/:productId",
             element: <ProductModal/>,
             loader: ProductModalLoader,
-          }
+          },
         ]
       },
     ],

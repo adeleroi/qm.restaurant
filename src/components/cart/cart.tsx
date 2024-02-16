@@ -76,7 +76,7 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
                 { cartItems?.length ?
                     <div className='sticky top-full w-full py-5 gap-2 shadow-custom border-2 px-2 grid place-items-center bg-white'>
                         <ButtonActionAndValue subtotal={subtotal}>Checkout</ButtonActionAndValue>
-                        <button onClick={onClose} className='bg-gray-200 py-2 rounded-3xl font-bold w-full hover:bg-gray-100'>Add more items</button>
+                        <button onClick={onClose} className='bg-black text-white py-2 rounded-3xl font-bold w-full hover:bg-gray-800'>Add more items</button>
                     </div> : null
                 }
             </DrawerContent>

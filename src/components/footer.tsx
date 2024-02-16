@@ -3,8 +3,8 @@ import { Logo } from "./logo";
 
 export function Footer() {
     return (
-        <footer className="flex justify-center h-[200px] px-24 my-16">
-            <div className="flex flex-1 flex-col items-start justify-between mx-24">
+        <footer className="flex justify-center h-96 px-24 mt-16 pt-16 bg-smoke">
+            <div className="flex flex-1 flex-col items-start justify-center gap-8">
                 <div className="w-full flex items-center flex-col justify-center  border-b-[1px] pb-2">
                     <Logo/>
                     <ul className="mt-16 flex w-80 justify-between">
