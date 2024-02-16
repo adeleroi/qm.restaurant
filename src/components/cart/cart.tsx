@@ -107,7 +107,9 @@ export function CartList({ list, showTitle, onClose }) {
     const filteredList = cartListFilteredFunc(list, storeId);
     return (
         filteredList?.length ? (
-            <div className='relative bg-gray-100 '>
+            <div className={clsx('relative bg-gray-100', {
+                'mt-8': !showTitle
+            })}>
                 { showTitle ? <h1 className='px-5 mb-4 mt-8 font-bold text-lg'>Your other carts:</h1> : null }
                 <div className='mb-8'>
                     <ul>

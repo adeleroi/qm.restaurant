@@ -1,11 +1,13 @@
 import clsx from "clsx";
 import React from "react";
-import { ActionFunctionArgs, Link, LoaderFunctionArgs, Location, Outlet, json, redirect, useFetcher, useLoaderData, useLocation, useNavigate, useNavigation, useParams } from "react-router-dom"
+import { ActionFunctionArgs, Link, LoaderFunctionArgs, Outlet, json, redirect, useFetcher, useLoaderData, useNavigate, useNavigation, useParams } from "react-router-dom"
 import { db } from "../../firebase/fireStore";
-import { collection, doc, getDoc, getDocs, query, runTransaction, serverTimestamp, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, runTransaction, serverTimestamp } from "firebase/firestore";
 import Cookies from "js-cookie";
 import { priceFormat } from "../../utils/currency";
 import { Store } from "../store-list";
+
+import { Skeleton, SkeletonCircle, SkeletonText } from '@chakra-ui/react'
 
 export type Product = {
     id: string,
@@ -236,30 +238,64 @@ export function Product({product, action}: ProductProps) {
 
 function CategoryFilter({ categories }: { categories: Array<string> }) {
     const { categoryId: currentCategory } = useParams();
+    const [selected, setSelected] = React.useState(currentCategory);
     const navigate = useNavigate();
+
+
 
     function handleSelection(value: string) {
         if (currentCategory === value) {
+            setSelected('')
             navigate("./", { relative: 'path' });
             return;
         }
+        setSelected(value);
         navigate(`category/${encodeURIComponent(value)}`);
     }
 
     return (
-        <ul className="mt-10 flex gap-2">
-            { categories?.map(category => (
-                <Pill key={category} text={category} selected={currentCategory === category} handleSelection={handleSelection} />
-            ))}
-        </ul>
+        <>
+            <ul className="mt-10 flex gap-2">
+                { categories?.map(category => (
+                    <Pill key={category} text={category} selected={selected === category} handleSelection={handleSelection} />
+                ))}
+            </ul>
+        </>
+    )
+}
+
+export function ProductSkeletonList() {
+    return (
+        <>
+            <div className="mt-10 w-32">
+                <SkeletonText noOfLines={1} skeletonHeight={4}/>
+            </div>
+            <div className="grid xl:grid-cols-6 2xl:grid-cols-7 gap-8 mt-10">
+                {
+                    Array.from({length: 50}).map((_, idx) => (
+                        <React.Fragment key={idx}>
+                            <div>
+                                <div className="w-56 h-52 rounded-xl overflow-hidden relative">
+                                    <Skeleton key={idx} className="w-full h-full mb-2 rounded-3xl"></Skeleton>
+                                    <SkeletonCircle startColor={"gray.100"} className="absolute top-40 right-2 bg-white" />
+                                </div>
+                                <div className="w-56">
+                                    <SkeletonText noOfLines={2} mt={2} spacing={2} skeletonHeight={2}/>
+                                </div>
+                            </div>
+                        </React.Fragment>
+                    ))
+
+                }
+            </div>
+        </>
     )
 }
 
 export function Pill({ selected, handleSelection, text } : { selected: boolean, text: string, handleSelection: (t:string) => void }) {
     return (
         <>
-        <li onClick={() => handleSelection(text)} className={clsx("capitalize flex items-center justify-center min-w-16 py-2 px-3 text-black font-black rounded-3xl text-[13px] \
-            cursor-pointer hover:shadow-custom", {
+        <li onClick={() => handleSelection(text)} className={clsx("capitalize flex items-center justify-center min-w-16 py-2 px-3 text-black font-black rounded-3xl text-[13px] cursor-pointer hover:shadow-custom", {
                 'bg-black text-white': selected,
                 'bg-gray-200 hover:bg-gray-100': !selected,
             })}>{ text }</li>

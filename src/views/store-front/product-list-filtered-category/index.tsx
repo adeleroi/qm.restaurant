@@ -1,9 +1,9 @@
-import { LoaderFunctionArgs, json, redirect, useLoaderData } from "react-router-dom";
-import { Product } from "..";
+import React from "react";
+import { LoaderFunctionArgs, json, redirect, useLoaderData, useNavigation } from "react-router-dom";
+import { Product, ProductSkeletonList } from "..";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../../firebase/fireStore";
 import Cookies from "js-cookie";
-
 
 export async function loader({params}: LoaderFunctionArgs) {
     const userId = Cookies.get('qm_session_id') as string;
@@ -40,18 +40,28 @@ export async function loader({params}: LoaderFunctionArgs) {
 export function FilteredProductList() {
     const loaderData = useLoaderData() as { productList: Array<Product> };
     const productList = loaderData?.productList;
+    const navigation = useNavigation();
     return (
         <>
-            <div className="mt-10">
-                <p className="text-md underline font-bold">{productList.length} Result(s)</p>
-            </div>
-            <div className="grid xl:grid-cols-5 2xl:grid-cols-7 justify-between mt-10 mb-32">
-                {
-                    productList?.map(product => {
-                        return <Product product={product} key={product?.id}/>
-                    })
-                }            
-            </div>
+            {
+                navigation.state === 'loading' ? (
+                    <ProductSkeletonList />
+                ) : (
+                    <React.Fragment>
+                        <div className="mt-10">
+                            <p className="text-md underline font-bold">{productList.length} Result(s)</p>
+                        </div>
+                        <div className="grid xl:grid-cols-6 2xl:grid-cols-7 gap-8 justify-between mt-10 mb-32">
+                            {
+                                productList?.map(product => {
+                                    return <Product product={product} key={product?.id}/>
+                                })
+                            }            
+                        </div>
+                    </React.Fragment>
+                ) 
+
+            }
         </>
     );
 }

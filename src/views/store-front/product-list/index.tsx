@@ -1,8 +1,11 @@
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useNavigation } from "react-router-dom";
 import { ScrollableCategory, StoreFrontLoader } from "..";
+
 
 export function ProductList() {
     const { productMap, categories } = useLoaderData() as StoreFrontLoader;
+    const navigation = useNavigation();
+    console.log(navigation.state);
     return (
         <div className="mt-10">
             {
@@ -10,8 +13,8 @@ export function ProductList() {
                     <div key={category}>
                         {
                             productMap[category]?.length ?
-                                <ScrollableCategory productMap={productMap} category={category} /> :
-                                null 
+                            <ScrollableCategory productMap={productMap} category={category} /> :
+                            null
                         }
                     </div>
                 ))
