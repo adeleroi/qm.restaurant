@@ -1,6 +1,6 @@
+import React from "react";
 import { useLoaderData, useNavigation } from "react-router-dom";
-import { ScrollableCategory, StoreFrontLoader } from "..";
-
+import { ProductSkeletonList, ScrollableCategory, StoreFrontLoader } from "..";
 
 export function ProductList() {
     const { productMap, categories } = useLoaderData() as StoreFrontLoader;
@@ -9,15 +9,23 @@ export function ProductList() {
     return (
         <div className="mt-10">
             {
-                categories?.map(category => (
-                    <div key={category}>
+                navigation.state === 'loading' ? (
+                    <ProductSkeletonList/>
+                ):(
+                    <React.Fragment>
                         {
-                            productMap[category]?.length ?
-                            <ScrollableCategory productMap={productMap} category={category} /> :
-                            null
+                            categories?.map(category => (
+                                <div key={category}>
+                                    {
+                                        productMap[category]?.length ?
+                                        <ScrollableCategory productMap={productMap} category={category} /> :
+                                        null
+                                    }
+                                </div>
+                            ))
                         }
-                    </div>
-                ))
+                    </React.Fragment>
+                )
             }
         </div>
     )

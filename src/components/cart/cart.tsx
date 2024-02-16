@@ -183,8 +183,8 @@ function CartItem({ product, storeId }: { product: Product, storeId?: string}) {
                                 <img src={product?.imgUrl}/>
                             </div>
                             <div className='text-[16px] capitalize'>
-                                <h1 className='pl-2 font-semibold'>{product.name}</h1>
-                                <span className='pl-2 font-semibold'>{priceFormat(product.price)}</span>&nbsp;
+                                <h1 className='pl-2 font-medium'>{product.name}</h1>
+                                <span className='pl-2 font-normal'>{priceFormat(product.price)}</span>&nbsp;
                                 { product.offer ? <span className='font-semibold text-white px-1 rounded bg-defaultGreen'>{product.offer}</span>: null }
                             </div>
                         </div>
