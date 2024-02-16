@@ -241,8 +241,6 @@ function CategoryFilter({ categories }: { categories: Array<string> }) {
     const [selected, setSelected] = React.useState(currentCategory);
     const navigate = useNavigate();
 
-
-
     function handleSelection(value: string) {
         if (currentCategory === value) {
             setSelected('')
@@ -264,31 +262,37 @@ function CategoryFilter({ categories }: { categories: Array<string> }) {
     )
 }
 
-export function ProductSkeletonList() {
+export function ProductListSkeleton() {
     return (
-        <>
-            <div className="mt-10 w-32">
-                <SkeletonText noOfLines={1} skeletonHeight={4}/>
-            </div>
-            <div className="grid xl:grid-cols-6 2xl:grid-cols-7 gap-8 mt-10">
-                {
-                    Array.from({length: 50}).map((_, idx) => (
-                        <React.Fragment key={idx}>
-                            <div>
-                                <div className="w-56 h-52 rounded-xl overflow-hidden relative">
-                                    <Skeleton key={idx} className="w-full h-full mb-2 rounded-3xl"></Skeleton>
-                                    <SkeletonCircle startColor={"gray.100"} className="absolute top-40 right-2 bg-white" />
-                                </div>
-                                <div className="w-56">
-                                    <SkeletonText noOfLines={2} mt={2} spacing={2} skeletonHeight={2}/>
-                                </div>
-                            </div>
-                        </React.Fragment>
-                    ))
+        <React.Fragment>
+            {
+                Array.from({length: 5}).map((_, idx) => ((
+                    <React.Fragment key={idx}>
+                    <div className="mt-10 w-32">
+                        <SkeletonText noOfLines={1} skeletonHeight={4}/>
+                    </div>
+                    <div className="grid xl:grid-cols-6 2xl:grid-cols-7 gap-8 my-10">
+                        {
+                            Array.from({length: 6}).map((_, idx) => (
+                                <React.Fragment key={idx}>
+                                    <div>
+                                        <div className="w-56 h-52 rounded-xl overflow-hidden relative">
+                                            <Skeleton key={idx} className="w-full h-full mb-2 rounded-3xl"></Skeleton>
+                                            <SkeletonCircle startColor={"gray.100"} className="absolute top-40 right-2 bg-white" />
+                                        </div>
+                                        <div className="w-56">
+                                            <SkeletonText noOfLines={2} mt={2} spacing={2} skeletonHeight={2}/>
+                                        </div>
+                                    </div>
+                                </React.Fragment>
+                            ))
+                        }
+                    </div>
+                    </React.Fragment>
+                )))
+            }
+        </React.Fragment>
 
-                }
-            </div>
-        </>
     )
 }
 

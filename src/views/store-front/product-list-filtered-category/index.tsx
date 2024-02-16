@@ -1,9 +1,10 @@
 import React from "react";
 import { LoaderFunctionArgs, json, redirect, useLoaderData, useNavigation } from "react-router-dom";
-import { Product, ProductSkeletonList } from "..";
+import { Product, ProductListSkeleton } from "..";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../../firebase/fireStore";
 import Cookies from "js-cookie";
+import { Skeleton, SkeletonCircle, SkeletonText } from '@chakra-ui/react'
 
 export async function loader({params}: LoaderFunctionArgs) {
     const userId = Cookies.get('qm_session_id') as string;
@@ -44,9 +45,12 @@ export function FilteredProductList() {
     return (
         <>
             {
-                navigation.state === 'loading' ? (
-                    <ProductSkeletonList />
-                ) : (
+                navigation.state === 'loading' ?                
+                    navigation.location?.pathname?.includes('category') ? (
+                        <FilteredProductListSkeleton />
+                    ) : (
+                        <ProductListSkeleton />
+                    ) : (
                     <React.Fragment>
                         <div className="mt-10">
                             <p className="text-md underline font-bold">{productList.length} Result(s)</p>
@@ -64,4 +68,32 @@ export function FilteredProductList() {
             }
         </>
     );
+}
+
+export function FilteredProductListSkeleton() {
+    return (
+        <>
+            <div className="mt-10 w-32">
+                <SkeletonText noOfLines={1} skeletonHeight={4}/>
+            </div>
+            <div className="grid xl:grid-cols-6 2xl:grid-cols-7 gap-8 mt-10">
+                {
+                    Array.from({length: 50}).map((_, idx) => (
+                        <React.Fragment key={idx}>
+                            <div>
+                                <div className="w-56 h-52 rounded-xl overflow-hidden relative">
+                                    <Skeleton key={idx} className="w-full h-full mb-2 rounded-3xl"></Skeleton>
+                                    <SkeletonCircle startColor={"gray.100"} className="absolute top-40 right-2 bg-white" />
+                                </div>
+                                <div className="w-56">
+                                    <SkeletonText noOfLines={2} mt={2} spacing={2} skeletonHeight={2}/>
+                                </div>
+                            </div>
+                        </React.Fragment>
+                    ))
+
+                }
+            </div>
+        </>
+    )
 }
