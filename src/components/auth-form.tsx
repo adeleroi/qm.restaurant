@@ -95,7 +95,10 @@ const AuthForm = React.forwardRef(function AuthForm(_, ref) {
             <p className='text-sm my-2'>
               Forgot password? &nbsp;
               <span
-                onClick={() => setAction('reset')}
+                onClick={() => {
+                  setAction('reset');
+                  ref?.current?.focus()
+                }}
                 className='text-defaultGreen font-bold cursor-pointer hover:text-green-700'>Reset it</span>
             </p>
           </Field>
@@ -112,12 +115,12 @@ const AuthForm = React.forwardRef(function AuthForm(_, ref) {
         </Button>
       </Field>
       <br/>
-      <AuthFormFooter/>
+      <AuthFormFooter ref={ref}/>
     </fetcher.Form>
   )
 });
 
-function AuthFormFooter() {
+const AuthFormFooter = React.forwardRef(function AuthFormFooter(_, ref) {
   const {action, setAction} = useLoginFormAction();
   const signup = action === 'signup';
 
@@ -135,6 +138,7 @@ function AuthFormFooter() {
         setAction('signup');
         break
     }
+    ref?.current?.focus();
   }
   return (
     <>
@@ -150,4 +154,4 @@ function AuthFormFooter() {
       </div>
     </>
   )
-}
+})
