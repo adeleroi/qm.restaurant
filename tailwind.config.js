@@ -60,8 +60,12 @@ export default {
         '100%': { width: '40px' },
       },
       openHeader: {
-        '0%': { height: '0px' },
-        '100%': { height: '100px' },
+        '0%': { height: '0rem' },
+        '100%': { height: '6rem' },
+      },
+      closeHeader: {
+        '0%': { height: '6rem' },
+        '100%': { height: '0rem' },
       }
 
     },
@@ -74,7 +78,8 @@ export default {
       'ping': 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite',
       'open-add-to-card': 'openAddToCard 200ms ease-in-out',
       'close-add-to-card': 'closeAddToCard 250ms ease-in-out',
-      'open-header': 'openHeader 250mx ease-in-out',
+      'open-header': 'openHeader 200ms ease-in-out',
+      'close-header': 'closeHeader 200ms ease-in-out',
     },
     boxShadow: {
       custom: '0px 0px 8px rgba(0, 0, 0, 0.1), 0px 4px 4px rgba(0, 0, 0, 0.04)',
