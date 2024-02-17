@@ -5,13 +5,14 @@ import {
     ModalBody,
     ModalCloseButton,
     useDisclosure,
+    ModalHeader,
   } from '@chakra-ui/react'
 import { doc, getDoc } from 'firebase/firestore';
 import React from 'react';
 import { LoaderFunctionArgs, json, useLoaderData, useNavigate } from 'react-router-dom';
 import { db } from '../../../firebase/fireStore';
-import { ButtonActionAndValue } from '../../../components/cart/cart';
 import { priceFormat } from '../../../utils/currency';
+import { AddToCartButton, Product } from '..';
 
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -27,6 +28,9 @@ export function ProductModal() {
     const navigate = useNavigate();
     const initialRef = React.useRef(null);
     const imgRef = React.useRef<HTMLImageElement|null>(null);
+    const headerRef = React.useRef<HTMLElement|null>(null);
+    const intersectionTargetRef = React.useRef<HTMLElement|null>(null);
+    const rootTargetRef = React.useRef<HTMLElement | null>(null);
     const imgContainerRef = React.useRef<HTMLDivElement|null>(null);
 
     function handleMouseLeave() {
@@ -54,37 +58,93 @@ export function ProductModal() {
         return() => onClose();
     }, [])
 
+    React.useEffect(() => {
+        const target = intersectionTargetRef.current;
+        if (!target && !headerRef.current) return;
+        const options = {
+            root: rootTargetRef.current,
+            rootMargin: "0px",
+            threshold: [0.5, 0],
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            const entry = entries[0];
+            if (entry.isIntersecting) {
+                console.log('isINtersecting', entry.intersectionRatio);
+                if (entry.intersectionRatio < 0.5) {
+                    headerRef.current.style.opacity = 1;
+                    headerRef.current.style.display = "flex";
+                }
+                 else {
+                    headerRef.current.style.opacity =  0;
+                    headerRef.current.style.display =  "none";
+                }
+            }
+
+
+        }, options)
+
+        observer.observe(target);
+
+        return () => { target && observer.unobserve(target) };
+    });
+
     return (
       <>
         <Modal isOpen={isOpen} size={"6xl"} isCentered initialFocusRef={initialRef}
+            scrollBehavior='inside'
             onClose={() => {
-                navigate(-1);
+                navigate('../');
                 onClose();
             }}>
           <ModalOverlay />
-          <ModalContent className='p-4 min-h-[90vh]' style={{borderRadius: '20px'}}>
+          <ModalContent className='min-h-[90vh]' style={{borderRadius: '20px'}} ref={rootTargetRef}>
+            <ModalHeader ref={headerRef} className='shadow-xl animate-open-header hidden justify-between items-center' style={{paddingLeft: '0px', paddingRight: '0px'}}>
+                <div  className='pl-16 h-full w-full'>
+                    <h1 className='text-2xl font-bold mr-16'>{ product?.name }</h1>
+                </div>
+                <div className='flex gap-2 justify-between items-center mr-14' >
+                    <AddToCartButton />
+                    <button className='ml-12 relative group h-10 w-96 font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4'>
+                        <span>Add {1} to cart</span>
+                        <span className='absolute right-2 bg-green-900 top-1/2 -translate-y-1/2 px-2 rounded-3xl text-[14px] group-hover:bg-defaultGreen'>{priceFormat(product?.price * 1)}</span>
+                    </button>
+                </div>
+            </ModalHeader>
             <ModalCloseButton style={{borderRadius: '50%', fontWeight: 'bold', fontSize: '16px', left: '16px', top: '16px', outline: 'none'}}/>
             <ModalBody>
-                <div className='grid grid-cols-2 gap-10 p-3 mt-8'>
+                <div className='grid grid-cols-2 gap-10 p-3 place-content-center h-full mt-8'>
                     <div onMouseLeave={handleMouseLeave} onMouseMove={handleMouseMove} ref={imgContainerRef}
-                        className='cursor-crosshair h-96 overflow-hidden relative flex justify-center items-center border-2 rounded-3xl'>
-                        <img ref={imgRef} className='absolute object-fit h-56' src={product?.imgUrl} alt={product?.name}/>
+                        className='cursor-crosshair h-96 overflow-hidden relative flex justify-center items-center'>
+                        <img ref={imgRef} className='absolute object-fit h-64' src={product?.imgUrl} alt={product?.name}/>
                     </div>
-                    <div className='h-96 px-5 py-5 border-2 rounded-3xl grid grid-rows-3'>
-                        <div>
+                    <div className='px-5 py-5 border-[1px] rounded-3xl'>
+                        <div className='mb-8'>
                             <h1 className='text-left text-3xl font-bold mb-2 capitalize'>{ product.name }</h1>
-                            <p className='text-gray-600'>{priceFormat(product?.price)}</p>
-                            {/* <br/> */}
+                            <p className='text-gray-400 font-bold text-xl'>{priceFormat(product?.price)}</p>
                         </div>
-                        <div className='grid gap-2'>
-                            <button className='rounded-3xl bg-gray-200 py-3 w-full'>1</button>
-                            <ButtonActionAndValue subtotal={product?.price} >Add to cart</ButtonActionAndValue>
+                        <div className='flex gap-2 justify-between items-center' >
+                            <AddToCartButton />
+                            <button ref={intersectionTargetRef} className='relative group h-10 w-96 font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4'>
+                                <span>Add {1} to cart</span>
+                                <span className='absolute right-2 bg-green-900 top-1/2 -translate-y-1/2 px-2 rounded-3xl text-[14px] group-hover:bg-defaultGreen'>{priceFormat(product?.price * 1)}</span>
+                            </button>
                         </div>
                         <div>
                             <div className='w-full border-[1px] my-4'></div>
                             <h1 className='font-bold text-md text-gray-800'>Details:</h1>
                             <p className='text-gray-600'>{ product.description }</p>
                         </div>
+                    </div>
+                </div>
+                <div className='mt-10'>
+                    <h1 className='text-2xl font-bold'>Similar products</h1>
+                    <div className='grid xl:grid-cols-4 2xl:grid-cols-5 mt-5'>
+                        {
+                            Array.from({length: 10}).map((_, idx) => (
+                                <Product to={`../product/${'GIEBauzYuUDi5AbSRbzU'}`} key={idx} product={{price: 3.99, name: 'Garba', description: 'Très bon vers 10h'} as Product}/>
+                            ))
+                        }
                     </div>
                 </div>
             </ModalBody>

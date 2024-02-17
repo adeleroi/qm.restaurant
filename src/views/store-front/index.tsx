@@ -56,7 +56,7 @@ export async function loader({params}: LoaderFunctionArgs) {
     });
 
     productSnapshot.forEach(prod => {
-        const productInStore = { id: prod.id, count: 0, ...prod.data() } as Product;
+        const productInStore = { id: prod.id, count: 0, storeId, ...prod.data() } as Product;
         if (cartItemIds.has(prod.id)) {
             productInStore.count = Number(cartItemIds.get(prod.id));
         }
@@ -196,7 +196,7 @@ export function ScrollableCategory({ category, productMap }: { category: string,
 
                 }
             </div>
-            <div className="item-list my-5 py-4 mb-10 flex overflow-x-auto snap-x scroll-smooth" ref={slideRef} onScroll={handleScroll}>
+            <div className="item-list my-5 py-4 gap-2 mb-10 flex overflow-x-auto snap-x scroll-smooth" ref={slideRef} onScroll={handleScroll}>
                 {
                     productMap?.[category]?.map((prod, idx) => {
                         return (
@@ -214,12 +214,13 @@ export function ScrollableCategory({ category, productMap }: { category: string,
 type ProductProps = {
     product: Product,
     action?: string,
+    to?: string,
 }
 
-export function Product({product, action}: ProductProps) {
+export function Product({product, action, to}: ProductProps) {
     return (
-        <div className="relative overflow-hidden p-2 pb-4 cursor-pointer w-56">
-            <Link to={`product/${product.id}`}>
+        <div className="relative overflow-hidden p-2 pb-4 w-56">
+            <Link to={ to ?? `product/${product.id} `}>
                 <div className="p-4 rounded-xl mb-4 h-52 bg-gray-100 relative">
                     {/* <img className="object-contain" src={product.imgUrl} alt=""/> */}
                 </div>

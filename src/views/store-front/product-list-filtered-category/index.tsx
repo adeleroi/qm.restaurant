@@ -1,5 +1,5 @@
 import React from "react";
-import { LoaderFunctionArgs, json, redirect, useLoaderData, useNavigation } from "react-router-dom";
+import { LoaderFunctionArgs, Outlet, json, redirect, useLoaderData, useNavigation } from "react-router-dom";
 import { Product, ProductListSkeleton } from "..";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../../firebase/fireStore";
@@ -66,6 +66,7 @@ export function FilteredProductList() {
                 ) 
 
             }
+            <Outlet/>
         </>
     );
 }
@@ -91,7 +92,6 @@ export function FilteredProductListSkeleton() {
                             </div>
                         </React.Fragment>
                     ))
-
                 }
             </div>
         </>

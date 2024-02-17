@@ -168,7 +168,7 @@ export function ButtonActionAndValue({subtotal, children}: { subtotal: number, c
         <button className='relative group w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4'>
             <span>{ children }</span>
             <span className='absolute right-2 bg-green-900 px-2 rounded-3xl text-[14px] group-hover:bg-defaultGreen'>{priceFormat(subtotal)}</span>
-        </button>   
+        </button>
     )
 }
 

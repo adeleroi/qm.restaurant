@@ -48,27 +48,35 @@ const router = createBrowserRouter([
 
         children: [
           {
-            index: true,
+            path: "",
             element: <ProductList />,
             loader: storeFrontLoader,
             action: storeFrontAction,
+            children: [
+              {
+                path: "product/:productId",
+                element: <ProductModal/>,
+                loader: ProductModalLoader,
+              },
+            ]
           },
           {
             path: "category/:categoryId",
             element: <FilteredProductList />,
             loader: FilteredProductLoader,
+            children: [
+              {
+                path: "product/:productId",
+                element: <ProductModal/>,
+                loader: ProductModalLoader,
+              },
+            ]
           },
-          {
-            path: "product/:productId",
-            element: <ProductModal/>,
-            loader: ProductModalLoader,
-          },
-        ]
+        ],
       },
     ],
   },
 ])
-
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

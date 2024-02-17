@@ -31,7 +31,7 @@ export default {
         '100%': { transform: 'translateX(0%)', opacity: 1 }
       },
       slideToBottom: {
-        '0%': { transform: 'translateY(-50%)', opacity: 0 },
+        '0%': { transform: 'translateY(-10%)', opacity: 0 },
         '100%': { transform: 'translateY(0%)', opacity: 1 }
       },
       pulse: {
@@ -58,6 +58,10 @@ export default {
       closeAddToCard: {
         '0%': { width: '100px' },
         '100%': { width: '40px' },
+      },
+      openHeader: {
+        '0%': { height: '0px' },
+        '100%': { height: '100px' },
       }
 
     },
@@ -65,10 +69,12 @@ export default {
       'slide-right': 'slideToRight 200ms ease-in-out',
       'slide-right-infinite': 'slideToRight 900ms ease-in-out infinite',
       'slide-bottom-infinite': 'slideToBottom 900ms ease-in-out infinite',
+      'slide-bottom': 'slideToBottom 200ms ease-in-out',
       'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       'ping': 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite',
       'open-add-to-card': 'openAddToCard 200ms ease-in-out',
-      'close-add-to-card': 'closeAddToCard 250ms ease-in-out'
+      'close-add-to-card': 'closeAddToCard 250ms ease-in-out',
+      'open-header': 'openHeader 250mx ease-in-out',
     },
     boxShadow: {
       custom: '0px 0px 8px rgba(0, 0, 0, 0.1), 0px 4px 4px rgba(0, 0, 0, 0.04)',

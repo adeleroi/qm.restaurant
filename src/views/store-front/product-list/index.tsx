@@ -1,12 +1,11 @@
 import React from "react";
-import { useLoaderData, useNavigation } from "react-router-dom";
+import { Outlet, useLoaderData, useNavigation } from "react-router-dom";
 import { ScrollableCategory, StoreFrontLoader } from "..";
 import { FilteredProductListSkeleton } from "../product-list-filtered-category";
 
 export function ProductList() {
     const { productMap, categories } = useLoaderData() as StoreFrontLoader;
     const navigation = useNavigation();
-    console.log('in list', navigation.state, navigation.location);
     return (
         <div className="mt-10">
             {
@@ -28,6 +27,7 @@ export function ProductList() {
                         </React.Fragment>
                     )
             }
+            <Outlet/>
         </div>
     )
 }
