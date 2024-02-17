@@ -99,7 +99,7 @@ export function ProductModal() {
                 onClose();
             }}>
           <ModalOverlay />
-          <ModalContent className='min-h-[90vh] min-w-[90vw] rounded-3xl overflow-hidden' style={{position: 'relative', borderRadius: '16px'}} ref={rootTargetRef}>
+          <ModalContent className='min-h-[90vh] 2xl:min-w-[75vw] xl:min-w-[85vw] rounded-3xl overflow-hidden' style={{position: 'relative', borderRadius: '16px'}} ref={rootTargetRef}>
             <div ref={headerRef} className="hidden" style={{paddingLeft: '0px', paddingRight: '0px', height: '0px'}}>
                 <div  className='pl-10 flex items-center gap-2'>
                     <div className='w-12 h-12 rounded-xl overflow-hidden'>
@@ -120,20 +120,20 @@ export function ProductModal() {
 
             </div>
             <ModalBody>
-                <ModalCloseButton style={{borderRadius: '50%', fontWeight: 'bold', fontSize: '16px', right: '12px', top: '12px', outline: 'none'}}/>
+                {/* <ModalCloseButton style={{borderRadius: '50%', fontWeight: 'bold', fontSize: '16px', right: '12px', top: '12px', outline: 'none'}}/> */}
                 <div className='flex justify-between gap-10 p-3 h-full mt-8'>
                     <div onMouseLeave={handleMouseLeave} onMouseMove={handleMouseMove} ref={imgContainerRef}
                         className='cursor-crosshair h-96 overflow-hidden relative flex justify-center items-center w-full'>
                         <img ref={imgRef} className='absolute object-fit h-64' src={product?.imgUrl} alt={product?.name}/>
                     </div>
-                    <div className='px-5 py-5 border-[1px] rounded-3xl max-w-[450px]'>
+                    <div className='px-5 py-5 border-[1px] rounded-3xl max-w-[500px]'>
                         <div className='mb-8'>
                             <h1 className='text-left text-3xl font-bold mb-2 capitalize'>{ product.name }</h1>
                             <p className='text-gray-400 font-bold text-xl'>{priceFormat(product?.price)}</p>
                         </div>
-                        <div className='flex gap-2 justify-between items-center'>
+                        <div className='flex gap-16 justify-between items-center'>
                             <AddToCartButton />
-                            <button ref={intersectionTargetRef} className='relative group h-10 w-96 font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4'>
+                            <button ref={intersectionTargetRef} className='relative group h-10 w-80 font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4'>
                                 <span>Add {1} to cart</span>
                                 <span className='absolute right-2 bg-green-900 top-1/2 -translate-y-1/2 px-2 rounded-3xl text-[14px] group-hover:bg-defaultGreen'>{priceFormat(product?.price * 1)}</span>
                             </button>
