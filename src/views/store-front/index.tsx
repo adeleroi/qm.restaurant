@@ -8,6 +8,7 @@ import { priceFormat } from "../../utils/currency";
 import { Store } from "../store-list";
 
 import { Skeleton, SkeletonCircle, SkeletonText } from '@chakra-ui/react'
+import { SubmitTarget } from "react-router-dom/dist/dom";
 
 export type Product = {
     id: string,
@@ -74,11 +75,9 @@ export async function loader({params}: LoaderFunctionArgs) {
 }
 
 export async function action({request, params}: ActionFunctionArgs) {
-    const formData = await request.formData();
     const storeId = params?.storeId as string;
     const userId = Cookies.get('qm_session_id') as string;
-    const { productId, itemCount } = Object.fromEntries(formData) as Record<string, string>;
-
+    const { productId, count: itemCount } = await request.json() as Record<string, string>;
     const productInStore = await getDoc(doc(db, "store", storeId, "product", productId));
     const productInCartRef = doc(db, "users", userId, "cart", productId);
 
@@ -201,7 +200,7 @@ export function ScrollableCategory({ category, productMap }: { category: string,
                     productMap?.[category]?.map((prod, idx) => {
                         return (
                             <div key={idx} className="snap-center">
-                                <Product product={prod}/>
+                                <Product product={prod} action={`.`}/>
                             </div>
                         )
                     })
@@ -221,7 +220,7 @@ export function Product({product, action, to}: ProductProps) {
     return (
         <div className="relative overflow-hidden p-2 pb-4 w-56">
             <Link to={ to ?? `product/${product.id} `}>
-                <div className="p-4 rounded-xl mb-4 h-52 bg-gray-100 relative">
+                <div className="p-4 rounded-xl mb-4 h-52 relative">
                     <img className="object-contain" src={product.imgUrl} alt=""/>
                 </div>
                 <div>
@@ -231,7 +230,7 @@ export function Product({product, action, to}: ProductProps) {
                 </div>
             </Link>
             <div className="absolute right-4 top-40">
-                <ButtonIncrement cartCount={product?.count} productId={product.id}/>
+                <ButtonIncrement type="submit" cartCount={product?.count} productId={product.id} action={action}/>
             </div>
         </div>
     )
@@ -332,7 +331,10 @@ export function ButtonIncrement({cartCount=0, getCount, type="button", action=".
         if (count === 1) setIsOpen(false);
         const newCount = count == 0 ? 0 : count - 1
         setCount(newCount);
-        type == "button" ? getCount?.(newCount) : fetcher.submit(JSON.stringify({count, productId}), {method: 'POST', action});
+        type == "button" ? getCount?.(newCount) : fetcher.submit(
+                JSON.stringify({count: newCount, productId}) as SubmitTarget,
+                {method: 'POST', action, encType: 'application/json'}
+            );
     }
 
     function handleAddButton() {
@@ -340,7 +342,10 @@ export function ButtonIncrement({cartCount=0, getCount, type="button", action=".
         if (isOpen || !isOpen && count === 0) {
             const newCount = count + 1;
             setCount(newCount);
-            type == "button" ? getCount?.(newCount) : fetcher.submit(JSON.stringify({count, productId}), {method: "POST", action});
+            type == "button" ? getCount?.(newCount) : fetcher.submit(
+                JSON.stringify({count: newCount, productId}) as SubmitTarget,
+                {method: "POST", action, encType: 'application/json'}
+            );
         }
     }
 
@@ -351,7 +356,7 @@ export function ButtonIncrement({cartCount=0, getCount, type="button", action=".
 
     return (
         <div tabIndex={1} onBlur={handleBlur} className="focus:outline-none">
-            <div className={clsx("will-change-[width] will-change-auto cursor-pointer border rounded-3xl flex shadow-custom items-center bg-white", {
+            <div className={clsx("will-change-[width] cursor-pointer border rounded-3xl flex shadow-custom items-center bg-white", {
                     "animate-open-add-to-card": isOpen,
                     "animate-close-add-to-card": isOpen === false,
                 })}>
@@ -370,7 +375,7 @@ export function ButtonIncrement({cartCount=0, getCount, type="button", action=".
                     {count}
                 </div>
                 <button onClick={handleAddButton}
-                    className={clsx("will-change-[width] will-change-auto cursor-pointer flex hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 justify-center items-center", {
+                    className={clsx("will-change-auto cursor-pointer flex hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 justify-center items-center", {
                         "text-lg font-bold": textStyle === "medium"
                     })}>
                     <span>{ !isOpen && count > 0 ? count : "+" }</span>

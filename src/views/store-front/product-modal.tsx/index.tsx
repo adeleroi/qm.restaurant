@@ -11,6 +11,7 @@ import { LoaderFunctionArgs, json, useLoaderData, useNavigate } from 'react-rout
 import { db } from '../../../firebase/fireStore';
 import { priceFormat } from '../../../utils/currency';
 import { ButtonIncrement, Product } from '..';
+import Cookies from 'js-cookie';
 
 interface IntersectionObserverOption {
     root: HTMLElement|null,
@@ -33,24 +34,36 @@ function useIntersectionObserverEffect(
 }
 
 export async function loader({ params }: LoaderFunctionArgs) {
+    // TODO: compare similar items with the one in the carts to do the filter and update the count.
+    const userId = Cookies.get('qm_session_id') as string;
     const { productId, storeId } = params as Record<string, string>;
-    const productDoc = await getDoc(doc(db, 'store', storeId, 'product', productId));
+
+    const cartItems = new Map<string, number>();
     const similarProductList: Array<Product> = [];
-    const currProduct = { id: productDoc.id, ...productDoc.data() } as Product ;
+
+    const cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
+    cartSnapshot.forEach(item => {
+        cartItems.set(item.id, item.data().count);
+    });
+
+    const productDoc = await getDoc(doc(db, 'store', storeId, 'product', productId));
+    const currProduct = { id: productDoc.id, ...productDoc.data(), count: cartItems.get(productDoc.id) ?? 0} as Product ;
+    
     const similarProductQuery = query(collection(db, "store", storeId, "product"), where('category', '==', currProduct.category));
     const similarProductSnapshot = await getDocs(similarProductQuery);
 
+
     similarProductSnapshot.forEach(product => {
-        if (product.id !== currProduct.id) {
-            similarProductList.push({ id: product.id, ...product.data() } as Product);
-        }
+        if (product.id == currProduct.id) return;
+        cartItems
+        similarProductList.push({ id: product.id, ...product.data(), count: cartItems.get(product.id) ?? 0 } as Product);
     })
 
     return json({ product: currProduct, similarProductList });
 }
 
-const SHOW_HEADER_STYLE = 'will-change-auto will-change-[height] will-change-opacity h-24 opacity-100 flex items-center justify-between animate-open-header shadow-xl flex absolute z-50 w-full top-0 bg-white';
-const HIDE_HEADER_STYLE = 'will-change-auto will-change-[height] will-change-opacity h-0 opacity-0 flex items-center transition-opacity justify-between animate-close-header shadow-xl flex absolute z-50 w-full top-0 bg-white';
+const SHOW_HEADER_STYLE = 'will-change-auto h-24 opacity-100 flex items-center justify-between animate-open-header shadow-xl flex absolute z-50 w-full top-0 bg-white';
+const HIDE_HEADER_STYLE = 'will-change-auto h-0 opacity-0 flex items-center transition-opacity justify-between animate-close-header shadow-xl flex absolute z-50 w-full top-0 bg-white';
 
 export function ImageZoom({imgUrl, imgAlt }: { imgUrl: string, imgAlt: string }) {
     const imgRef = React.useRef<HTMLImageElement|null>(null);
@@ -91,7 +104,7 @@ const CustomModalHeader = React.forwardRef(({product}: {product: Product}, heade
                 </div>
                 <div>
                     <h1 className='text-xl font-bold mr-16'>{ product?.name }</h1>
-                    <span className='font-bold text-gray-400'>{priceFormat(product?.price)}</span>
+                    <span className='font-bold text-gray-500'>{priceFormat(product?.price)}</span>
                 </div>
             </div>
             <div className='flex gap-2 justify-between items-center'>
@@ -109,12 +122,12 @@ const ProductDetails = React.forwardRef(function ProductDetails({ product }: {pr
     return (
         <div className='px-5 py-5 hover:shadow-custom rounded-3xl min-w-[400px] max-w-[500px] h-full min-h-72'>
             <div className='mb-8 relative w-full flex items-center justify-between'>
-                <p className='text-gray-400 font-bold text-xl'>{priceFormat(product?.price)}</p>
+                <p className='text-black font-bold text-xl'>{priceFormat(product?.price)}</p>
                 <ButtonIncrement getCount={setCount} cartCount={count}/>
             </div>
             <AddToCartWithCountButton ref={ref} count={count} price={product?.price}/>
             <div className=''>
-                <div className='w-full border-[1px] my-4'></div>
+                <div className='w-full border-[1px] border-gray-300 my-4'></div>
                 <h1 className='mt-8 font-bold text-md text-gray-800'>Details:</h1>
                 <p className='text-gray-600'>{ product.description }</p>
             </div>
@@ -158,9 +171,7 @@ export function ProductModal() {
         if (headerRef.current) {
             const entry = entries[0];
             if (entry.isIntersecting) {
-                console.log('out', entry.intersectionRatio);
                 if (entry.intersectionRatio < 0.9) {
-                    console.log('in', entry.intersectionRatio);
                     headerRef.current.className = SHOW_HEADER_STYLE;
                 } else {
                     headerRef.current.className = HIDE_HEADER_STYLE;
@@ -195,7 +206,7 @@ export function ProductModal() {
                 <ModalBody>
                     <div className='mt-5'>
                         <h1 className='mb-5 text-2xl font-bold'>{ product?.name }</h1>
-                        <div className='flex justify-between gap-10 p-3 h-full border-[1px] border-gray-200 rounded-3xl'>
+                        <div className='flex justify-between gap-10 p-3 h-full border-[1px] border-gray-300 rounded-3xl'>
                             <ImageZoom imgAlt={product?.name} imgUrl={product?.imgUrl} />
                             <ProductDetails product={product} ref={intersectionTargetRef} />
                         </div>

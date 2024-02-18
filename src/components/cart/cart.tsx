@@ -216,7 +216,7 @@ export function CartIcon() {
     return (
         <div className="flex justify-between items-center text-white w-full gap-2">
             { showEmptyCartIcon ? emptyCartIcon : fullCartIcon }
-            <span className="font-bold text-[14px] bg-green-800 px-2 rounded-xl group-hover/cartbtn:bg-defaultGreen"> { storeId ? numberOfCartItemByStore : totalNumberOfCartItem }</span>
+            <span className="font-bold text-[14px] bg-green-800 px-2 rounded-3xl group-hover/cartbtn:bg-defaultGreen"> { storeId ? numberOfCartItemByStore : totalNumberOfCartItem }</span>
         </div>
     )
 }
