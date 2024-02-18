@@ -10,7 +10,7 @@ import {
 import { Trigger } from '../../utils/trigger';
 import { Link, useLoaderData, useParams } from 'react-router-dom';
 import React from 'react';
-import { AddToCartButton, Product } from '../../views/store-front';
+import { ButtonIncrement, Product } from '../../views/store-front';
 import { getSubtotal, priceFormat } from '../../utils/currency';
 import clsx from 'clsx';
 
@@ -192,7 +192,7 @@ function CartItem({ product, storeId }: { product: Product, storeId?: string}) {
                 </div>
             </Link>
             <div className='absolute top-1/2 -translate-y-1/2 right-5 z-0'>
-                <AddToCartButton textStyle='small' action='store/:storeId' productId={product.id} cartCount={product.count}/>
+                <ButtonIncrement textStyle='small' action='store/:storeId' productId={product.id} cartCount={product.count}/>
             </div>
         </li>
     )

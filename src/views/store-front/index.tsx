@@ -231,7 +231,7 @@ export function Product({product, action, to}: ProductProps) {
                 </div>
             </Link>
             <div className="absolute right-4 top-40">
-                <AddToCartButton cartCount={product?.count} productId={product.id}/>
+                <ButtonIncrement cartCount={product?.count} productId={product.id}/>
             </div>
         </div>
     )
@@ -316,7 +316,7 @@ type  AddToCartButtonProps = {
     textStyle?: "medium" | "small",
 }
 
-export function AddToCartButton({cartCount=0, productId, textStyle="medium", getCount}: AddToCartButtonProps) {
+export function ButtonIncrement({cartCount=0, productId, textStyle="medium", getCount}: AddToCartButtonProps) {
     const [isOpen, setIsOpen] = React.useState<boolean|null>(null)
     const [ count, setCount ] = React.useState(cartCount);
     const fetcher = useFetcher();
@@ -374,7 +374,7 @@ export function AddToCartButton({cartCount=0, productId, textStyle="medium", get
 }
 
 
-// export function AddToCartButton({cartCount=0, productId, action="", textStyle="medium"}: AddToCartButtonProps) {
+// export function ButtonIncrement({cartCount=0, productId, action="", textStyle="medium"}: AddToCartButtonProps) {
 //     const [isOpen, setIsOpen] = React.useState<boolean|null>(null)
 //     const [ count, setCount ] = React.useState(cartCount);
 //     const fetcher = useFetcher();

@@ -10,7 +10,7 @@ import React, { useCallback } from 'react';
 import { LoaderFunctionArgs, json, useLoaderData, useNavigate } from 'react-router-dom';
 import { db } from '../../../firebase/fireStore';
 import { priceFormat } from '../../../utils/currency';
-import { AddToCartButton, Product } from '..';
+import { ButtonIncrement, Product } from '..';
 
 interface IntersectionObserverOption {
     root: HTMLElement|null,
@@ -93,12 +93,11 @@ const CustomModalHeader = React.forwardRef(({product}: {product: Product}, heade
                     <span className='font-bold text-gray-400'>{priceFormat(product?.price)}</span>
                 </div>
             </div>
-            <div className='flex gap-2 justify-between items-center mr-14' >
-                <AddToCartButton />
-                <button className='ml-4 relative group h-10 w-80 font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4'>
-                    <span>Add {1} to cart</span>
-                    <span className='absolute right-2 bg-green-900 top-1/2 -translate-y-1/2 px-2 rounded-3xl text-[14px] group-hover:bg-defaultGreen'>{priceFormat(product?.price * 1)}</span>
-                </button>
+            <div className='flex gap-2 justify-between items-center'>
+                <ButtonIncrement />
+                <div className='mr-10 pr-5 min-w-[360px] max-w-[500px]'> {/** 360px -> 400px - width of the ButtonIncrement. same width as in ProductDetails */}
+                    <AddToCartWithCountButton count={product?.count} price={product?.price} />
+                </div>
             </div>
         </div>
     )
@@ -109,14 +108,9 @@ const ProductDetails = React.forwardRef(function ProductDetails({ product }: {pr
         <div className='px-5 py-5 hover:shadow-custom rounded-3xl min-w-[400px] max-w-[500px] h-full min-h-72'>
             <div className='mb-8 relative w-full flex items-center justify-between'>
                 <p className='text-gray-400 font-bold text-xl'>{priceFormat(product?.price)}</p>
-                <AddToCartButton />
+                <ButtonIncrement />
             </div>
-            <div className='flex justify-between items-center'>
-                <button ref={ref} className='relative group h-10 w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4'>
-                    <span>Add {1} to cart</span>
-                    <span className='absolute right-2 bg-green-900 top-1/2 -translate-y-1/2 px-2 rounded-3xl text-[14px] group-hover:bg-defaultGreen'>{priceFormat(product?.price * 1)}</span>
-                </button>
-            </div>
+            <AddToCartWithCountButton ref={ref} count={product?.count} price={product?.price}/>
             <div className=''>
                 <div className='w-full border-[1px] my-4'></div>
                 <h1 className='mt-8 font-bold text-md text-gray-800'>Details:</h1>
@@ -140,6 +134,15 @@ function SimilarProduct({ productList }: { productList: Array<Product> }) {
         </div>
     )
 }
+
+const AddToCartWithCountButton = React.forwardRef(function AddToCartWithCountButton({ count = 1, price }:{ count: number, price: number }, ref) {
+    return (
+        <button ref={ref} className='relative group h-10 w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4'>
+            <span>Add {count ? count : ''} to cart</span>
+            <span className='absolute right-2 bg-green-900 top-1/2 -translate-y-1/2 px-2 rounded-3xl text-[14px] group-hover:bg-defaultGreen'>{priceFormat(price * count)}</span>
+        </button>
+    )
+})
 
 export function ProductModal() {
     const { product, similarProductList } = useLoaderData() as { product: Product, similarProductList: Array<Product> };
