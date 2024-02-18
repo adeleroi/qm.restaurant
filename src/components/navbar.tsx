@@ -33,7 +33,7 @@ function ButtonSection() {
         return (
             <>
                 <CarTriggerForCheckout triggerElement={
-                    <button className="py-1 pr-4 pl-3 max-w-[80px] rounded-3xl shadow-custom bg-defaultGreen hover:bg-green-800 hover:shadow-custom text-black relative">
+                    <button className="group/cartbtn py-1 pr-4 pl-3 max-w-[80px] rounded-3xl shadow-custom bg-defaultGreen hover:bg-green-800 hover:shadow-custom text-black relative">
                         <CartIcon/>
                     </button>
                 }/>

@@ -309,20 +309,21 @@ export function Pill({ selected, handleSelection, text } : { selected: boolean, 
 }
 
 type  AddToCartButtonProps = {
-    productId: string,
-    getCount: (value: number) => void,
+    productId?: string,
+    getCount?: (value: number) => void,
     cartCount?: number,
     action?: string,
     textStyle?: "medium" | "small",
+    type?: "button" | "submit",
 }
 
-export function ButtonIncrement({cartCount=0, productId, textStyle="medium", getCount}: AddToCartButtonProps) {
+export function ButtonIncrement({cartCount=0, getCount, type="button", action=".", textStyle="medium", productId}: AddToCartButtonProps) {
     const [isOpen, setIsOpen] = React.useState<boolean|null>(null)
-    const [ count, setCount ] = React.useState(cartCount);
+    const [ count, setCount ] = React.useState(0);
     const fetcher = useFetcher();
 
-    function handleBlur(event) {
-        if (!event.currentTarget.contains(event.relatedTarget)) {
+    function handleBlur(event: React.FocusEvent<HTMLDivElement, HTMLElement>) {
+        if (!event.currentTarget.contains(event?.relatedTarget)) {
             setIsOpen(false);
         }
     }
@@ -331,7 +332,7 @@ export function ButtonIncrement({cartCount=0, productId, textStyle="medium", get
         if (count === 1) setIsOpen(false);
         const newCount = count == 0 ? 0 : count - 1
         setCount(newCount);
-        getCount?.(newCount);
+        type == "button" ? getCount?.(newCount) : fetcher.submit(JSON.stringify({count, productId}), {method: 'POST', action});
     }
 
     function handleAddButton() {
@@ -339,35 +340,41 @@ export function ButtonIncrement({cartCount=0, productId, textStyle="medium", get
         if (isOpen || !isOpen && count === 0) {
             const newCount = count + 1;
             setCount(newCount);
-            getCount?.(newCount);
+            type == "button" ? getCount?.(newCount) : fetcher.submit(JSON.stringify({count, productId}), {method: "POST", action});
         }
     }
 
+    React.useEffect(() => {
+        // little hack to synchronize button (customHeaderButton, ProductDetails) in product modal
+        setCount(cartCount);
+    }, [cartCount]);
+
     return (
         <div tabIndex={1} onBlur={handleBlur} className="focus:outline-none">
-            <div className={clsx("cursor-pointer border rounded-3xl flex shadow-custom items-center bg-white", {
+            <div className={clsx("will-change-[width] will-change-auto cursor-pointer border rounded-3xl flex shadow-custom items-center bg-white", {
                     "animate-open-add-to-card": isOpen,
                     "animate-close-add-to-card": isOpen === false,
                 })}>
-                <div onClick={handleRemoveButton}
+                <button onClick={handleRemoveButton}
                     className={clsx("hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 justify-center items-center", {
                         "flex": isOpen,
                         "hidden": !isOpen,
                         "text-lg font-bold": textStyle === 'medium',
                     })}>
                     { count !== 1 ? <span className="font-semibold">-</span> : <span className="material-symbols-outlined font-semibold">delete</span> }
-                </div>
+                </button>
                 <div className={clsx("items-center justify-center px-2 cursor-default", {
                     "flex": isOpen,
                     "hidden": !isOpen,
-                })}>{count}</div>
-                <input type="hidden" name="productId" value={productId}/>
-                <div onClick={handleAddButton}
-                    className={clsx("cursor-pointer flex hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 justify-center items-center", {
+                })}>
+                    {count}
+                </div>
+                <button onClick={handleAddButton}
+                    className={clsx("will-change-[width] will-change-auto cursor-pointer flex hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 justify-center items-center", {
                         "text-lg font-bold": textStyle === "medium"
                     })}>
                     <span>{ !isOpen && count > 0 ? count : "+" }</span>
-                </div>
+                </button>
             </div>
         </div>
     )
