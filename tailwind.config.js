@@ -52,7 +52,7 @@ export default {
           }
       },
       openAddToCard: {
-        '0%': { width: '40px' },
+        '0%': { width: '40px', transform: 'translateX(-40px)' },
         '100%': { width: '100px' }
       },
       closeAddToCard: {
@@ -76,8 +76,8 @@ export default {
       'slide-bottom': 'slideToBottom 200ms ease-in-out',
       'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       'ping': 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite',
-      'open-add-to-card': 'openAddToCard 200ms ease-in-out',
-      'close-add-to-card': 'closeAddToCard 250ms ease-in-out',
+      'open-add-to-card': 'openAddToCard 150ms ease-in-out',
+      'close-add-to-card': 'closeAddToCard 150ms ease-in-out',
       'open-header': 'openHeader 200ms ease-in-out',
       'close-header': 'closeHeader 200ms ease-in-out',
     },

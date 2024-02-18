@@ -55,6 +55,7 @@ const HIDE_HEADER_STYLE = 'h-0 opacity-0 flex items-center transition-opacity ju
 export function ImageZoom({imgUrl, imgAlt }: { imgUrl: string, imgAlt: string }) {
     const imgRef = React.useRef<HTMLImageElement|null>(null);
     const imgContainerRef = React.useRef<HTMLDivElement|null>(null);
+
     function handleMouseLeave() {
         if (imgRef.current)
             imgRef.current.style.transform = "translate(0px, 0px) scale(1)";
@@ -71,6 +72,7 @@ export function ImageZoom({imgUrl, imgAlt }: { imgUrl: string, imgAlt: string })
             imgRef.current.style.transform = `scale(1.7)`;
         }
     }
+
     return (
         <div onMouseLeave={handleMouseLeave} onMouseMove={handleMouseMove} ref={imgContainerRef}
             className='cursor-crosshair h-96 overflow-hidden relative flex justify-center items-center w-full'>
@@ -79,7 +81,7 @@ export function ImageZoom({imgUrl, imgAlt }: { imgUrl: string, imgAlt: string })
     )
 }
 
-const ModalCustomHeader = React.forwardRef(({product}: {product: Product}, headerRef) => {
+const CustomModalHeader = React.forwardRef(({product}: {product: Product}, headerRef) => {
     return (
         <div ref={headerRef} className="hidden" style={{paddingLeft: '0px', paddingRight: '0px'}}>
             <div  className='pl-10 flex items-center gap-2'>
@@ -93,7 +95,7 @@ const ModalCustomHeader = React.forwardRef(({product}: {product: Product}, heade
             </div>
             <div className='flex gap-2 justify-between items-center mr-14' >
                 <AddToCartButton />
-                <button className='ml-12 relative group h-10 w-80 font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4'>
+                <button className='ml-4 relative group h-10 w-80 font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4'>
                     <span>Add {1} to cart</span>
                     <span className='absolute right-2 bg-green-900 top-1/2 -translate-y-1/2 px-2 rounded-3xl text-[14px] group-hover:bg-defaultGreen'>{priceFormat(product?.price * 1)}</span>
                 </button>
@@ -104,21 +106,20 @@ const ModalCustomHeader = React.forwardRef(({product}: {product: Product}, heade
 
 const ProductDetails = React.forwardRef(function ProductDetails({ product }: {product: Product}, ref) {
     return (
-        <div className='px-5 py-5 border-[1px] rounded-3xl max-w-[500px]'>
-            <div className='mb-8'>
-                <h1 className='text-left text-3xl font-bold mb-2 capitalize'>{ product.name }</h1>
+        <div className='px-5 py-5 hover:shadow-custom rounded-3xl min-w-[400px] max-w-[500px] h-full min-h-72'>
+            <div className='mb-8 relative w-full flex items-center justify-between'>
                 <p className='text-gray-400 font-bold text-xl'>{priceFormat(product?.price)}</p>
-            </div>
-            <div className='flex gap-16 justify-between items-center'>
                 <AddToCartButton />
-                <button ref={ref} className='relative group h-10 w-80 font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4'>
+            </div>
+            <div className='flex justify-between items-center'>
+                <button ref={ref} className='relative group h-10 w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4'>
                     <span>Add {1} to cart</span>
                     <span className='absolute right-2 bg-green-900 top-1/2 -translate-y-1/2 px-2 rounded-3xl text-[14px] group-hover:bg-defaultGreen'>{priceFormat(product?.price * 1)}</span>
                 </button>
             </div>
-            <div className='mt-16'>
+            <div className=''>
                 <div className='w-full border-[1px] my-4'></div>
-                <h1 className='font-bold text-md text-gray-800'>Details:</h1>
+                <h1 className='mt-8 font-bold text-md text-gray-800'>Details:</h1>
                 <p className='text-gray-600'>{ product.description }</p>
             </div>
         </div>
@@ -128,8 +129,8 @@ const ProductDetails = React.forwardRef(function ProductDetails({ product }: {pr
 function SimilarProduct({ productList }: { productList: Array<Product> }) {
     return (
         <div className='mt-10'>
-            <h1 className='text-2xl font-bold'></h1>
-            <div className='grid xl:grid-cols-4 2xl:grid-cols-5 mt-5'>
+            <h1 className='text-2xl font-bold mb-5'>Similar items</h1>
+            <div className='grid xl:grid-cols-5 2xl:grid-cols-6 place-items-center'>
                 {
                     productList?.map(product => (
                         <Product key={product?.name} product={product}/>
@@ -174,7 +175,7 @@ export function ProductModal() {
 
     return (
       <>
-        <Modal isOpen={isOpen}
+        <Modal isOpen={isOpen} isCentered
             scrollBehavior='inside'
             onClose={() => {
                 navigate('../');
@@ -182,11 +183,14 @@ export function ProductModal() {
             }}>
           <ModalOverlay />
           <ModalContent className='min-h-[90vh] 2xl:min-w-[75vw] xl:min-w-[85vw] rounded-3xl overflow-hidden' style={{position: 'relative', borderRadius: '16px'}} ref={rootTargetRef}>
-            <ModalCustomHeader product={product} ref={headerRef}/>
+            <CustomModalHeader product={product} ref={headerRef}/>
             <ModalBody>
-                <div className='flex justify-between gap-10 p-3 h-full mt-8'>
-                    <ImageZoom imgAlt={product?.name} imgUrl={product?.imgUrl} />
-                    <ProductDetails product={product} ref={intersectionTargetRef} />
+                <div className='mt-5'>
+                    <h1 className='mb-5 text-2xl font-bold'>{ product?.name }</h1>
+                    <div className='flex justify-between gap-10 p-3 h-full border-[1px] border-gray-200 rounded-3xl'>
+                        <ImageZoom imgAlt={product?.name} imgUrl={product?.imgUrl} />
+                        <ProductDetails product={product} ref={intersectionTargetRef} />
+                    </div>
                 </div>
                 <SimilarProduct productList={similarProductList} />
             </ModalBody>
