@@ -20,6 +20,7 @@ export type Product = {
     storeId: string,
     imgUrl: string,
     category: string;
+    maxPurchasedQuantity?: number,
 }
 
 export async function loader({params}: LoaderFunctionArgs) {
@@ -315,12 +316,18 @@ type  AddToCartButtonProps = {
     textStyle?: "medium" | "small",
     type?: "button" | "submit",
     disabled?: boolean,
+    limitInf?: number,
+    limitMax?: number,
+    onLimitDisable?: boolean,
 }
-
-export function ButtonIncrement({cartCount=0, getCount, productId, disabled, type="button", action=".", textStyle="medium"}: AddToCartButtonProps) {
-    const [isOpen, setIsOpen] = React.useState<boolean | null>(null)
+export function ButtonIncrement({cartCount=0, getCount, productId, disabled, limitInf=1, limitMax=100, onLimitDisable=false, type="button", action=".", textStyle="medium"}: AddToCartButtonProps) {
+    // limitInf must be in [1, Inf[ with onLimitDisable set to false by default
+    const [isOpen, setIsOpen] = React.useState<boolean | null>(null); // null is to prevent the animation to start on page load.
     const [ count, setCount ] = React.useState(0);
     const fetcher = useFetcher();
+
+    const disabledOnLimitInf = onLimitDisable && limitInf === count;
+    const disabledOnLimitMax = onLimitDisable && limitMax === count;
 
     function handleBlur(event: React.FocusEvent<HTMLDivElement, HTMLElement>) {
         if (!event.currentTarget.contains(event?.relatedTarget)) {
@@ -329,8 +336,8 @@ export function ButtonIncrement({cartCount=0, getCount, productId, disabled, typ
     }
 
     function handleRemoveButton() {
-        if (count === 1) setIsOpen(false);
-        const newCount = count == 0 ? 0 : count - 1
+        if (count < limitInf+1) setIsOpen(false);
+        const newCount = count == limitInf ? 0 : count - 1
         setCount(newCount);
         type == "button" ? getCount?.(newCount) : fetcher.submit(
                 JSON.stringify({count: newCount, productId}) as SubmitTarget,
@@ -340,23 +347,28 @@ export function ButtonIncrement({cartCount=0, getCount, productId, disabled, typ
 
     function handleAddButton() {
         setIsOpen(true);
-        if (isOpen || !isOpen && count === 0) {
-            const newCount = count + 1;
-            setCount(newCount);
-            type == "button" ? getCount?.(newCount) : fetcher.submit(
-                JSON.stringify({count: newCount, productId}) as SubmitTarget,
-                {method: "POST", action, encType: 'application/json'}
-            );
+        let newCount = 0;
+        if (!isOpen && count === 0) {
+            newCount = limitInf;
+        } else if (isOpen) {
+            newCount = count + 1;
+        } else {
+            // if button is closed and count !== 0;
+            return;
         }
+        setCount(newCount);
+        type == "button" ? getCount?.(newCount) : fetcher.submit(
+            JSON.stringify({count: newCount, productId}) as SubmitTarget,
+            {method: "POST", action, encType: 'application/json'}
+        );
     }
 
     React.useEffect(() => {
-        // little hack to synchronize button (customHeaderButton, ProductDetails) in product modal
         setCount(cartCount);
     }, [cartCount]);
 
     return (
-        <div tabIndex={1} onBlur={handleBlur} className={clsx("focus:outline-none", {"cursor-not-allowed": disabled})}>
+        <div tabIndex={1} onBlur={handleBlur}  className={clsx("focus:outline-none", {"cursor-not-allowed": disabled})}>
             <div className={clsx("will-change-[width] border rounded-3xl flex shadow-custom items-center bg-white", {
                     "animate-open-add-to-card": isOpen,
                     "animate-close-add-to-card": isOpen === false,
@@ -364,15 +376,24 @@ export function ButtonIncrement({cartCount=0, getCount, productId, disabled, typ
                     "cursor-pointer": !disabled
                 })}>
                 <button onClick={handleRemoveButton}
-                    disabled={disabled}
+                    disabled={disabled || disabledOnLimitInf}
                     type={type}
-                    className={clsx("hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 justify-center items-center", {
+                    className={clsx("bg-white rounded-full m-[1px] w-8 h-8 justify-center items-center", {
                         "flex": isOpen,
                         "hidden": !isOpen,
                         "text-lg font-bold": textStyle === 'medium',
-                        "disabled:bg-gray-300 cursor-not-allowed": disabled
+                        "disabled:bg-gray-300 cursor-not-allowed": disabled,
+                        "cursor-not-allowed": disabledOnLimitInf,
+                        "hover:bg-[#ededed]": !disabled && !disabledOnLimitInf
                     })}>
-                    { count !== 1 ? <span className="font-semibold">-</span> : <span className="material-symbols-outlined font-semibold">delete</span> }
+                    { count !== limitInf ? (
+                            <span className={clsx("font-semibold", {"cursor-not-allowed text-gray-300": disabledOnLimitInf})}>-</span>
+                        ) : (
+                            <span className={clsx("material-symbols-outlined font-semibold", {
+                                "cursor-not-allowed text-gray-200": disabledOnLimitInf,
+                            })}>delete</span>
+                        )
+                    }
                 </button>
                 <div className={clsx("items-center justify-center px-2 cursor-default", {
                     "flex": isOpen,
@@ -381,13 +402,15 @@ export function ButtonIncrement({cartCount=0, getCount, productId, disabled, typ
                     {count}
                 </div>
                 <button onClick={handleAddButton}
-                    disabled={disabled}
+                    disabled={disabled || disabledOnLimitMax && !!isOpen}
                     type={type}
-                    className={clsx("will-change-auto cursor-pointer flex hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 justify-center items-center", {
+                    className={clsx("will-change-auto cursor-pointer flex bg-white rounded-full m-[1px] w-8 h-8 justify-center items-center", {
                         "text-lg font-bold": textStyle === "medium",
-                        "disabled:bg-gray-300 text-gray-600 cursor-not-allowed": disabled
+                        "disabled:bg-gray-300 text-gray-600 cursor-not-allowed": disabled,
+                        "cursor-not-allowed": disabledOnLimitMax && isOpen,
+                        "hover:bg-[#ededed]": !disabled && !disabledOnLimitMax
                     })}>
-                    <span>{ !isOpen && count > 0 ? count : "+" }</span>
+                    <span className={clsx({"text-gray-300": disabledOnLimitMax && isOpen})}>{ !isOpen && count > 0 ? count : "+" }</span>
                 </button>
             </div>
         </div>
