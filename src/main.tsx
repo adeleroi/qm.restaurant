@@ -12,7 +12,7 @@ import { ErrorPage } from './views/error.tsx';
 import { Home } from './views/home.tsx';
 import { action as rootAction, loader as rootLoader } from './App.tsx';
 import { StoreFront, action as storeFrontAction, loader as storeFrontLoader } from './views/store-front/index.tsx';
-import { ProductModal, loader as ProductModalLoader } from './views/store-front/product-modal.tsx/index.tsx';
+import { ProductModal, loader as ProductModalLoader, action as ProductModalAction } from './views/store-front/product-modal.tsx/index.tsx';
 import { FilteredProductList, loader as FilteredProductLoader } from './views/store-front/product-list-filtered-category/index.tsx';
 import { ProductList } from './views/store-front/product-list/index.tsx';
 
@@ -57,6 +57,7 @@ const router = createBrowserRouter([
                 path: "product/:productId",
                 element: <ProductModal/>,
                 loader: ProductModalLoader,
+                action: ProductModalAction,
               },
             ]
           },
@@ -69,6 +70,7 @@ const router = createBrowserRouter([
                 path: "product/:productId",
                 element: <ProductModal/>,
                 loader: ProductModalLoader,
+                action: storeFrontAction,
               },
             ]
           },

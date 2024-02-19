@@ -8,7 +8,7 @@ import {
     DrawerHeader,
 } from '@chakra-ui/react';
 import { Trigger } from '../../utils/trigger';
-import { Link, useLoaderData, useParams } from 'react-router-dom';
+import { Link, useLoaderData, useParams, useRouteLoaderData } from 'react-router-dom';
 import React from 'react';
 import { ButtonIncrement, Product } from '../../views/store-front';
 import { getSubtotal, priceFormat } from '../../utils/currency';
@@ -16,7 +16,8 @@ import clsx from 'clsx';
 
 export function CarTriggerForCheckout({ triggerElement }: { triggerElement: React.ReactNode}) {
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const loaderData = useLoaderData();
+    // const loaderData = useLoaderData();
+    const loaderData = useRouteLoaderData('root');
     const { storeId, restaurantId } = useParams();
 
     const cartCount = loaderData?.cartCount;

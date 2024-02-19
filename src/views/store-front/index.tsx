@@ -314,10 +314,11 @@ type  AddToCartButtonProps = {
     action?: string,
     textStyle?: "medium" | "small",
     type?: "button" | "submit",
+    disabled?: boolean,
 }
 
-export function ButtonIncrement({cartCount=0, getCount, type="button", action=".", textStyle="medium", productId}: AddToCartButtonProps) {
-    const [isOpen, setIsOpen] = React.useState<boolean|null>(null)
+export function ButtonIncrement({cartCount=0, getCount, productId, disabled, type="button", action=".", textStyle="medium"}: AddToCartButtonProps) {
+    const [isOpen, setIsOpen] = React.useState<boolean | null>(null)
     const [ count, setCount ] = React.useState(0);
     const fetcher = useFetcher();
 
@@ -356,15 +357,20 @@ export function ButtonIncrement({cartCount=0, getCount, type="button", action=".
 
     return (
         <div tabIndex={1} onBlur={handleBlur} className="focus:outline-none">
-            <div className={clsx("will-change-[width] cursor-pointer border rounded-3xl flex shadow-custom items-center bg-white", {
+            <div className={clsx("will-change-[width] border rounded-3xl flex shadow-custom items-center bg-white", {
                     "animate-open-add-to-card": isOpen,
                     "animate-close-add-to-card": isOpen === false,
+                    "bg-gray-300": disabled,
+                    "cursor-pointer": !disabled
                 })}>
                 <button onClick={handleRemoveButton}
+                    disabled={disabled}
+                    type={type}
                     className={clsx("hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 justify-center items-center", {
                         "flex": isOpen,
                         "hidden": !isOpen,
                         "text-lg font-bold": textStyle === 'medium',
+                        "disabled:bg-gray-300 cursor-not-allowed": disabled
                     })}>
                     { count !== 1 ? <span className="font-semibold">-</span> : <span className="material-symbols-outlined font-semibold">delete</span> }
                 </button>
@@ -375,8 +381,11 @@ export function ButtonIncrement({cartCount=0, getCount, type="button", action=".
                     {count}
                 </div>
                 <button onClick={handleAddButton}
+                    disabled={disabled}
+                    type={type}
                     className={clsx("will-change-auto cursor-pointer flex hover:bg-[#ededed] bg-white rounded-full m-1 w-8 h-8 justify-center items-center", {
-                        "text-lg font-bold": textStyle === "medium"
+                        "text-lg font-bold": textStyle === "medium",
+                        "disabled:bg-gray-300 text-gray-600 cursor-not-allowed": disabled
                     })}>
                     <span>{ !isOpen && count > 0 ? count : "+" }</span>
                 </button>
@@ -384,7 +393,6 @@ export function ButtonIncrement({cartCount=0, getCount, type="button", action=".
         </div>
     )
 }
-
 
 // export function ButtonIncrement({cartCount=0, productId, action="", textStyle="medium"}: AddToCartButtonProps) {
 //     const [isOpen, setIsOpen] = React.useState<boolean|null>(null)

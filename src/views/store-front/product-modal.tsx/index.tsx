@@ -1,17 +1,22 @@
 import {
+    // Modal
     Modal,
     ModalOverlay,
     ModalContent,
     ModalBody,
     useDisclosure,
+
+    // Spinner
+    Spinner
   } from '@chakra-ui/react'
-import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, runTransaction, serverTimestamp, where } from 'firebase/firestore';
 import React, { useCallback } from 'react';
-import { LoaderFunctionArgs, json, useLoaderData, useNavigate } from 'react-router-dom';
+import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect, useFetcher, useLoaderData, useNavigate, useNavigation } from 'react-router-dom';
 import { db } from '../../../firebase/fireStore';
 import { priceFormat } from '../../../utils/currency';
 import { ButtonIncrement, Product } from '..';
 import Cookies from 'js-cookie';
+import clsx from 'clsx';
 
 interface IntersectionObserverOption {
     root: HTMLElement|null,
@@ -20,7 +25,7 @@ interface IntersectionObserverOption {
 }
 
 function useIntersectionObserverEffect(
-    targetRef:  React.MutableRefObject<HTMLElement|null>,
+    targetRef:  React.MutableRefObject<HTMLElement | null>,
     callBack: IntersectionObserverCallback,
     options: IntersectionObserverOption,
 ) {
@@ -47,19 +52,47 @@ export async function loader({ params }: LoaderFunctionArgs) {
     });
 
     const productDoc = await getDoc(doc(db, 'store', storeId, 'product', productId));
-    const currProduct = { id: productDoc.id, ...productDoc.data(), count: cartItems.get(productDoc.id) ?? 0} as Product ;
+    const count = !cartItems.get(productDoc.id) ? 1 : cartItems.get(productDoc.id);
+    const currProduct = { id: productDoc.id, ...productDoc.data(), count } as Product ;
     
     const similarProductQuery = query(collection(db, "store", storeId, "product"), where('category', '==', currProduct.category));
     const similarProductSnapshot = await getDocs(similarProductQuery);
 
 
     similarProductSnapshot.forEach(product => {
-        if (product.id == currProduct.id) return;
-        cartItems
-        similarProductList.push({ id: product.id, ...product.data(), count: cartItems.get(product.id) ?? 0 } as Product);
+        if (product.id == currProduct.id || cartItems.has(product.id)) return;
+        similarProductList.push({ id: product.id, ...product.data(), count: 0 } as Product);
     })
 
-    return json({ product: currProduct, similarProductList });
+    return json({ product: currProduct, similarProductList, cartItemMap: Object.fromEntries(cartItems) });
+}
+
+export async function action({ params, request }: ActionFunctionArgs) {
+    console.log('url', request.url);
+    const storeId = params?.storeId as string;
+    const userId = Cookies.get('qm_session_id') as string;
+    const { productId, count: itemCount } = await request.json() as Record<string, string>;
+    const productInStore = await getDoc(doc(db, "store", storeId, "product", productId));
+    const productInCartRef = doc(db, "users", userId, "cart", productId);
+
+    await runTransaction(db, async (transaction) => {
+        const productInCartDoc = await transaction.get(productInCartRef);
+        if (!productInCartDoc.exists()) {
+            transaction.set(productInCartRef, {
+                ...productInStore.data(),
+                timestamp: serverTimestamp(),
+                count: +itemCount,
+                storeId,
+            })
+            return;
+        }
+        if (+itemCount !== 0) {
+            transaction.update(productInCartRef, {count: +itemCount, timestamp: serverTimestamp()});
+        } else {
+            transaction.delete(productInCartRef);
+        }
+    });
+    return redirect(`/store/${storeId}`);
 }
 
 const SHOW_HEADER_STYLE = 'will-change-auto h-24 opacity-100 flex items-center justify-between animate-open-header shadow-xl flex absolute z-50 w-full top-0 bg-white';
@@ -95,7 +128,7 @@ export function ImageZoom({imgUrl, imgAlt }: { imgUrl: string, imgAlt: string })
 }
 
 const CustomModalHeader = React.forwardRef(({product}: {product: Product}, headerRef) => {
-    const [ count, setCount ] = useProductCountContext();
+    const { quantity, updateQuantity, hasChanged, isAlreadyInCart } = useProductCountContext();
     return (
         <div ref={headerRef} className="hidden" style={{paddingLeft: '0px', paddingRight: '0px'}}>
             <div  className='pl-10 flex items-center gap-2'>
@@ -108,24 +141,48 @@ const CustomModalHeader = React.forwardRef(({product}: {product: Product}, heade
                 </div>
             </div>
             <div className='flex gap-2 justify-between items-center'>
-                <ButtonIncrement getCount={setCount} cartCount={count}/>
+                <ButtonIncrement getCount={updateQuantity} cartCount={quantity}/>
                 <div className='mr-10 pr-5 min-w-[360px] max-w-[500px]'> {/** 360px -> 400px - width of the ButtonIncrement. same width as in ProductDetails */}
-                    <AddToCartWithCountButton count={count} price={product?.price} />
+                    <AddToCartWithCountButton
+                        count={quantity}
+                        price={product?.price}
+                        hasChanged={hasChanged}
+                        isAlreadyInCart={isAlreadyInCart}
+                    />
                 </div>
             </div>
         </div>
     )
 })
 
-const ProductDetails = React.forwardRef(function ProductDetails({ product }: {product: Product}, ref) {
-    const [ count, setCount ] = useProductCountContext();
+const ProductDetails = React.forwardRef(function ProductDetails({ product }: { product: Product }, ref) {
+    const { quantity, updateQuantity, hasChanged, isAlreadyInCart } = useProductCountContext();
+    const fetcher = useFetcher();
+    const isSubmitting = fetcher.state !== 'idle';
+
+    function submitToCart() {
+        fetcher.submit(
+            JSON.stringify({quantity, productId: product?.id}),
+            { method: 'post', encType: 'application/json', action: '.' }
+        );
+    }
     return (
         <div className='px-5 py-5 hover:shadow-custom rounded-3xl min-w-[400px] max-w-[500px] h-full min-h-72'>
             <div className='mb-8 relative w-full flex items-center justify-between'>
                 <p className='text-black font-bold text-xl'>{priceFormat(product?.price)}</p>
-                <ButtonIncrement getCount={setCount} cartCount={count}/>
+                <ButtonIncrement getCount={updateQuantity} cartCount={quantity} />
             </div>
-            <AddToCartWithCountButton ref={ref} count={count} price={product?.price}/>
+            <div className='w-full grid gap-2'>
+                <AddToCartWithCountButton
+                    ref={ref}
+                    count={quantity}
+                    price={product?.price}
+                    onClick={submitToCart}
+                    isSubmitting={isSubmitting}
+                    hasChanged={hasChanged}
+                    isAlreadyInCart={isAlreadyInCart}
+                />
+            </div>
             <div className=''>
                 <div className='w-full border-[1px] border-gray-300 my-4'></div>
                 <h1 className='mt-8 font-bold text-md text-gray-800'>Details:</h1>
@@ -142,7 +199,7 @@ function SimilarProduct({ productList }: { productList: Array<Product> }) {
             <div className='grid xl:grid-cols-5 2xl:grid-cols-6 place-items-center'>
                 {
                     productList?.map(product => (
-                        <Product key={product?.name} product={product}/>
+                        <Product key={product?.name} product={product} to={`../product/${product.id}`}/>
                     ))
                 }
             </div>
@@ -150,17 +207,53 @@ function SimilarProduct({ productList }: { productList: Array<Product> }) {
     )
 }
 
-const AddToCartWithCountButton = React.forwardRef(function AddToCartWithCountButton({ count = 1, price }:{ count: number, price: number }, ref) {
+type AddToCartWithCountButtonProps = {
+    count: number,
+    price: number,
+    type?: 'button' | 'submit',
+    disabled?: boolean,
+    hasChanged?: boolean,
+    isAlreadyInCart?: boolean,
+    isSubmitting?: boolean,
+    onClick?: () => void,
+}
+
+const AddToCartWithCountButton = React.forwardRef(function AddToCartWithCountButton({ count, price, onClick, disabled, hasChanged, isAlreadyInCart, isSubmitting, type="submit" }: AddToCartWithCountButtonProps, ref) {
+    function getText() {
+        if (hasChanged) return "Update quantity";
+        if (isAlreadyInCart) return `In cart (${count})`;
+        return `Add ${count ? count : ''} to cart`;
+    }
+
     return (
-        <button ref={ref} className='relative group h-10 w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4'>
-            <span>Add {count ? count : ''} to cart</span>
-            <span className='absolute right-2 bg-green-900 top-1/2 -translate-y-1/2 px-2 rounded-3xl text-[14px] group-hover:bg-defaultGreen'>{priceFormat(count > 0 ? price * count: price)}</span>
+        <button
+            className={clsx('relative group h-10 w-full font-bold text-md hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4', {
+                'disabled:bg-green-800 cursor-not-allowed': disabled || isSubmitting
+            })}
+            disabled={disabled || isSubmitting}
+            onClick={onClick}
+            type={type}
+            ref={ref}
+        >
+            <span className='mr-4'>{ isSubmitting ? <Spinner color='white' size="sm" /> : null }</span>
+            <span className={clsx('capitalize', {'text-gray-600': disabled})}>{getText()}</span>
+            <span className={clsx('absolute right-2 top-1/2 -translate-y-1/2 px-2 rounded-3xl text-[14px]', {
+                'group-hover:bg-defaultGreen  bg-green-900': !disabled,
+                'text-gray-600 bg-gray-400': disabled
+            })}>{priceFormat(count > 0 ? price * count: price)}</span>
         </button>
     )
 })
 
+type ProductModalLoader = {
+    product: Product,
+    similarProductList: Array<Product>,
+    cartItemMap: Record<string, number>
+}
+
 export function ProductModal() {
-    const { product, similarProductList } = useLoaderData() as { product: Product, similarProductList: Array<Product> };
+    const { product, similarProductList, cartItemMap } = useLoaderData() as ProductModalLoader;
+    console.log(cartItemMap);
     const { isOpen, onOpen, onClose } = useDisclosure();
     const navigate = useNavigate();
     const headerRef = React.useRef<HTMLElement|null>(null);
@@ -183,7 +276,7 @@ export function ProductModal() {
     React.useEffect(() => {
         onOpen();
         return() => onClose();
-    }, [onOpen, onClose]);
+    }, [onOpen, onClose, product.id]);
 
     useIntersectionObserverEffect(
         intersectionTargetRef,
@@ -201,7 +294,7 @@ export function ProductModal() {
             }}>
           <ModalOverlay />
           <ModalContent className='min-h-[90vh] 2xl:min-w-[75vw] xl:min-w-[85vw] rounded-3xl overflow-hidden' style={{position: 'relative', borderRadius: '16px'}} ref={rootTargetRef}>
-            <ProductCountProvider productCount={product?.count}>
+            <ProductCountProvider key={product.name} productCount={product?.count} isAlreadyInCart={!!cartItemMap?.[product?.id]}>
                 <CustomModalHeader product={product} ref={headerRef}/>
                 <ModalBody>
                     <div className='mt-5'>
@@ -220,11 +313,18 @@ export function ProductModal() {
     )
 }
 
-const productCountContext = React.createContext<[number, React.Dispatch<React.SetStateAction<number>>]|null>(null);
+type ProductContextState = { quantity: number, updateQuantity: (t:number) => void, hasChanged: boolean, isAlreadyInCart?: boolean };
+const productCountContext = React.createContext<ProductContextState|null>(null);
 
-export function ProductCountProvider({ children, productCount } : { children: React.ReactNode, productCount: number }) {
-    const [ count, setCount ] = React.useState(productCount || 0);
-    return <productCountContext.Provider value={[ count, setCount ]}>{ children }</productCountContext.Provider>
+export function ProductCountProvider({ children, productCount, isAlreadyInCart } : { children: React.ReactNode, productCount: number, isAlreadyInCart?: boolean }) {
+    const [ quantity, setQuantity ] = React.useState(productCount || 0);
+    const [ isUpdated, setIsUpdated ] = React.useState(false);
+    const hasChanged = !!(isUpdated && isAlreadyInCart);
+    const updateQuantity = (count: number) => {
+        setQuantity(count);
+        setIsUpdated(true);
+    }
+    return <productCountContext.Provider value={{ hasChanged, quantity, updateQuantity, isAlreadyInCart }}>{ children }</productCountContext.Provider>
 }
 
 function useProductCountContext() {
