@@ -320,7 +320,7 @@ type  AddToCartButtonProps = {
     limitMax?: number,
     onLimitDisable?: boolean,
 }
-export function ButtonIncrement({cartCount=0, getCount, productId, disabled, limitInf=1, limitMax=100, onLimitDisable=false, type="button", action=".", textStyle="medium"}: AddToCartButtonProps) {
+export function ButtonIncrement({ getCount, productId, disabled, limitInf=1, limitMax=100, onLimitDisable=false, type="button", action=".", textStyle="medium", cartCount=0 }: AddToCartButtonProps) {
     // limitInf must be in [1, Inf[ with onLimitDisable set to false by default
     const [isOpen, setIsOpen] = React.useState<boolean | null>(null); // null is to prevent the animation to start on page load.
     const [ count, setCount ] = React.useState(0);
