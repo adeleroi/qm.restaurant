@@ -18,6 +18,7 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
     const { isOpen, onOpen, onClose } = useDisclosure();
     const loaderData = useLoaderData();
     const { storeId, restaurantId } = useParams();
+    const initialFocusRef = React.useRef(null);
 
     const cartCount = loaderData?.cartCount;
     const data = loaderData?.storeCartInfos;
@@ -33,6 +34,7 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
             { triggerElement }
         </Trigger>
         <Drawer
+            initialFocusRef={initialFocusRef}
             size={'sm'}
             isOpen={isOpen}
             placement='right'
@@ -43,7 +45,7 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
             <DrawerContent>
                 <DrawerHeader>
                     <div className='relative'>
-                        <DrawerCloseButton style={{zIndex: 2, fontSize: '16px', top: '50%', transform: 'translateY(-50%)', borderRadius: '50%', padding: '0px', left: '-13px'}} />
+                        <DrawerCloseButton className='outline-2' style={{zIndex: 2, fontSize: '16px', top: '50%', transform: 'translateY(-50%)', borderRadius: '50%', padding: '0px', left: '-13px'}} />
                         {
                             !storeInfos?.name ? (
                                 <div>
@@ -75,7 +77,7 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
                 </DrawerBody>
                 { cartItems?.length ?
                     <div className='sticky top-full w-full py-5 gap-2 shadow-custom border-2 px-2 grid place-items-center bg-white'>
-                        <ButtonActionAndValue subtotal={subtotal}>Checkout</ButtonActionAndValue>
+                        <ButtonActionAndValue ref={initialFocusRef} subtotal={subtotal}>Checkout</ButtonActionAndValue>
                         <button onClick={onClose} className='bg-gray-200 text-black py-2 rounded-3xl font-bold w-full hover:cursor-pointer hover:bg-gray-100'>Add more items</button>
                     </div> : null
                 }
@@ -163,14 +165,14 @@ function EmptyCart({ onClose }: { onClose: () => void}) {
     )
 }
 
-export function ButtonActionAndValue({subtotal, children}: { subtotal: number, children: React.ReactNode }) {
+export const ButtonActionAndValue = React.forwardRef(function ButtonActionAndValue({subtotal, children} : { subtotal: number, children: React.ReactNode }, ref) {
     return (
-        <button className='relative group w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4'>
+        <button ref={ref} className='relative group w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4'>
             <span>{ children }</span>
             <span className='absolute right-2 bg-green-900 px-2 rounded-3xl text-[14px] group-hover:bg-defaultGreen'>{priceFormat(subtotal)}</span>
         </button>
     )
-}
+})
 
 function CartItem({ product, storeId }: { product: Product, storeId?: string}) {
     return (
