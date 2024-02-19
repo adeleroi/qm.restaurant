@@ -319,10 +319,11 @@ type  AddToCartButtonProps = {
     limitInf?: number,
     limitMax?: number,
     onLimitDisable?: boolean,
+    alwaysOnDisplay?: boolean,
 }
-export function ButtonIncrement({ getCount, productId, disabled, limitInf=1, limitMax=100, onLimitDisable=false, type="button", action=".", textStyle="medium", cartCount=0 }: AddToCartButtonProps) {
+export function ButtonIncrement({ getCount, productId, disabled, limitInf=1, limitMax=100, onLimitDisable=false, type="button", action=".", textStyle="medium", cartCount=0, alwaysOnDisplay=false }: AddToCartButtonProps) {
     // limitInf must be in [1, Inf[ with onLimitDisable set to false by default
-    const [isOpen, setIsOpen] = React.useState<boolean | null>(null); // null is to prevent the animation to start on page load.
+    const [isOpen, setIsOpen] = React.useState<boolean | null>(alwaysOnDisplay || null); // null is to prevent the animation to start on page load.
     const [ count, setCount ] = React.useState(0);
     const fetcher = useFetcher();
 
@@ -330,13 +331,18 @@ export function ButtonIncrement({ getCount, productId, disabled, limitInf=1, lim
     const disabledOnLimitMax = onLimitDisable && limitMax === count;
 
     function handleBlur(event: React.FocusEvent<HTMLDivElement, HTMLElement>) {
+        if (alwaysOnDisplay) return;
         if (!event.currentTarget.contains(event?.relatedTarget)) {
             setIsOpen(false);
         }
     }
 
     function handleRemoveButton() {
-        if (count < limitInf+1) setIsOpen(false);
+        if (count < limitInf+1) {
+            if (!alwaysOnDisplay) {
+                setIsOpen(false);
+            }
+        }
         const newCount = count == limitInf ? 0 : count - 1
         setCount(newCount);
         type == "button" ? getCount?.(newCount) : fetcher.submit(

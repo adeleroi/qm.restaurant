@@ -194,7 +194,7 @@ function CartItem({ product, storeId }: { product: Product, storeId?: string}) {
                 </div>
             </Link>
             <div className='absolute top-1/2 -translate-y-1/2 right-5 z-0'>
-                <ButtonIncrement type="submit" textStyle='small' action='store/:storeId' productId={product.id} cartCount={product.count}/>
+                <ButtonIncrement alwaysOnDisplay type="submit" textStyle='small' action='store/:storeId' productId={product.id} cartCount={product.count}/>
             </div>
         </li>
     )
