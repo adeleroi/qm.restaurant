@@ -8,7 +8,7 @@ import {
     DrawerHeader,
 } from '@chakra-ui/react';
 import { Trigger } from '../../utils/trigger';
-import { Link, useLoaderData, useParams, useRouteLoaderData } from 'react-router-dom';
+import { Link, useLoaderData, useParams } from 'react-router-dom';
 import React from 'react';
 import { ButtonIncrement, Product } from '../../views/store-front';
 import { getSubtotal, priceFormat } from '../../utils/currency';
@@ -16,8 +16,7 @@ import clsx from 'clsx';
 
 export function CarTriggerForCheckout({ triggerElement }: { triggerElement: React.ReactNode}) {
     const { isOpen, onOpen, onClose } = useDisclosure();
-    // const loaderData = useLoaderData();
-    const loaderData = useRouteLoaderData('root');
+    const loaderData = useLoaderData();
     const { storeId, restaurantId } = useParams();
 
     const cartCount = loaderData?.cartCount;
@@ -193,7 +192,7 @@ function CartItem({ product, storeId }: { product: Product, storeId?: string}) {
                 </div>
             </Link>
             <div className='absolute top-1/2 -translate-y-1/2 right-5 z-0'>
-                <ButtonIncrement textStyle='small' action='store/:storeId' productId={product.id} cartCount={product.count}/>
+                <ButtonIncrement type="submit" textStyle='small' action='store/:storeId' productId={product.id} cartCount={product.count}/>
             </div>
         </li>
     )

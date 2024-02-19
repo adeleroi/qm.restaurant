@@ -68,7 +68,6 @@ export async function loader({ params }: LoaderFunctionArgs) {
 }
 
 export async function action({ params, request }: ActionFunctionArgs) {
-    console.log('url', request.url);
     const storeId = params?.storeId as string;
     const userId = Cookies.get('qm_session_id') as string;
     const { productId, count: itemCount } = await request.json() as Record<string, string>;
@@ -162,7 +161,7 @@ const ProductDetails = React.forwardRef(function ProductDetails({ product }: { p
 
     function submitToCart() {
         fetcher.submit(
-            JSON.stringify({quantity, productId: product?.id}),
+            JSON.stringify({count: quantity, productId: product?.id}),
             { method: 'post', encType: 'application/json', action: '.' }
         );
     }
@@ -170,7 +169,7 @@ const ProductDetails = React.forwardRef(function ProductDetails({ product }: { p
         <div className='px-5 py-5 hover:shadow-custom rounded-3xl min-w-[400px] max-w-[500px] h-full min-h-72'>
             <div className='mb-8 relative w-full flex items-center justify-between'>
                 <p className='text-black font-bold text-xl'>{priceFormat(product?.price)}</p>
-                <ButtonIncrement getCount={updateQuantity} cartCount={quantity} />
+                <ButtonIncrement getCount={updateQuantity} cartCount={quantity} disabled={isSubmitting}/>
             </div>
             <div className='w-full grid gap-2'>
                 <AddToCartWithCountButton
@@ -239,7 +238,7 @@ const AddToCartWithCountButton = React.forwardRef(function AddToCartWithCountBut
             <span className={clsx('capitalize', {'text-gray-600': disabled})}>{getText()}</span>
             <span className={clsx('absolute right-2 top-1/2 -translate-y-1/2 px-2 rounded-3xl text-[14px]', {
                 'group-hover:bg-defaultGreen  bg-green-900': !disabled,
-                'text-gray-600 bg-gray-400': disabled
+                'text-gray-200 bg-green-800': disabled || isSubmitting
             })}>{priceFormat(count > 0 ? price * count: price)}</span>
         </button>
     )
