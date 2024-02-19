@@ -70,7 +70,7 @@ const router = createBrowserRouter([
                 path: "product/:productId",
                 element: <ProductModal/>,
                 loader: ProductModalLoader,
-                action: storeFrontAction,
+                action: ProductModalAction,
               },
             ]
           },

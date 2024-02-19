@@ -14,10 +14,6 @@ export function Footer() {
                     </ul>
                 </div>
                 <div className="flex justify-between w-full items-center">
-                    <div className="flex gap-2">
-                        <img alt="appstore" src="https://store.quickmarket.ca/img/appstore.png" className="w-32"></img>
-                        <img alt="playstore" src="https://store.quickmarket.ca/img/playmarket.png"className="w-32"></img>
-                    </div>
                     <div>
                         <p className="text-xs">&copy; 2024 Quick market, inc.</p>
                     </div>

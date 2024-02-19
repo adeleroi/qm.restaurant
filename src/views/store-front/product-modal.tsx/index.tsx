@@ -39,7 +39,6 @@ function useIntersectionObserverEffect(
 }
 
 export async function loader({ params }: LoaderFunctionArgs) {
-    // TODO: compare similar items with the one in the carts to do the filter and update the count.
     const userId = Cookies.get('qm_session_id') as string;
     const { productId, storeId } = params as Record<string, string>;
 
@@ -68,7 +67,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 }
 
 export async function action({ params, request }: ActionFunctionArgs) {
-    const storeId = params?.storeId as string;
+    const { storeId, categoryId } = params as Record<string, string>;
     const userId = Cookies.get('qm_session_id') as string;
     const { productId, count: itemCount } = await request.json() as Record<string, string>;
     const productInStore = await getDoc(doc(db, "store", storeId, "product", productId));
@@ -91,7 +90,8 @@ export async function action({ params, request }: ActionFunctionArgs) {
             transaction.delete(productInCartRef);
         }
     });
-    return redirect(`/store/${storeId}`);
+
+    return redirect(categoryId ? `/store/${storeId}/category/${categoryId}` : `/store/${storeId}`);
 }
 
 const SHOW_HEADER_STYLE = 'will-change-auto h-24 opacity-100 flex items-center justify-between animate-open-header shadow-xl flex absolute z-50 w-full top-0 bg-white';
@@ -135,12 +135,12 @@ const CustomModalHeader = React.forwardRef(({product}: {product: Product}, heade
                     <img src={product?.imgUrl} className='object-contain'/>
                 </div>
                 <div>
-                    <h1 className='text-xl font-bold mr-16'>{ product?.name }</h1>
+                    <h1 className='text-xl font-bold mr-16 capitalize'>{ product?.name }</h1>
                     <span className='font-bold text-gray-500'>{priceFormat(product?.price)}</span>
                 </div>
             </div>
             <div className='flex gap-2 justify-between items-center'>
-                <ButtonIncrement getCount={updateQuantity} cartCount={quantity} disabled={isSubmitting} limitInf={1} onLimitDisable/>
+                <ButtonIncrement getCount={updateQuantity} cartCount={quantity} disabled={isSubmitting} limitInf={1} onLimitDisable alwaysOnDisplay/>
                 <div className='mr-10 pr-5 min-w-[360px] max-w-[500px]'> {/** 360px -> 400px - width of the ButtonIncrement. same width as in ProductDetails */}
                     <AddToCartWithCountButton
                         count={quantity}
@@ -162,8 +162,8 @@ const ProductDetails = React.forwardRef(function ProductDetails({ product }: { p
     return (
         <div className='px-5 py-5 hover:shadow-custom rounded-3xl min-w-[400px] max-w-[500px] h-full min-h-72'>
             <div className='mb-8 relative w-full flex items-center justify-between'>
-                <p className='text-black font-bold text-xl'>{priceFormat(product?.price)}</p>
-                <ButtonIncrement getCount={updateQuantity} cartCount={quantity} disabled={isSubmitting} limitInf={1} onLimitDisable/>
+                <h1 className='text-black font-bold text-xl'>{priceFormat(product?.price)}</h1>
+                <ButtonIncrement getCount={updateQuantity} cartCount={quantity} disabled={isSubmitting} limitInf={1} onLimitDisable alwaysOnDisplay/>
             </div>
             <div className='w-full grid gap-2'>
                 <AddToCartWithCountButton
@@ -188,7 +188,7 @@ const ProductDetails = React.forwardRef(function ProductDetails({ product }: { p
 function SimilarProduct({ productList }: { productList: Array<Product> }) {
     return (
         <div className='mt-10'>
-            <h1 className='text-2xl font-bold mb-5'>Similar items</h1>
+            <h1 className='capitalize text-2xl font-bold mb-5'>Similar items</h1>
             <div className='grid xl:grid-cols-5 2xl:grid-cols-6 place-items-center'>
                 {
                     productList?.map(product => (
@@ -245,7 +245,6 @@ type ProductModalLoader = {
 
 export function ProductModal() {
     const { product, similarProductList, cartItemMap } = useLoaderData() as ProductModalLoader;
-    console.log(cartItemMap);
     const { isOpen, onOpen, onClose } = useDisclosure();
     const navigate = useNavigate();
     const headerRef = React.useRef<HTMLElement|null>(null);
@@ -290,13 +289,14 @@ export function ProductModal() {
                 <CustomModalHeader product={product} ref={headerRef}/>
                 <ModalBody>
                     <div className='mt-5'>
-                        <h1 className='mb-5 text-2xl font-bold'>{ product?.name }</h1>
+                        <h1 className='capitalize mb-5 text-2xl font-bold'>{ product?.name }</h1>
                         <div className='flex justify-between gap-10 p-3 h-full border-[1px] border-gray-300 rounded-3xl'>
                             <ImageZoom imgAlt={product?.name} imgUrl={product?.imgUrl} />
                             <ProductDetails product={product} ref={intersectionTargetRef} />
                         </div>
                     </div>
-                    <SimilarProduct productList={similarProductList} />
+                    { similarProductList.length ? <SimilarProduct productList={similarProductList} /> : null }
+                    
                 </ModalBody>
             </ProductCountProvider>
           </ModalContent>

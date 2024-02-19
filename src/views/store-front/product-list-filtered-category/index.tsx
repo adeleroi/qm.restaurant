@@ -33,8 +33,6 @@ export async function loader({params}: LoaderFunctionArgs) {
         productList.push(product);
     });
 
-
-
     return json({productList});
 }
 
@@ -45,7 +43,7 @@ export function FilteredProductList() {
     return (
         <>
             {
-                navigation.state === 'loading' ?                
+                navigation.state === 'loading' && !navigation.location.pathname.includes('product') ?                
                     navigation.location?.pathname?.includes('category') ? (
                         <FilteredProductListSkeleton />
                     ) : (

@@ -130,7 +130,7 @@ export function Cart({cartItems, storeId, subtotal, onClose}) {
         <>
             {
                 isCurrentStoreCartEmpty ? (
-                    <div className='bg-white pt-8 mb-10'>
+                    <div className='bg-white pt-8'>
                         <div className='mb-3 flex justify-between w-full px-5 text-[14px]'>
                             <p className='font-bold'>{cartItems?.length} {cartItems?.length > 1 ? "items" : "item"}</p>
                             <p className='text-md font-bold'>{formattedSubtotal}</p>
