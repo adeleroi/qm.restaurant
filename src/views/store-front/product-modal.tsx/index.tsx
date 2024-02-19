@@ -127,7 +127,7 @@ export function ImageZoom({imgUrl, imgAlt }: { imgUrl: string, imgAlt: string })
 }
 
 const CustomModalHeader = React.forwardRef(({product}: {product: Product}, headerRef) => {
-    const { quantity, updateQuantity, hasChanged, isAlreadyInCart } = useProductCountContext();
+    const { quantity, updateQuantity, hasChanged, isAlreadyInCart, isSubmitting, submitToCart } = useProductCountContext();
     return (
         <div ref={headerRef} className="hidden" style={{paddingLeft: '0px', paddingRight: '0px'}}>
             <div  className='pl-10 flex items-center gap-2'>
@@ -140,11 +140,13 @@ const CustomModalHeader = React.forwardRef(({product}: {product: Product}, heade
                 </div>
             </div>
             <div className='flex gap-2 justify-between items-center'>
-                <ButtonIncrement getCount={updateQuantity} cartCount={quantity}/>
+                <ButtonIncrement getCount={updateQuantity} cartCount={quantity} disabled={isSubmitting}/>
                 <div className='mr-10 pr-5 min-w-[360px] max-w-[500px]'> {/** 360px -> 400px - width of the ButtonIncrement. same width as in ProductDetails */}
                     <AddToCartWithCountButton
                         count={quantity}
                         price={product?.price}
+                        onClick={submitToCart}
+                        isSubmitting={isSubmitting}
                         hasChanged={hasChanged}
                         isAlreadyInCart={isAlreadyInCart}
                     />
@@ -155,16 +157,8 @@ const CustomModalHeader = React.forwardRef(({product}: {product: Product}, heade
 })
 
 const ProductDetails = React.forwardRef(function ProductDetails({ product }: { product: Product }, ref) {
-    const { quantity, updateQuantity, hasChanged, isAlreadyInCart } = useProductCountContext();
-    const fetcher = useFetcher();
-    const isSubmitting = fetcher.state !== 'idle';
-
-    function submitToCart() {
-        fetcher.submit(
-            JSON.stringify({count: quantity, productId: product?.id}),
-            { method: 'post', encType: 'application/json', action: '.' }
-        );
-    }
+    const { quantity, updateQuantity, hasChanged, isAlreadyInCart, isSubmitting, submitToCart } = useProductCountContext();
+   
     return (
         <div className='px-5 py-5 hover:shadow-custom rounded-3xl min-w-[400px] max-w-[500px] h-full min-h-72'>
             <div className='mb-8 relative w-full flex items-center justify-between'>
@@ -227,8 +221,7 @@ const AddToCartWithCountButton = React.forwardRef(function AddToCartWithCountBut
     return (
         <button
             className={clsx('relative group h-10 w-full font-bold text-md hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4', {
-                'disabled:bg-green-800 cursor-not-allowed': disabled || isSubmitting
-            })}
+                'disabled:bg-green-800 cursor-not-allowed': disabled || isSubmitting})}
             disabled={disabled || isSubmitting}
             onClick={onClick}
             type={type}
@@ -293,7 +286,7 @@ export function ProductModal() {
             }}>
           <ModalOverlay />
           <ModalContent className='min-h-[90vh] 2xl:min-w-[75vw] xl:min-w-[85vw] rounded-3xl overflow-hidden' style={{position: 'relative', borderRadius: '16px'}} ref={rootTargetRef}>
-            <ProductCountProvider key={product.name} productCount={product?.count} isAlreadyInCart={!!cartItemMap?.[product?.id]}>
+            <ProductCountProvider key={product.name} product={product} isAlreadyInCart={!!cartItemMap?.[product?.id]}>
                 <CustomModalHeader product={product} ref={headerRef}/>
                 <ModalBody>
                     <div className='mt-5'>
@@ -312,18 +305,45 @@ export function ProductModal() {
     )
 }
 
-type ProductContextState = { quantity: number, updateQuantity: (t:number) => void, hasChanged: boolean, isAlreadyInCart?: boolean };
+type ProductContextState = {
+    quantity: number,
+    updateQuantity: (t:number) => void,
+    hasChanged: boolean,
+    isAlreadyInCart?: boolean,
+    isSubmitting: boolean,
+    submitToCart: () => void,
+};
 const productCountContext = React.createContext<ProductContextState|null>(null);
 
-export function ProductCountProvider({ children, productCount, isAlreadyInCart } : { children: React.ReactNode, productCount: number, isAlreadyInCart?: boolean }) {
-    const [ quantity, setQuantity ] = React.useState(productCount || 0);
+export function ProductCountProvider({ children, product, isAlreadyInCart } : { children: React.ReactNode, product: Product, isAlreadyInCart?: boolean }) {
+    const [ quantity, setQuantity ] = React.useState(product?.count || 0);
     const [ isUpdated, setIsUpdated ] = React.useState(false);
     const hasChanged = !!(isUpdated && isAlreadyInCart);
     const updateQuantity = (count: number) => {
         setQuantity(count);
         setIsUpdated(true);
     }
-    return <productCountContext.Provider value={{ hasChanged, quantity, updateQuantity, isAlreadyInCart }}>{ children }</productCountContext.Provider>
+    const fetcher = useFetcher();
+    const isSubmitting = fetcher.state !== 'idle';
+
+    function submitToCart() {
+        fetcher.submit(
+            JSON.stringify({count: quantity, productId: product?.id}),
+            { method: 'post', encType: 'application/json', action: '.' }
+        );
+    }
+    return (
+        <productCountContext.Provider value={{
+            hasChanged,
+            quantity,
+            updateQuantity,
+            isAlreadyInCart,
+            isSubmitting,
+            submitToCart,
+        }}>
+            { children }
+        </productCountContext.Provider>
+    )
 }
 
 function useProductCountContext() {
