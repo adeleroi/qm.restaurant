@@ -1,5 +1,5 @@
 import React from 'react'
-import { ActionFunctionArgs, Outlet, json, useLocation, useNavigate } from 'react-router-dom'
+import { ActionFunctionArgs, LoaderFunctionArgs, Outlet, json, useLocation, useNavigate } from 'react-router-dom'
 import './App.css'
 import { Navbar } from './components/navbar'
 import { Footer } from './components/footer'
@@ -21,26 +21,24 @@ import { collection, doc, getDoc, getDocs, serverTimestamp, setDoc } from 'fireb
 import { db } from './firebase/fireStore'
 import { Product } from './views/store-front'
 import Cookies from 'js-cookie'
+import { Store } from './views/store-list'
 
 export async function loader() {
   const userId = Cookies.get('qm_session_id') as string;
   if (userId) {
     console.log('connected');
     const carts: Array<Product> = [];
-  
     const cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
-  
     cartSnapshot.forEach(cartItem => {
         carts.push({id: cartItem.id, ...cartItem.data()} as Product);
     })
-  
     const uniqueStoreList = [...new Set(carts.map(item => item.storeId))];
-  
-    let storeInfos = await Promise.all(
+    const storeCartInfosDocs = await Promise.all(
         uniqueStoreList.map(storeId => getDoc(doc(db, "store", storeId))),
     )
-    storeInfos = storeInfos.reduce((acc, curr) => ({ ...acc, [curr.id]: curr.data()}), {});
-    
+    const storeCartInfos = storeCartInfosDocs.reduce(
+      (acc, curr) => ({ ...acc, [curr.id]: {id: curr.id, ...curr.data()}}), {}) as Record<string, Store & {cart: Array<Product>, storeId: string }>;
+
     const cartMap: Record<string, Array<Product>> = {};
     carts.forEach(item => {
         if (!cartMap[item.storeId]) {
@@ -48,15 +46,14 @@ export async function loader() {
         }
         cartMap[item.storeId].push(item);
     })
-  
-    for (const [key, ] of Object.entries(storeInfos)) {
-        storeInfos[key]['cart']  = cartMap[key]
-        storeInfos[key]['storeId'] = key;
+    for (const [key, ] of Object.entries(storeCartInfos)) {
+      storeCartInfos[key]['cart']  = cartMap[key]
+      storeCartInfos[key]['storeId'] = key;
     }
   
-    return json({carts, storeCartInfos: storeInfos, cartCount: uniqueStoreList.length})
+    return json({ carts, storeCartInfos: storeCartInfos, cartCount: uniqueStoreList.length })
   }
-  return json({carts: [], storeCartInfos: [], cartCount: 0})
+  return json({ carts: [], storeCartInfos: [], cartCount: 0 })
 
 }
 

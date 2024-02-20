@@ -16,10 +16,27 @@ import clsx from 'clsx';
 
 export function CarTriggerForCheckout({ triggerElement }: { triggerElement: React.ReactNode}) {
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const loaderData = useLoaderData();
     const { storeId, restaurantId } = useParams();
-    const initialFocusRef = React.useRef(null);
+    const loaderData = useLoaderData();
 
+    return (
+        <React.Fragment>
+            <Trigger onOpen={onOpen}>
+                { triggerElement }
+            </Trigger>
+            <DrawerCart
+                isOpen={isOpen}
+                onClose={onClose}
+                loaderData={loaderData}
+                storeId={storeId || restaurantId}
+                action={`store/${storeId}`}
+            />
+        </React.Fragment>
+    )
+}
+
+export function DrawerCart({ isOpen, onClose, loaderData, storeId, action }: { isOpen: boolean, onClose: () => void, loaderData: any, action: string, storeId: string }) {
+    const initialFocusRef = React.useRef(null);
     const cartCount = loaderData?.cartCount;
     const data = loaderData?.storeCartInfos;
     const storeAndCartSummary = Object.values(data);
@@ -27,12 +44,8 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
     const storeInfos = data[storeId];
     const cartItems = storeInfos?.cart;
     const subtotal = getSubtotal(cartItems);
-
     return (
         <>
-        <Trigger onOpen={onOpen}>
-            { triggerElement }
-        </Trigger>
         <Drawer
             initialFocusRef={initialFocusRef}
             size={'sm'}
@@ -67,11 +80,11 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
                             <NoCart onClose={onClose} /> :
                             <>
                                 {
-                                   storeId || restaurantId ?
-                                   <Cart onClose={onClose} subtotal={subtotal} cartItems={cartItems} storeInfos={storeInfos} storeId={storeId}/>
+                                   storeId ?
+                                   <Cart action={action} onClose={onClose} subtotal={subtotal} cartItems={cartItems} storeInfos={storeInfos} storeId={storeId}/>
                                    : null
                                 }
-                                <CartList onClose={onClose} list={storeAndCartSummary} showTitle={storeId || restaurantId}/>
+                                <CartList onClose={onClose} list={storeAndCartSummary} showTitle={storeId}/>
                             </>
                     }
                 </DrawerBody>
@@ -123,7 +136,7 @@ export function CartList({ list, showTitle, onClose }) {
     )
 }
 
-export function Cart({cartItems, storeId, subtotal, onClose}) {
+export function Cart({cartItems, storeId, subtotal, onClose, action}) {
     const isCurrentStoreCartEmpty = cartItems?.length;
     const formattedSubtotal = priceFormat(subtotal);
     return (
@@ -138,7 +151,7 @@ export function Cart({cartItems, storeId, subtotal, onClose}) {
                         <ul className=''>
                             {
                                 cartItems?.map((prod:Product) => {
-                                    return <CartItem product={prod} storeId={storeId} key={prod.id}/>
+                                    return <CartItem action={action} product={prod} storeId={storeId} key={prod.id}/>
                                 })
                             }
                         </ul>
@@ -174,10 +187,10 @@ export const ButtonActionAndValue = React.forwardRef(function ButtonActionAndVal
     )
 })
 
-function CartItem({ product, storeId }: { product: Product, storeId?: string}) {
+function CartItem({ product, storeId, action="." }: { product: Product, storeId?: string, action: string}) {
     return (
         <li className='relative border-t-[1px] px-5 py-4 bg-white hover:bg-smoke last:border-b-[1px] last:mb-3'>
-            <Link key={product.id} to={`store/${storeId}/product/${product.id}`}>
+            <Link key={product.id} to={`/store/${storeId}/product/${product.id}`}>
                 <div className='w-full items-end py-4  cursor-pointer'>
                     <div className='h-full flex justify-between items-center'>
                         <div className='flex items-center'>
@@ -194,7 +207,7 @@ function CartItem({ product, storeId }: { product: Product, storeId?: string}) {
                 </div>
             </Link>
             <div className='absolute top-1/2 -translate-y-1/2 right-5 z-0'>
-                <ButtonIncrement alwaysOnDisplay type="submit" textStyle='small' action='store/:storeId' productId={product.id} cartCount={product.count}/>
+                <ButtonIncrement alwaysOnDisplay type="submit" textStyle='small' action={action} productId={product.id} cartCount={product.count}/>
             </div>
         </li>
     )

@@ -1,14 +1,15 @@
 import clsx from "clsx";
 import React from "react";
-import { ActionFunctionArgs, Link, LoaderFunctionArgs, Outlet, json, redirect, useFetcher, useLoaderData, useNavigate, useNavigation, useParams } from "react-router-dom"
+import { ActionFunctionArgs, Link, LoaderFunctionArgs, Outlet, json, redirect, useFetcher, useLoaderData, useLocation, useNavigate, useNavigation, useParams, useRouteLoaderData } from "react-router-dom"
 import { db } from "../../firebase/fireStore";
 import { collection, doc, getDoc, getDocs, runTransaction, serverTimestamp } from "firebase/firestore";
 import Cookies from "js-cookie";
 import { priceFormat } from "../../utils/currency";
 import { Store } from "../store-list";
 
-import { Skeleton, SkeletonCircle, SkeletonText } from '@chakra-ui/react'
+import { Skeleton, SkeletonCircle, SkeletonText, useDisclosure } from '@chakra-ui/react'
 import { SubmitTarget } from "react-router-dom/dist/dom";
+import { DrawerCart } from "../../components/cart/cart";
 
 export type Product = {
     id: string,
@@ -112,10 +113,25 @@ export type StoreFrontLoader = {
 }
 
 export function StoreFront() {
-    const { storeInfos, productMap, categories } = useLoaderData() as StoreFrontLoader;
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { storeId } = useParams();
+    const { storeInfos, categories } = useLoaderData() as StoreFrontLoader;
+    const rootData = useRouteLoaderData('root');
+    const { onClose, onOpen, isOpen} = useDisclosure();
+    const shouldOpenCart = new URLSearchParams(location.search).get('openCart');
+
+    React.useEffect(() => {
+        if (shouldOpenCart) {
+            onOpen();
+        }
+            
+        return onClose;
+    }, [onOpen, onClose, shouldOpenCart])
+
     return (
-        <section className="pt-16 px-16">
-            <div style={{backgroundColor: storeInfos?.backgroundColor}} className="flex w-full items-center pb-4 rounded-lg">
+        <section className="px-16">
+            <div style={{backgroundColor: storeInfos?.backgroundColor}} className="flex w-full items-center pb-4 rounded-b-lg">
                 <div className="pl-8">
                     <div className="w-20 h-20 border-[1px] bg-white rounded-full flex justify-center items-center mr-2 my-4 px-2">
                         <img className="object-contain" src={storeInfos.imgUrl} alt="lcbo-logo"/>
@@ -127,6 +143,10 @@ export function StoreFront() {
                 </div>
             </div>
             <CategoryFilter categories={categories} />
+            { shouldOpenCart ? <DrawerCart storeId={storeId} onClose={() => {
+                navigate(location.pathname)
+                onClose();
+            }} isOpen={isOpen} loaderData={rootData}/> : null}
             <Outlet/>
         </section>
     )

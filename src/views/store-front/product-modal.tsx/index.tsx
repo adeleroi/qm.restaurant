@@ -91,7 +91,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
         }
     });
 
-    return redirect(categoryId ? `/store/${storeId}/category/${categoryId}` : `/store/${storeId}`);
+    return redirect(categoryId ? `/store/${storeId}/category/${categoryId}?openCart=true` : `/store/${storeId}?openCart=true`);
 }
 
 const SHOW_HEADER_STYLE = 'will-change-auto h-24 opacity-100 flex items-center justify-between animate-open-header shadow-xl flex absolute z-50 w-full top-0 bg-white';
