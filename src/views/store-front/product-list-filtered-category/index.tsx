@@ -73,7 +73,7 @@ export function FilteredProductListSkeleton() {
     return (
         <>
             <div className="mt-10 w-32">
-                <SkeletonText noOfLines={1} skeletonHeight={4}/>
+                <SkeletonText startColor="gray.100" endColor="gray.200" noOfLines={1} skeletonHeight={4}/>
             </div>
             <div className="grid xl:grid-cols-6 2xl:grid-cols-7 gap-8 mt-10">
                 {
@@ -81,11 +81,11 @@ export function FilteredProductListSkeleton() {
                         <React.Fragment key={idx}>
                             <div>
                                 <div className="w-56 h-52 rounded-xl overflow-hidden relative">
-                                    <Skeleton key={idx} className="w-full h-full mb-2 rounded-3xl"></Skeleton>
+                                    <Skeleton startColor="gray.100" endColor="gray.200" key={idx} className="w-full h-full mb-2 rounded-3xl"></Skeleton>
                                     <SkeletonCircle startColor={"gray.100"} className="absolute top-40 right-2 bg-white" />
                                 </div>
                                 <div className="w-56">
-                                    <SkeletonText noOfLines={2} mt={2} spacing={2} skeletonHeight={2}/>
+                                    <SkeletonText startColor="gray.100" endColor="gray.200" noOfLines={2} mt={2} spacing={2} skeletonHeight={2}/>
                                 </div>
                             </div>
                         </React.Fragment>
