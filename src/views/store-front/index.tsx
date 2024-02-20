@@ -289,7 +289,7 @@ export function ProductListSkeleton() {
             {
                 Array.from({length: 5}).map((_, idx) => ((
                     <React.Fragment key={idx}>
-                    <div className="mt-14 w-32">
+                    <div className="mt-16 w-32">
                         <SkeletonText startColor="gray.100" endColor="gray.200" noOfLines={1} skeletonHeight={4}/>
                     </div>
                     <div className="grid xl:grid-cols-6 2xl:grid-cols-7 gap-8 my-10">
@@ -321,7 +321,7 @@ export function Pill({ selected, handleSelection, text } : { selected: boolean, 
     return (
         <>
         <li onClick={() => handleSelection(text)} className={clsx("capitalize flex items-center justify-center min-w-16 py-2 px-3 text-black font-black rounded-3xl text-[13px] cursor-pointer hover:shadow-custom", {
-                'bg-black text-white': selected,
+                'bg-black text-white hover:bg-gray-700': selected,
                 'bg-gray-200 hover:bg-gray-100': !selected,
             })}>{ text }</li>
         </>

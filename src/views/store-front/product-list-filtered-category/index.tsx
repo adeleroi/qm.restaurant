@@ -72,7 +72,7 @@ export function FilteredProductList() {
 export function FilteredProductListSkeleton() {
     return (
         <>
-            <div className="mt-10 w-32">
+            <div className="mt-16 w-32">
                 <SkeletonText startColor="gray.100" endColor="gray.200" noOfLines={1} skeletonHeight={4}/>
             </div>
             <div className="grid xl:grid-cols-6 2xl:grid-cols-7 gap-8 mt-10">
