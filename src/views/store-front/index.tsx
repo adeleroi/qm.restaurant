@@ -378,7 +378,7 @@ export function ButtonIncrement({ getCount, productId, disabled, limitInf=1, lim
             <div className={clsx("will-change-[width] border rounded-3xl flex shadow-custom items-center bg-white", {
                     "animate-open-add-to-card": isOpen,
                     "animate-close-add-to-card": isOpen === false,
-                    "bg-gray-300 cursor-not-allowed": disabled,
+                    "bg-[#ededed] cursor-not-allowed": disabled,
                     "cursor-pointer": !disabled
                 })}>
                 <button onClick={handleRemoveButton}
@@ -388,7 +388,7 @@ export function ButtonIncrement({ getCount, productId, disabled, limitInf=1, lim
                         "flex": isOpen,
                         "hidden": !isOpen,
                         "text-lg font-bold": textStyle === 'medium',
-                        "disabled:bg-gray-300 cursor-not-allowed": disabled,
+                        "bg-[#ededed] cursor-not-allowed": disabled,
                         "cursor-not-allowed": disabledOnLimitInf,
                         "hover:bg-[#ededed]": !disabled && !disabledOnLimitInf
                     })}>
@@ -412,7 +412,7 @@ export function ButtonIncrement({ getCount, productId, disabled, limitInf=1, lim
                     type={type}
                     className={clsx("will-change-auto cursor-pointer flex bg-white rounded-full m-[1px] w-8 h-8 justify-center items-center", {
                         "text-lg font-bold": textStyle === "medium",
-                        "disabled:bg-gray-300 text-gray-600 cursor-not-allowed": disabled,
+                        "bg-[#ededed] text-gray-600 cursor-not-allowed": disabled,
                         "cursor-not-allowed": disabledOnLimitMax && isOpen,
                         "hover:bg-[#ededed]": !disabled && !disabledOnLimitMax
                     })}>
