@@ -91,7 +91,7 @@ export function DrawerCart({ isOpen, onClose, loaderData, storeId, action }: { i
                 { cartItems?.length ?
                     <div className='sticky top-full w-full py-5 gap-2 shadow-custom border-2 px-2 grid place-items-center bg-white'>
                         <ButtonActionAndValue ref={initialFocusRef} subtotal={subtotal}>Checkout</ButtonActionAndValue>
-                        <button onClick={onClose} className='bg-gray-200 text-black py-2 rounded-3xl font-bold w-full hover:cursor-pointer hover:bg-gray-100'>Add more items</button>
+                        <button onClick={onClose} className='bg-gray-200 text-lg text-black h-12 rounded-lg font-bold w-full hover:cursor-pointer hover:bg-gray-100'>Add more items</button>
                     </div> : null
                 }
             </DrawerContent>
@@ -180,9 +180,9 @@ function EmptyCart({ onClose }: { onClose: () => void}) {
 
 export const ButtonActionAndValue = React.forwardRef(function ButtonActionAndValue({subtotal, children} : { subtotal: number, children: React.ReactNode }, ref) {
     return (
-        <button ref={ref} className='relative group w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4'>
+        <button ref={ref} className='h-12 relative group w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-lg text-white px-4'>
             <span>{ children }</span>
-            <span className='absolute right-2 bg-green-900 px-2 rounded-3xl text-[14px] group-hover:bg-defaultGreen'>{priceFormat(subtotal)}</span>
+            <span className='absolute right-2 bg-green-900 px-2 rounded-lg text-[14px] group-hover:bg-defaultGreen'>{priceFormat(subtotal)}</span>
         </button>
     )
 })
@@ -198,7 +198,7 @@ function CartItem({ product, storeId, action="." }: { product: Product, storeId?
                                 <img src={product?.imgUrl}/>
                             </div>
                             <div className='text-[16px] capitalize'>
-                                <h1 className='pl-2 font-medium'>{product.name}</h1>
+                                <h1 className='pl-2 font-bold'>{product.name}</h1>
                                 <span className='pl-2 font-normal'>{priceFormat(product.price)}</span>&nbsp;
                                 { product.offer ? <span className='font-semibold text-white px-1 rounded bg-defaultGreen'>{product.offer}</span>: null }
                             </div>
@@ -259,7 +259,7 @@ function CartSummary({ store, onClose }) {
                     </div>
                     <div className='ml-4'>
                         <p className='text-[14px] font-bold'>{ store?.name }</p>
-                        <p className='text-[14px] font-semibold'>Subtotal: ${ subtotal }</p>
+                        <p className='text-[14px] font-semibold'>Subtotal: { priceFormat(subtotal) }</p>
                         <p className='text-[14px] font-bold'>{  }</p>
                         <p className='text-[14px] font-bold text-defaultGreen'>{Math.random() * 10 > 4 ? "Closed . Open in 58 min": null }</p>
                     </div>

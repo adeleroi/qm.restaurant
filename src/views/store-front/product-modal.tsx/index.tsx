@@ -122,6 +122,7 @@ export function ImageZoom({imgUrl, imgAlt }: { imgUrl: string, imgAlt: string })
         <div onMouseLeave={handleMouseLeave} onMouseMove={handleMouseMove} ref={imgContainerRef}
             className='cursor-crosshair h-96 overflow-hidden relative flex justify-center items-center w-full'>
             <img ref={imgRef} className='absolute object-fit h-64' src={imgUrl} alt={imgAlt}/>
+            <div className=' bg-bg-product absolute inset-0'></div>
         </div>
     )
 }
@@ -160,7 +161,7 @@ const ProductDetails = React.forwardRef(function ProductDetails({ product }: { p
     const { quantity, updateQuantity, hasChanged, isAlreadyInCart, isSubmitting, submitToCart } = useProductCountContext();
    
     return (
-        <div className='px-5 py-5 hover:shadow-custom rounded-3xl min-w-[400px] max-w-[500px] h-full min-h-72'>
+        <div className='px-5 py-5 border-[1.2px] rounded-lg min-w-[400px] max-w-[500px] h-full min-h-72'>
             <div className='mb-8 relative w-full flex items-center justify-between'>
                 <h1 className='text-black font-bold text-xl'>{priceFormat(product?.price)}</h1>
                 <ButtonIncrement getCount={updateQuantity} cartCount={quantity} disabled={isSubmitting} limitInf={1} onLimitDisable alwaysOnDisplay/>
@@ -220,7 +221,7 @@ const AddToCartWithCountButton = React.forwardRef(function AddToCartWithCountBut
 
     return (
         <button
-            className={clsx('relative group h-10 w-full font-bold text-md hover:bg-green-800 bg-defaultGreen py-2 rounded-3xl text-white px-4', {
+            className={clsx('relative group h-12 w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-lg text-white px-4', {
                 'disabled:bg-green-800 cursor-not-allowed': disabled || isSubmitting})}
             disabled={disabled || isSubmitting}
             onClick={onClick}
@@ -229,7 +230,7 @@ const AddToCartWithCountButton = React.forwardRef(function AddToCartWithCountBut
         >
             <span className='mr-4'>{ isSubmitting ? <Spinner color='white' size="sm" /> : null }</span>
             <span className={clsx('capitalize', {'text-gray-600': disabled})}>{getText()}</span>
-            <span className={clsx('absolute right-2 top-1/2 -translate-y-1/2 px-2 rounded-3xl text-[14px]', {
+            <span className={clsx('absolute right-2 top-1/2 -translate-y-1/2 px-2 rounded-lg text-[15px]', {
                 'group-hover:bg-defaultGreen  bg-green-900': !disabled,
                 'text-gray-200 bg-green-800': disabled || isSubmitting
             })}>{priceFormat(count > 0 ? price * count: price)}</span>
@@ -284,13 +285,13 @@ export function ProductModal() {
                 onClose();
             }}>
           <ModalOverlay />
-          <ModalContent className='min-h-[90vh] 2xl:min-w-[75vw] xl:min-w-[85vw] rounded-3xl overflow-hidden' style={{position: 'relative', borderRadius: '16px'}} ref={rootTargetRef}>
+          <ModalContent className='min-h-[90vh] 2xl:min-w-[75vw] xl:min-w-[85vw] overflow-hidden' style={{position: 'relative', borderRadius: 0}} ref={rootTargetRef}>
             <ProductCountProvider key={product.name} product={product} isAlreadyInCart={!!cartItemMap?.[product?.id]}>
                 <CustomModalHeader product={product} ref={headerRef}/>
                 <ModalBody>
                     <div className='mt-5'>
                         <h1 className='capitalize mb-5 text-2xl font-bold'>{ product?.name }</h1>
-                        <div className='flex justify-between gap-10 p-3 h-full border-[1px] border-gray-300 rounded-3xl'>
+                        <div className='flex justify-between gap-10 h-full border-gray-300 rounded-lg'>
                             <ImageZoom imgAlt={product?.name} imgUrl={product?.imgUrl} />
                             <ProductDetails product={product} ref={intersectionTargetRef} />
                         </div>

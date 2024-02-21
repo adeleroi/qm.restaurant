@@ -6,8 +6,7 @@ import {
   createBrowserRouter,
   RouterProvider
 } from "react-router-dom";
-import { Restaurant, } from './views/restaurant.tsx';
-import { StoreList, loader as StoreListLoader } from './views/store-list.tsx';
+import { Feed, loader as FeedLoader } from './views/feed/index.tsx';
 import { ErrorPage } from './views/error.tsx';
 import { Home } from './views/home.tsx';
 import { action as rootAction, loader as rootLoader } from './App.tsx';
@@ -15,7 +14,6 @@ import { StoreFront, action as storeFrontAction, loader as storeFrontLoader } fr
 import { ProductModal, loader as ProductModalLoader, action as ProductModalAction } from './views/store-front/product-modal.tsx/index.tsx';
 import { FilteredProductList, loader as FilteredProductLoader } from './views/store-front/product-list-filtered-category/index.tsx';
 import { ProductList } from './views/store-front/product-list/index.tsx';
-
 
 const router = createBrowserRouter([
   {
@@ -31,14 +29,9 @@ const router = createBrowserRouter([
         element: <Home/>
       },
       {
-        path: "restaurant",
-        element: <Restaurant/>,
-        // loader: RestaurantLoader,
-      },
-      {
-        path: "store",
-        element: <StoreList/>,
-        loader: StoreListLoader,
+        path: "feed",
+        element: <Feed/>,
+        loader: FeedLoader,
       },
       {
         path: "store/:storeId",

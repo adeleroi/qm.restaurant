@@ -21,7 +21,7 @@ function SearchLogo({ className }: { className: string }) {
     )
 }
 
-function PositionLogo({ className }: { className: string }) {
+export function PositionLogo({ className }: { className: string }) {
     return (
         <span className={clsx("material-symbols-outlined font-semibold text-[30px]", className)}>
             explore_nearby

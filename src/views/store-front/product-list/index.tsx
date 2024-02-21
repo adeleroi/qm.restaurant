@@ -1,6 +1,6 @@
 import React from "react";
 import { Outlet, useLoaderData, useNavigation } from "react-router-dom";
-import { ScrollableCategory, StoreFrontLoader } from "..";
+import { Product, ScrollableList, StoreFrontLoader } from "..";
 import { FilteredProductListSkeleton } from "../product-list-filtered-category";
 
 export function ProductList() {
@@ -18,9 +18,21 @@ export function ProductList() {
                                 categories?.map(category => (
                                     <div key={category}>
                                         {
-                                            productMap[category]?.length ?
-                                            <ScrollableCategory productMap={productMap} category={category} /> :
-                                            null
+                                            productMap[category]?.length ? (
+                                                <ScrollableList as="ul" title={category}>
+                                                    <React.Fragment>
+                                                        {
+                                                            productMap?.[category]?.map((prod, idx) => {
+                                                                return (
+                                                                    <div key={idx} className="snap-center">
+                                                                        <Product product={prod} action={`.`}/>
+                                                                    </div>
+                                                                )
+                                                            })
+                                                        }
+                                                    </React.Fragment>
+                                                </ScrollableList>
+                                            ) : null
                                         }
                                     </div>
                                 ))

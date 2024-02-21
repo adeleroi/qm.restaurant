@@ -5,11 +5,12 @@ import { db } from "../../firebase/fireStore";
 import { collection, doc, getDoc, getDocs, runTransaction, serverTimestamp } from "firebase/firestore";
 import Cookies from "js-cookie";
 import { priceFormat } from "../../utils/currency";
-import { Store } from "../store-list";
+import { Store } from "../feed";
 
 import { Skeleton, SkeletonCircle, SkeletonText, useDisclosure } from '@chakra-ui/react'
 import { SubmitTarget } from "react-router-dom/dist/dom";
 import { DrawerCart } from "../../components/cart/cart";
+import { StoreInfoModal } from "../../components/store-info-modal";
 
 export type Product = {
     id: string,
@@ -131,17 +132,14 @@ export function StoreFront() {
 
     return (
         <section className="px-16">
-            <div style={{backgroundColor: storeInfos?.backgroundColor}} className="flex w-full items-center pb-4 rounded-b-lg">
-                <div className="pl-8">
-                    <div className="w-20 h-20 border-[1px] bg-white rounded-full flex justify-center items-center mr-2 my-4 px-2">
+            <div style={{backgroundColor: storeInfos?.backgroundColor}} className="relative w-full grid h-40">
+                <div className="absolute left-5 bottom-0">
+                    <div className="w-24 h-24 border-[1px] bg-white rounded-full flex justify-center items-center mr-2 my-4 px-2">
                         <img className="object-contain" src={storeInfos.imgUrl} alt="lcbo-logo"/>
-                    </div>
-                    <div className="text-white">
-                        <p className="font-bold text-3xl">{ storeInfos?.name }</p>
-                        <span className="text-xs font-semibold">Delivery fee (3.69$) . {storeInfos.location.address}</span>
                     </div>
                 </div>
             </div>
+            <StoreSummary storeInfos={storeInfos}/>
             <CategoryFilter categories={categories} />
             { shouldOpenCart ? <DrawerCart storeId={storeId} onClose={() => {
                 navigate(location.pathname)
@@ -152,8 +150,33 @@ export function StoreFront() {
     )
 }
 
+function StoreSummary({ storeInfos }: { storeInfos: Store}) {
+    return (
+        <div className="text-black mt-5 grid">
+        <p className="font-bold text-3xl mb-3">{ storeInfos?.name }</p>
+        <div>
+            <span className="text-[14px] text-gray-600">{storeInfos.location.address}</span>
+            <span> • </span>
+            <span className="text-[14px] text-gray-600">Delivery fee (3.69$)</span>
+        </div>
+        <div className="text-[14px] text-gray-600">
+            <span className="text-defaultGreen font-semibold">Open now</span>
+            <span> • </span>
+            <span>Closes at 11:39 PM</span>
+        </div>
+        <div>
+            <span className="text-[14px] text-gray-600">3 km</span>
+            <span> • </span>
+            <StoreInfoModal storeInfos={storeInfos}>
+                <span className="text-[14px] text-gray-600 underline cursor-pointer">More Infos</span>
+            </StoreInfoModal>
+        </div>
+    </div>
+    )
+}
 
-export function ScrollableCategory({ category, productMap }: { category: string, productMap: Record<string, Array<Product>>}) {
+export function ScrollableList({ as="div", title, children }: { as, children: React.ReactNode, title: string }) {
+    const As = as;
     const slideRef = React.useRef<HTMLDivElement | null>(null);
     const [ disabledNextBtn, setDisabledNextBtn ] = React.useState(false);
     const [ disabledPrevBtn, setDisabledPrevBtn ] = React.useState(true);
@@ -195,9 +218,9 @@ export function ScrollableCategory({ category, productMap }: { category: string,
     }, [])
 
     return (
-        <div className="my-16" key={category}>
+        <div className="my-16" key={title}>
             <div className="flex justify-between w-full">
-                <h1 className="text-2xl font-bold capitalize">{category}</h1>
+                <h1 className="text-2xl font-bold capitalize">{title}</h1>
                 {
                   displayScrollBtn ? (
                     <div className="flex gap-2">
@@ -216,17 +239,9 @@ export function ScrollableCategory({ category, productMap }: { category: string,
 
                 }
             </div>
-            <div className="item-list my-5 py-4 gap-2 mb-10 flex overflow-x-auto snap-x scroll-smooth" ref={slideRef} onScroll={handleScroll}>
-                {
-                    productMap?.[category]?.map((prod, idx) => {
-                        return (
-                            <div key={idx} className="snap-center">
-                                <Product product={prod} action={`.`}/>
-                            </div>
-                        )
-                    })
-                }
-            </div>
+            <As className="item-list my-5 py-4 gap-2 mb-10 flex overflow-x-auto snap-x scroll-smooth" ref={slideRef} onScroll={handleScroll}>
+                { children }
+            </As>
         </div>
     )
 }
@@ -241,16 +256,19 @@ export function Product({product, action, to}: ProductProps) {
     return (
         <div className="relative overflow-hidden p-2 pb-4 w-56">
             <Link to={ to ?? `product/${product.id} `}>
-                <div className="p-4 rounded-xl mb-4 h-52 relative">
-                    <img className="object-contain" src={product.imgUrl} alt=""/>
+                <div className="relative overflow-hidden rounded-lg grid place-items-center">
+                    <div className="p-4 rounded-xl mb-4 h-[11rem] relative">
+                        <img className="object-fit w-36" src={product.imgUrl} alt=""/>
+                    </div>
+                    <div className="bg-bg-product opacity-75 w-56 absolute inset-0"></div>
                 </div>
-                <div>
+                <div className="mt-1">
                     <p className="font-bold">{priceFormat(product.price)}</p>
                     <span className="text-[14px] capitalize text-gray-600">{product.name}</span>
                     <p className="text-[14px] capitalize text-gray-600">{product.description}</p>
                 </div>
             </Link>
-            <div className="absolute right-4 top-40">
+            <div className="absolute right-4 top-36 z-10">
                 <ButtonIncrement type="submit" cartCount={product?.count} productId={product.id} action={action}/>
             </div>
         </div>
@@ -273,13 +291,17 @@ function CategoryFilter({ categories }: { categories: Array<string> }) {
     }
 
     return (
-        <>
-            <ul className="mt-10 flex gap-2">
+        <div className="mt-20 flex items-center gap-2">
+            <button className="h-10 rounded-xl flex items-center justify-between pr-3 gap-3">
+                <span className="material-symbols-outlined text-3xl font-light">tune</span>
+                <span className="font-bold capitalize">filters:</span>
+            </button>
+            <ul className="flex gap-2">
                 { categories?.map(category => (
                     <Pill key={category} text={category} selected={selected === category} handleSelection={handleSelection} />
                 ))}
             </ul>
-        </>
+        </div>
     )
 }
 
@@ -313,7 +335,6 @@ export function ProductListSkeleton() {
                 )))
             }
         </React.Fragment>
-
     )
 }
 
@@ -321,7 +342,7 @@ export function Pill({ selected, handleSelection, text } : { selected: boolean, 
     return (
         <>
         <li onClick={() => handleSelection(text)} className={clsx("capitalize flex items-center justify-center min-w-16 py-2 px-3 text-black font-black rounded-3xl text-[13px] cursor-pointer hover:shadow-custom", {
-                'bg-black text-white hover:bg-gray-700': selected,
+                'bg-realistic-btn bg-[black] text-white hover:bg-gray-700': selected,
                 'bg-gray-200 hover:bg-gray-100': !selected,
             })}>{ text }</li>
         </>

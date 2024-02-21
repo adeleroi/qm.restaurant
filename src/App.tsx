@@ -21,7 +21,7 @@ import { collection, doc, getDoc, getDocs, serverTimestamp, setDoc } from 'fireb
 import { db } from './firebase/fireStore'
 import { Product } from './views/store-front'
 import Cookies from 'js-cookie'
-import { Store } from './views/store-list'
+import { Store } from './views/feed'
 
 export async function loader() {
   const userId = Cookies.get('qm_session_id') as string;
@@ -110,7 +110,7 @@ function App() {
 
     React.useEffect(() => {
       if (loggedIn && location.pathname === '/') {
-        navigate('restaurant');
+        navigate('feed');
       } 
 
     }, [loggedIn, navigate, location])
