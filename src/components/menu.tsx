@@ -23,11 +23,11 @@ export function Menu() {
             onClose={onClose}>
             <DrawerOverlay />
             <DrawerContent className=''>
-            <DrawerCloseButton className='left-5' style={{top: '20px', fontSize: '16px', borderRadius: '50%'}} />    
+            <DrawerCloseButton className='left-5' style={{top: '20px', fontSize: '16px', borderRadius: '50%', outline: "none", border: 'none', outlineOffset: '0px'}} />    
             <DrawerBody className='mt-16' style={{paddingLeft: 0, paddingRight: 0}}>
                 <ul>
                     <MenuIntem to={loggedIn ? '/restaurant' : '/'} onClick={onClose}>
-                        <span className="material-symbols-outlined font-medium">home</span>
+                        <span className="material-symbols-outlined font-medium outline-none">home</span>
                         <span className='ml-5'>Home</span>
                     </MenuIntem>
                     <MenuIntem to="" onClick={onClose}>
@@ -58,23 +58,28 @@ export function Menu() {
                         <span className="material-symbols-outlined font-medium">support</span>
                         <span className='ml-5'>Help</span>
                     </MenuIntem>
-                    <MenuIntem to="" hide={loggedIn}>
-                        <span className="material-symbols-outlined font-medium">login</span>
-                        <span className='ml-5'>Sign in | Sign up</span>
-                    </MenuIntem>
-                    <MenuIntem hide={loggedOut} to="/" reloadDocument onClick={() => {
-                        onClose();
-                        signout();
-                    }}>
-                        <span className="material-symbols-outlined font-medium">logout</span>
-                        <span className='ml-5'>Log out</span>
-                    </MenuIntem>
+                    {
+                        loggedIn ? (
+                            <MenuIntem hide={loggedOut} to="/" reloadDocument onClick={() => {
+                                onClose();
+                                signout();
+                            }}>
+                                <span className="material-symbols-outlined font-medium">logout</span>
+                                <span className='ml-5'>Log out</span>
+                            </MenuIntem>
+                        ) : (
+                            <MenuIntem to="" hide={loggedIn}>
+                                <span className="material-symbols-outlined font-medium">login</span>
+                                <span className='ml-5'>Sign in | Sign up</span>
+                            </MenuIntem>
+                        )
+                    }
                     <MenuIntem to="" onClick={onClose}>
                         <span className="material-symbols-outlined font-medium">translate</span>
                         <span className='ml-5'>English</span>
                     </MenuIntem>
                 </ul>
-                <div className='bg-defaultGreen h-[2px] w-full mb-3 mt-1'></div>
+                <div className='bg-gray-200 h-[2px] w-full'></div>
                 <ul>
                     <MenuIntem to="" withIcon={false} onClick={onClose}>
                         Add your commerce

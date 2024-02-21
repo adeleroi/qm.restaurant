@@ -59,8 +59,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
 
     similarProductSnapshot.forEach(product => {
-        if (product.id == currProduct.id || cartItems.has(product.id)) return;
-        similarProductList.push({ id: product.id, ...product.data(), count: 0 } as Product);
+        if (product.id == currProduct.id) return;
+        similarProductList.push({ id: product.id, ...product.data(), count: cartItems.get(product.id) } as Product);
     })
 
     return json({ product: currProduct, similarProductList, cartItemMap: Object.fromEntries(cartItems) });
@@ -128,7 +128,7 @@ export function ImageZoom({imgUrl, imgAlt }: { imgUrl: string, imgAlt: string })
 }
 
 const CustomModalHeader = React.forwardRef(({product}: {product: Product}, headerRef) => {
-    const { quantity, updateQuantity, hasChanged, isAlreadyInCart, isSubmitting, submitToCart } = useProductCountContext();
+    const { quantity, updateQuantity, hasQuantityChanged, isAlreadyInCart, isSubmitting, submitToCart } = useProductCountContext();
     return (
         <div ref={headerRef} className="hidden" style={{paddingLeft: '0px', paddingRight: '0px'}}>
             <div  className='pl-10 flex items-center gap-2'>
@@ -148,7 +148,7 @@ const CustomModalHeader = React.forwardRef(({product}: {product: Product}, heade
                         price={product?.price}
                         onClick={submitToCart}
                         isSubmitting={isSubmitting}
-                        hasChanged={hasChanged}
+                        hasQuantityChanged={hasQuantityChanged}
                         isAlreadyInCart={isAlreadyInCart}
                     />
                 </div>
@@ -158,7 +158,7 @@ const CustomModalHeader = React.forwardRef(({product}: {product: Product}, heade
 })
 
 const ProductDetails = React.forwardRef(function ProductDetails({ product }: { product: Product }, ref) {
-    const { quantity, updateQuantity, hasChanged, isAlreadyInCart, isSubmitting, submitToCart } = useProductCountContext();
+    const { quantity, updateQuantity, hasQuantityChanged, isAlreadyInCart, isSubmitting, submitToCart } = useProductCountContext();
    
     return (
         <div className='px-5 py-5 border-[1.2px] rounded-lg min-w-[400px] max-w-[500px] h-full min-h-72'>
@@ -173,7 +173,7 @@ const ProductDetails = React.forwardRef(function ProductDetails({ product }: { p
                     price={product?.price}
                     onClick={submitToCart}
                     isSubmitting={isSubmitting}
-                    hasChanged={hasChanged}
+                    hasQuantityChanged={hasQuantityChanged}
                     isAlreadyInCart={isAlreadyInCart}
                 />
             </div>
@@ -193,7 +193,7 @@ function SimilarProduct({ productList }: { productList: Array<Product> }) {
             <div className='grid xl:grid-cols-5 2xl:grid-cols-6 place-items-center'>
                 {
                     productList?.map(product => (
-                        <Product key={product?.name} product={product} to={`../product/${product.id}`}/>
+                        <Product key={product?.name} action={`/store/${product.storeId}`} product={product} to={`../product/${product.id}`}/>
                     ))
                 }
             </div>
@@ -206,33 +206,38 @@ type AddToCartWithCountButtonProps = {
     price: number,
     type?: 'button' | 'submit',
     disabled?: boolean,
-    hasChanged?: boolean,
+    hasQuantityChanged?: boolean,
     isAlreadyInCart?: boolean,
     isSubmitting?: boolean,
     onClick?: () => void,
 }
 
-const AddToCartWithCountButton = React.forwardRef(function AddToCartWithCountButton({ count, price, onClick, disabled, hasChanged, isAlreadyInCart, isSubmitting, type="submit" }: AddToCartWithCountButtonProps, ref) {
+const AddToCartWithCountButton = React.forwardRef(function AddToCartWithCountButton({ count, price, onClick, disabled, hasQuantityChanged, isAlreadyInCart, isSubmitting, type="submit" }: AddToCartWithCountButtonProps, ref) {
+    const disableButton = disabled || isSubmitting || !hasQuantityChanged && isAlreadyInCart;
+    
     function getText() {
-        if (hasChanged) return "Update quantity";
+        if (hasQuantityChanged && isAlreadyInCart) return "Update quantity";
         if (isAlreadyInCart) return `In cart (${count})`;
         return `Add ${count ? count : ''} to cart`;
     }
 
+
     return (
         <button
-            className={clsx('relative group h-12 w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-lg text-white px-4', {
-                'disabled:bg-green-800 cursor-not-allowed': disabled || isSubmitting})}
-            disabled={disabled || isSubmitting}
+            className={clsx('relative group h-12 w-full font-bold text-lg py-2 rounded-lg text-white px-4', {
+                'bg-green-800 cursor-not-allowed': disableButton,
+                'bg-defaultGreen hover:bg-green-800': !disableButton
+            })}
+            disabled={disableButton}
             onClick={onClick}
             type={type}
             ref={ref}
         >
             <span className='mr-4'>{ isSubmitting ? <Spinner color='white' size="sm" /> : null }</span>
-            <span className={clsx('capitalize', {'text-gray-600': disabled})}>{getText()}</span>
+            <span className={clsx('capitalize', {'text-gray-100': disableButton})}>{getText()}</span>
             <span className={clsx('absolute right-2 top-1/2 -translate-y-1/2 px-2 rounded-lg text-[15px]', {
-                'group-hover:bg-defaultGreen  bg-green-900': !disabled,
-                'text-gray-200 bg-green-800': disabled || isSubmitting
+                'group-hover:bg-defaultGreen  bg-green-900': !disableButton,
+                'text-gray-100 bg-green-800': disableButton
             })}>{priceFormat(count > 0 ? price * count: price)}</span>
         </button>
     )
@@ -309,25 +314,29 @@ export function ProductModal() {
 type ProductContextState = {
     quantity: number,
     updateQuantity: (t:number) => void,
-    hasChanged: boolean,
+    hasQuantityChanged: boolean,
     isAlreadyInCart?: boolean,
     isSubmitting: boolean,
     submitToCart: () => void,
 };
+
 const productCountContext = React.createContext<ProductContextState|null>(null);
 
 export function ProductCountProvider({ children, product, isAlreadyInCart } : { children: React.ReactNode, product: Product, isAlreadyInCart?: boolean }) {
     const [ quantity, setQuantity ] = React.useState(product?.count || 0);
-    const [ isUpdated, setIsUpdated ] = React.useState(false);
-    const hasChanged = !!(isUpdated && isAlreadyInCart);
+    const [ hasQuantityChanged, setQuantityChanged ] = React.useState(false);
+    // const hasQuantityChanged = !!(isUpdated && isAlreadyInCart);
     const updateQuantity = (count: number) => {
         setQuantity(count);
-        setIsUpdated(true);
+        setQuantityChanged(true);
     }
     const fetcher = useFetcher();
     const isSubmitting = fetcher.state !== 'idle';
 
     function submitToCart() {
+        if (isAlreadyInCart && !hasQuantityChanged) {
+            return;
+        }
         fetcher.submit(
             JSON.stringify({count: quantity, productId: product?.id}),
             { method: 'post', encType: 'application/json', action: '.' }
@@ -335,7 +344,7 @@ export function ProductCountProvider({ children, product, isAlreadyInCart } : { 
     }
     return (
         <productCountContext.Provider value={{
-            hasChanged,
+            hasQuantityChanged,
             quantity,
             updateQuantity,
             isAlreadyInCart,

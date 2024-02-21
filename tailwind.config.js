@@ -17,10 +17,7 @@ export default {
         overlay: 'rgba(0, 0, 0, 0.8)',
         'overlay-white': 'rgb(255,255, 255, 0.6)',
         'brown-bg': '#f2ebd1',
-        'bg-product': 'rgba(0, 0, 0, 0.04)',
-      },
-      backgroundImage: {
-        "realistic-btn": 'linear-gradient(to bottom,rgba(255 255 255/0.16),rgba(255 255 255/0))',
+        'bg-product': 'rgba(0, 0, 0, 0.03)',
       },
       fontFamily: {
         sans: 'montserrat',

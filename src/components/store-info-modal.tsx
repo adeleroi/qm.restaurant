@@ -20,7 +20,7 @@ export function StoreInfoModal({ children, storeInfos } : { children: React.Reac
             <Trigger onOpen={onOpen}>
                 { children }
             </Trigger>
-            <Modal isOpen={isOpen} onClose={onClose}  scrollBehavior="inside">
+            <Modal isOpen={isOpen} onClose={onClose}  scrollBehavior="inside" isCentered>
                 <ModalOverlay/>
                 <ModalContent style={{borderRadius: 0}}>
                     <ModalBody style={{padding: 0}}>
@@ -29,10 +29,15 @@ export function StoreInfoModal({ children, storeInfos } : { children: React.Reac
                             <div className="w-full h-56 bg-gray-100"></div>
                             <ul className="">
                                 <li>
-                                    <div className="px-4 flex gap-8 border-t-[1px] py-4 items-center cursor-pointer">
-                                        <span className="material-symbols-outlined font-black text-3xl">call</span>
-                                        <span className="text-lg font-bold">{storeInfos?.phoneNumber}</span>
-                                    </div>
+                                    <a href={`tel:+1${storeInfos?.phoneNumber}`} className="outline-none ring-0">
+                                        <div className="px-4 flex gap-8 border-t-[1px] py-4 items-center cursor-pointer">
+                                            <span className="material-symbols-outlined font-black text-3xl">call</span>
+                                            <span className="text-lg font-bold">{storeInfos?.phoneNumber}</span>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <Schedule/>
                                 </li>
                                 <li>
                                     <div className="px-4 flex gap-8 border-t-[1px] py-4 items-center">
@@ -40,10 +45,6 @@ export function StoreInfoModal({ children, storeInfos } : { children: React.Reac
                                         <span className="text-lg font-bold">{storeInfos?.location?.address}</span>
                                     </div>
                                 </li>
-                                <li>
-                                    <Schedule/>
-                                </li>
-
                             </ul>
                         </div>
                     </ModalBody>

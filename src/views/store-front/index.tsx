@@ -142,7 +142,7 @@ export function StoreFront() {
             <StoreSummary storeInfos={storeInfos}/>
             <CategoryFilter categories={categories} />
             { shouldOpenCart ? <DrawerCart storeId={storeId} onClose={() => {
-                navigate(location.pathname)
+                navigate(location.pathname, { replace: true })
                 onClose();
             }} isOpen={isOpen} loaderData={rootData}/> : null}
             <Outlet/>
