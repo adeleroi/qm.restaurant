@@ -163,13 +163,12 @@ function StoreSummary({ storeInfos }: { storeInfos: Store}) {
             <span className="text-defaultGreen font-semibold">Open now</span>
             <span> • </span>
             <span>Closes at 11:39 PM</span>
-        </div>
-        <div>
-            <span className="text-[14px] text-gray-600">3 km</span>
             <span> • </span>
             <StoreInfoModal storeInfos={storeInfos}>
                 <span className="text-[14px] text-gray-600 underline cursor-pointer">More Infos</span>
             </StoreInfoModal>
+        </div>
+        <div>
         </div>
     </div>
     )
