@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import React from "react";
-import { ActionFunctionArgs, Link, LoaderFunctionArgs, Outlet, json, redirect, useFetcher, useLoaderData, useLocation, useNavigate, useNavigation, useParams, useRouteLoaderData } from "react-router-dom"
+import { ActionFunctionArgs, Link, LoaderFunctionArgs, Outlet, json, redirect, useFetcher, useLoaderData, useLocation, useNavigate, useParams, useRouteLoaderData } from "react-router-dom"
 import { db } from "../../firebase/fireStore";
 import { collection, doc, getDoc, getDocs, runTransaction, serverTimestamp } from "firebase/firestore";
 import Cookies from "js-cookie";
@@ -10,7 +10,8 @@ import { Store } from "../feed";
 import { Skeleton, SkeletonCircle, SkeletonText, useDisclosure } from '@chakra-ui/react'
 import { SubmitTarget } from "react-router-dom/dist/dom";
 import { DrawerCart } from "../../components/cart/cart";
-import { StoreInfoModal } from "../../components/store-info-modal";
+import { StoreInfoModal } from "../../components/store-info/modal";
+
 
 export type Product = {
     id: string,

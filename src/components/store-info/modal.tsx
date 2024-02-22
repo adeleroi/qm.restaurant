@@ -7,9 +7,8 @@ import {
     ModalBody,
     useDisclosure,
   } from '@chakra-ui/react'
-import { Trigger } from "../utils/trigger";
-import { Store } from "../views/feed";
-import { PositionLogo } from "./search";
+import { Trigger } from "../../utils/trigger";
+import { Store } from "../../views/feed";
 import clsx from "clsx";
 
 export function StoreInfoModal({ children, storeInfos } : { children: React.ReactNode, storeInfos: Store }) {
@@ -32,7 +31,7 @@ export function StoreInfoModal({ children, storeInfos } : { children: React.Reac
                                     <a href={`tel:+1${storeInfos?.phoneNumber}`} className="outline-none ring-0">
                                         <div className="px-4 flex gap-8 border-t-[1px] py-4 items-center cursor-pointer">
                                             <span className="material-symbols-outlined font-black text-3xl">call</span>
-                                            <span className="text-lg font-bold">{storeInfos?.phoneNumber}</span>
+                                            <span className="text-lg font-semibold">{storeInfos?.phoneNumber}</span>
                                         </div>
                                     </a>
                                 </li>
@@ -41,8 +40,8 @@ export function StoreInfoModal({ children, storeInfos } : { children: React.Reac
                                 </li>
                                 <li>
                                     <div className="px-4 flex gap-8 border-t-[1px] py-4 items-center">
-                                        <PositionLogo className="text-2xl"/>
-                                        <span className="text-lg font-bold">{storeInfos?.location?.address}</span>
+                                    <span className="material-symbols-outlined font-black text-3xl">location_on</span>
+                                        <span className="text-lg font-semibold">{storeInfos?.location?.address}</span>
                                     </div>
                                 </li>
                             </ul>
@@ -62,8 +61,8 @@ function Schedule() {
                 <span className="material-symbols-outlined font-black text-3xl">schedule</span>
                 <div className="w-full flex justify-between">
                     <div className="grid">
-                        <span className="text-lg font-bold">Opening hours </span>
-                        <span className="text-[16px] font-semibold text-defaultGreen">Accepts orders until 10:30 PM</span>
+                        <span className="text-lg font-semibold">Opening hours </span>
+                        <span className="text-[14px] font-semibold text-defaultGreen">Accepts orders until 10:30 PM</span>
                     </div>
                     { isOpen ? (
                             <span className="material-symbols-outlined font-black text-2xl">expand_less</span>
@@ -83,7 +82,7 @@ function Schedule() {
                                 const dayIdx = (today + idx) % 7;
                                 console.log(idx);
                                 return (
-                                    <li className={clsx("flex justify-between py-1", {
+                                    <li key={idx} className={clsx("flex justify-between py-1", {
                                         "font-bold": dayIdx === today,
                                     })}>
                                         <span>{ DAY_MAP[dayIdx] }</span>
