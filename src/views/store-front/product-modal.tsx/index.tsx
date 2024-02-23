@@ -141,7 +141,7 @@ const CustomModalHeader = React.forwardRef(({product}: {product: Product}, heade
             </div>
             <div className='flex gap-2 justify-between items-center'>
                 <ButtonIncrement getCount={updateQuantity} cartCount={quantity} disabled={isSubmitting} limitInf={1} onLimitDisable alwaysOnDisplay/>
-                <div className='mr-10 pr-5 min-w-[360px] max-w-[500px]'> {/** 360px -> 400px - width of the ButtonIncrement. same width as in ProductDetails */}
+                <div className='mr-10 pr-2 min-w-[360px] max-w-[500px]'> {/** 360px -> 400px - width of the ButtonIncrement. same width as in ProductDetails */}
                     <AddToCartWithCountButton
                         count={quantity}
                         price={product?.price}

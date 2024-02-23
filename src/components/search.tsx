@@ -29,6 +29,7 @@ export function Search({ searchType, action } : { searchType?: string | undefine
         <Form action={`${searchType}/${storeId}`} role="search" className="w-full rounded-xl relative py-1 focus:border-b-[2px]  mx-8">
             <SearchLogo className="text-[20px] absolute top-1/2 -translate-y-1/2 left-2 text-black"/>
             <input
+                autoComplete="off"
                 id="main-search-bar"
                 defaultValue={searchQuery}
                 name="searchQuery"
