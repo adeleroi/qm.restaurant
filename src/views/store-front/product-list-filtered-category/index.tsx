@@ -36,7 +36,7 @@ export async function loader({params}: LoaderFunctionArgs) {
     return json({productList});
 }
 
-export function FilteredProductList() {
+export function ProductListFilteredByCategory() {
     const loaderData = useLoaderData() as { productList: Array<Product> };
     const productList = loaderData?.productList;
     const navigation = useNavigation();
@@ -49,24 +49,29 @@ export function FilteredProductList() {
                     ) : (
                         <ProductListSkeleton />
                     ) : (
-                    <React.Fragment>
-                        <div className="mt-10">
-                            <p className="text-md underline font-bold">{productList.length} Result(s)</p>
-                        </div>
-                        <div className="grid xl:grid-cols-5 2xl:grid-cols-6 gap-8 justify-between mt-10 mb-32">
-                            {
-                                productList?.map(product => {
-                                    return <Product product={product} key={product?.id}/>
-                                })
-                            }            
-                        </div>
-                    </React.Fragment>
-                ) 
-
+                        <ListOfProduct productList={productList} />
+                    ) 
             }
             <Outlet/>
         </>
     );
+}
+
+export function ListOfProduct({ productList } : { productList: Array<Product> }) {
+    return (
+        <React.Fragment>
+            <div className="mt-10">
+                <p className="text-md underline font-bold">{productList.length} Result(s)</p>
+            </div>
+            <div className="grid xl:grid-cols-5 2xl:grid-cols-6 gap-8 justify-between mt-10 mb-32">
+                {
+                    productList?.map(product => {
+                        return <Product product={product} key={product?.id}/>
+                    })
+                }            
+            </div>
+        </React.Fragment>
+    )
 }
 
 export function FilteredProductListSkeleton() {

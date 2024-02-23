@@ -301,7 +301,6 @@ export function ProductModal() {
                         </div>
                     </div>
                     { similarProductList.length ? <SimilarProduct productList={similarProductList} /> : null }
-                    
                 </ModalBody>
             </ProductCountProvider>
           </ModalContent>

@@ -2,7 +2,7 @@ import clsx from "clsx";
 import React from "react";
 import { ActionFunctionArgs, Link, LoaderFunctionArgs, Outlet, json, redirect, useFetcher, useLoaderData, useLocation, useNavigate, useParams, useRouteLoaderData } from "react-router-dom"
 import { db } from "../../firebase/fireStore";
-import { collection, doc, getDoc, getDocs, runTransaction, serverTimestamp } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, or, query, runTransaction, serverTimestamp, where } from "firebase/firestore";
 import Cookies from "js-cookie";
 import { priceFormat } from "../../utils/currency";
 import { Store } from "../feed";
@@ -32,8 +32,9 @@ export async function loader({params, request}: LoaderFunctionArgs) {
         return redirect('/',)
     }
 
+  
     const searchQuery = new URL(request.url).searchParams.get('searchQuery');
-    console.log('query',  searchQuery);
+    const searchResults = [] as Array<Product>;
 
     const storeId = params.storeId as string;
     const carts: Array<Product> = [];
@@ -41,7 +42,7 @@ export async function loader({params, request}: LoaderFunctionArgs) {
     const productMap: Record<string, Array<Product>> = {};
     const categories: Array<string> = [];
 
-    const productListRef = collection(db, "store", storeId, "product"); 
+    const productListRef = collection(db, "store", storeId, "product");
 
     const [
         cartSnapshot,
@@ -65,6 +66,13 @@ export async function loader({params, request}: LoaderFunctionArgs) {
 
     productSnapshot.forEach(prod => {
         const productInStore = { id: prod.id, count: 0, storeId, ...prod.data() } as Product;
+
+        if (searchQuery) {
+            if (productInStore.name.includes(searchQuery) || productInStore.description.includes(searchQuery)) {
+                searchResults.push(productInStore);
+            }
+            return;
+        }
         if (cartItemIds.has(prod.id)) {
             productInStore.count = Number(cartItemIds.get(prod.id));
         }
@@ -78,7 +86,7 @@ export async function loader({params, request}: LoaderFunctionArgs) {
     const storeDoc = await getDoc(doc(db, "store", storeId));
     const storeInfos = { id: storeDoc.id, ...storeDoc.data() }
 
-    return json({ productMap, storeInfos, categories: [...new Set(categories)], searchQuery });
+    return json({ productMap, storeInfos, categories: [...new Set(categories)], searchQuery, searchResults });
 }
 
 export async function action({request, params}: ActionFunctionArgs) {
@@ -115,6 +123,8 @@ export type StoreFrontLoader = {
     productMap: Record<string, Array<Product>>,
     storeInfos: StoreInfos
     categories: Array<string>,
+    searchQuery: string,
+    searchResults: Array<Product>
 }
 
 export function StoreFront() {
@@ -136,10 +146,9 @@ export function StoreFront() {
 
     return (
             <React.Fragment>
-                <div className="flex w-full px-16 relative">
+                <div className="flex w-full px-[5vw] relative">
                     <div className="w-[20%] max-h-screen sticky top-[4.3rem]">
                         <StoreSummary storeInfos={storeInfos}/>
-                        {/* <div className="border-t-[1px] h-1 my-6 shadow-custom"></div> */}
                         <div className="sticky top-[250px] max-h-[calc(100%-250px)] overflow-y-auto pb-8">
                             <CategoryList categories={categories}/>
                         </div>
@@ -149,7 +158,7 @@ export function StoreFront() {
                     </div>
                 </div>
                 { shouldOpenCart ? <DrawerCart storeId={storeId} onClose={() => {
-                    navigate(location.pathname, { replace: true })
+                    navigate(location.pathname, { replace: true });
                     onClose();
                 }} isOpen={isOpen} loaderData={rootData}/> : null}
             </React.Fragment>

@@ -3,30 +3,42 @@ import { CirclePulseButton } from "./button"
 import { Form, useFetcher, useLocation, useRouteLoaderData } from "react-router-dom";
 import React from "react";
 
-function getPlaceholder(searchType:string | undefined, name: string) {
+const ROUTES_FOR_SEARCH = ['store', 'feed', 'restaurant'];
+
+function getPlaceholder(searchType: string | undefined, name: string): string {
     // TODO: Put that to the utils folder after
+    if (!ROUTES_FOR_SEARCH.includes(searchType as string)) return "";
     if (searchType && searchType !== 'feed') {
         return `Search in ${name}`
     }
     return  "Restaurants, groceries, Food, etc";
 }
 
-export function Search({ searchType, action } : { searchType?: string | undefined, action?: string}) {
+function getAction(searchType: string | undefined, storeId: string) {
+    if (!ROUTES_FOR_SEARCH.includes(searchType as string)) return ".";
+    if (searchType && searchType !== 'feed') {
+        return `${searchType}/${storeId}`
+    }
+    return  "feed/";
+} 
+
+export function Search({ searchType } : { searchType?: string | undefined }) {
     const fetcher = useFetcher();
     const routeLoader = useRouteLoaderData(searchType as string);
     const location = useLocation();
     const storeId = routeLoader?.storeInfos?.id;
     const name = routeLoader?.storeInfos?.name;
     const searchQuery = routeLoader?.searchQuery;
+    const action = getAction(searchType, storeId);
     
     React.useEffect(() => {
-        const el = document.getElementById('main-search-bar') as HTMLInputElement;
+        const el = document.getElementById('main-search-bar') as HTMLInputElement; // better to do this way (it's from the doc) than sync with useState.
         if (el && location.search) {
             el.value = searchQuery;
         }
     }, [searchQuery, location])
     return (
-        <Form action={`${searchType}/${storeId}`} role="search" className="w-full rounded-xl relative py-1 focus:border-b-[2px]  mx-8">
+        <Form action={action} role="search" className="w-full rounded-xl relative py-1 focus:border-b-[2px]  mx-8">
             <SearchLogo className="text-[20px] absolute top-1/2 -translate-y-1/2 left-2 text-black"/>
             <input
                 autoComplete="off"
