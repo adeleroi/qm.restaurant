@@ -26,11 +26,14 @@ export type Product = {
     maxPurchasedQuantity?: number,
 }
 
-export async function loader({params}: LoaderFunctionArgs) {
+export async function loader({params, request}: LoaderFunctionArgs) {
     const userId = Cookies.get('qm_session_id') as string;
     if (!userId) {
         return redirect('/',)
     }
+
+    const searchQuery = new URL(request.url).searchParams.get('searchQuery');
+    console.log('query',  searchQuery);
 
     const storeId = params.storeId as string;
     const carts: Array<Product> = [];
@@ -75,7 +78,7 @@ export async function loader({params}: LoaderFunctionArgs) {
     const storeDoc = await getDoc(doc(db, "store", storeId));
     const storeInfos = { id: storeDoc.id, ...storeDoc.data() }
 
-    return json({ productMap, storeInfos, categories: [...new Set(categories)] });
+    return json({ productMap, storeInfos, categories: [...new Set(categories)], searchQuery });
 }
 
 export async function action({request, params}: ActionFunctionArgs) {
@@ -155,26 +158,28 @@ export function StoreFront() {
 
 function StoreSummary({ storeInfos }: { storeInfos: Store}) {
     return (
-        <div className="text-black pt-5 grid place-items-center sticky top-[4.3rem] z-20 bg-white mb-4 pb-4 border-b-[1px]">
+        <div className="text-black pt-5 sticky top-[4.3rem] z-20 bg-white mb-4 pb-4 border-b-[1px]">
             <div className="">
-                <div className="w-24 h-24 border-[1px] shadow-custom bg-white rounded-full flex justify-center items-center mr-2 mb-4 px-2">
+                <div className="w-24 h-24 border-[1px] shadow-custom bg-white rounded-full flex items-center mr-2 mb-4 px-2">
                     <img className="object-contain" src={storeInfos.imgUrl} alt="lcbo-logo"/>
                 </div>
             </div>
-            <p className="font-bold text-xl mb-1 text-center">{ storeInfos?.name }</p>
-            <div className="grid place-items-center">
-                <span className="text-[14px] text-gray-600">{storeInfos.location.address}</span>
-                <span className="text-[12px] text-gray-600">Delivery fee (3.69$)</span>
-            </div>
-            <div className="text-[12px] text-gray-600 grid place-items-center">
-                <div>
-                    <span className="text-defaultGreen font-semibold">Open now</span>
-                    <span> • </span>
-                    <span>Closes at 11:39 PM</span>
+            <div className="pl-2">
+                <p className="font-bold text-xl mb-1">{ storeInfos?.name }</p>
+                <div className="grid">
+                    <span className="text-[14px] text-gray-600">{storeInfos.location.address}</span>
+                    <span className="text-[12px] text-gray-600">Delivery fee (3.69$)</span>
                 </div>
-                <StoreInfoModal storeInfos={storeInfos}>
-                    <span className="text-[12px] text-gray-600 underline cursor-pointer">More Infos</span>
-                </StoreInfoModal>
+                <div className="text-[12px] text-gray-600r">
+                    <div>
+                        <span className="text-defaultGreen font-semibold">Open now</span>
+                        <span> • </span>
+                        <span>Closes at 11:39 PM</span>
+                    </div>
+                    <StoreInfoModal storeInfos={storeInfos}>
+                        <span className="text-[12px] text-gray-600 underline cursor-pointer">More Infos</span>
+                    </StoreInfoModal>
+                </div>
             </div>
         </div>
     )
@@ -198,7 +203,7 @@ function CategoryList({ categories }: { categories: Array<string>}) {
     return (
         <ul className="w-full bg-white pr-3">
             { categories?.map((category:string) => (
-                <li key={category} className={clsx("rounded-lg capitalize text-gray-800 font-semibold text-ls py-2 w-full cursor-pointer px-2 ",{
+                <li key={category} className={clsx("rounded-lg capitalize text-gray-800 font-semibold text-ls py-2 w-full  cursor-pointer px-2 first:mt-0",{
                     "bg-defaultGreen hover:bg-green-800 text-white": selected === category,
                     "hover:bg-gray-100 my-1": selected !== category
                 })} onClick={() => handleSelection(category)}>{category}</li>

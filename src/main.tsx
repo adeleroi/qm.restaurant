@@ -32,13 +32,14 @@ const router = createBrowserRouter([
         path: "feed",
         element: <Feed/>,
         loader: FeedLoader,
+        id: "feed",
       },
       {
         path: "store/:storeId",
         element: <StoreFront/>,
         action: storeFrontAction,
         loader: storeFrontLoader,
-
+        id: "store",
         children: [
           {
             path: "",

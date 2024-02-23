@@ -6,17 +6,25 @@ import { AuthFormTrigger } from "./auth-form";
 import { Menu } from "./menu";
 import { CarTriggerForCheckout, CartIcon } from "./cart/cart";
 import { useFirebaseAuth } from "../firebase/auth";
+import { useLocation } from "react-router-dom";
+import clsx from "clsx";
+
+const regex = /[a-z]+/i;
+
 
 export function Navbar() {
     const { loggedIn } = useFirebaseAuth();
+    const currLocation = useLocation();
+    const location: string | undefined = currLocation.pathname.match(regex)?.[0];
+
     return (
         <nav className="flex justify-between w-full py-2 px-16 items-center bg-white border-b-[1px] border-gray-200 gap-2 top-0 z-20 sticky">
             <div className="w-68 flex items-center justify-start gap-4">
                 { loggedIn ? <Menu/> : null }
                 <Logo/>
             </div>
-            <div className="w-full px-16 flex justify-center">
-                <Search/>
+            <div className={clsx("w-full px-16 flex justify-center", { "hidden": !loggedIn })}>
+                <Search searchType={location}/>
             </div>
             <ButtonSection/>
         </nav>

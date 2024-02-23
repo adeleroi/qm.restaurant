@@ -1,15 +1,44 @@
 import clsx from "clsx"
 import { CirclePulseButton } from "./button"
+import { Form, useFetcher, useLocation, useRouteLoaderData } from "react-router-dom";
+import React from "react";
 
-export function Search({ placeholder }: { placeholder?: string}) {
+function getPlaceholder(searchType:string | undefined, name: string) {
+    // TODO: Put that to the utils folder after
+    if (searchType && searchType !== 'feed') {
+        return `Search in ${name}`
+    }
+    return  "Restaurants, groceries, Food, etc";
+}
+
+export function Search({ searchType, action } : { searchType?: string | undefined, action?: string}) {
+    const fetcher = useFetcher();
+    const routeLoader = useRouteLoaderData(searchType as string);
+    const location = useLocation();
+    const storeId = routeLoader?.storeInfos?.id;
+    const name = routeLoader?.storeInfos?.name;
+    const searchQuery = routeLoader?.searchQuery;
+    
+    React.useEffect(() => {
+        const el = document.getElementById('main-search-bar') as HTMLInputElement;
+        if (el && location.search) {
+            el.value = searchQuery;
+        }
+    }, [searchQuery, location])
     return (
-        <div className="w-full rounded-xl relative py-1 focus:border-b-[2px]  mx-8">
+        <Form action={`${searchType}/${storeId}`} role="search" className="w-full rounded-xl relative py-1 focus:border-b-[2px]  mx-8">
             <SearchLogo className="text-[20px] absolute top-1/2 -translate-y-1/2 left-2 text-black"/>
             <input
-                placeholder={ placeholder ? placeholder : "Restaurants, groceries, Food, etc" }
+                id="main-search-bar"
+                defaultValue={searchQuery}
+                name="searchQuery"
+                placeholder={ getPlaceholder(searchType, name) }
                 className="rounded-xl w-full p-9 py-3 bg-gray-100 outline-black placeholder:font-semibold placeholder:text-gray-600"
+                onChange={(event) => {
+                    fetcher.submit(event.currentTarget.form);
+                }}
             />
-        </div>
+        </Form>
     )
 }
 
