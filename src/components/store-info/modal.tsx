@@ -10,6 +10,8 @@ import {
 import { Trigger } from "../../utils/trigger";
 import { Store } from "../../views/feed";
 import clsx from "clsx";
+import { StoreMap } from "./map-google";
+
 
 export function StoreInfoModal({ children, storeInfos } : { children: React.ReactNode, storeInfos: Store }) {
     const { onClose, onOpen, isOpen } = useDisclosure();
@@ -19,13 +21,15 @@ export function StoreInfoModal({ children, storeInfos } : { children: React.Reac
             <Trigger onOpen={onOpen}>
                 { children }
             </Trigger>
-            <Modal isOpen={isOpen} onClose={onClose}  scrollBehavior="inside" isCentered>
-                <ModalOverlay/>
+            <Modal isOpen={isOpen} onClose={onClose} isCentered scrollBehavior="inside">
+                <ModalOverlay opacity={0.2}/>
                 <ModalContent style={{borderRadius: 0}}>
                     <ModalBody style={{padding: 0}}>
                         <div>
                             <h1 className="p-3 py-4 text-2xl font-bold">{storeInfos?.name}</h1>
-                            <div className="w-full h-56 bg-gray-100"></div>
+                            <div className="relative w-full h-64 bg-gray-100">
+                                <StoreMap/>
+                            </div>
                             <ul className="">
                                 <li>
                                     <a href={`tel:+1${storeInfos?.phoneNumber}`} className="outline-none ring-0">
@@ -80,7 +84,6 @@ function Schedule() {
                             Array.from({length: 7}, (_, idx) => {
                                 const today = new Date().getDay();
                                 const dayIdx = (today + idx) % 7;
-                                console.log(idx);
                                 return (
                                     <li key={idx} className={clsx("flex justify-between py-1", {
                                         "font-bold": dayIdx === today,

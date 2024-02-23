@@ -57,10 +57,9 @@ export async function loader({ params }: LoaderFunctionArgs) {
     const similarProductQuery = query(collection(db, "store", storeId, "product"), where('category', '==', currProduct.category));
     const similarProductSnapshot = await getDocs(similarProductQuery);
 
-
     similarProductSnapshot.forEach(product => {
         if (product.id == currProduct.id) return;
-        similarProductList.push({ id: product.id, ...product.data(), count: cartItems.get(product.id) } as Product);
+        similarProductList.push({ id: product.id, ...product.data(), count: cartItems.get(product.id), storeId } as Product);
     })
 
     return json({ product: currProduct, similarProductList, cartItemMap: Object.fromEntries(cartItems) });

@@ -53,7 +53,7 @@ export function FilteredProductList() {
                         <div className="mt-10">
                             <p className="text-md underline font-bold">{productList.length} Result(s)</p>
                         </div>
-                        <div className="grid xl:grid-cols-6 2xl:grid-cols-7 gap-8 justify-between mt-10 mb-32">
+                        <div className="grid xl:grid-cols-5 2xl:grid-cols-6 gap-8 justify-between mt-10 mb-32">
                             {
                                 productList?.map(product => {
                                     return <Product product={product} key={product?.id}/>
@@ -75,16 +75,16 @@ export function FilteredProductListSkeleton() {
             <div className="mt-16 w-32">
                 <SkeletonText startColor="gray.100" endColor="gray.200" noOfLines={1} skeletonHeight={4}/>
             </div>
-            <div className="grid xl:grid-cols-6 2xl:grid-cols-7 gap-8 mt-10">
+            <div className="grid xl:grid-cols-5 2xl:grid-cols-6 gap-8 mt-10">
                 {
                     Array.from({length: 50}).map((_, idx) => (
                         <React.Fragment key={idx}>
                             <div>
-                                <div className="w-56 h-52 rounded-xl overflow-hidden relative">
+                                <div className="w-52 h-48 rounded-xl overflow-hidden relative">
                                     <Skeleton startColor="gray.100" endColor="gray.200" key={idx} className="w-full h-full mb-2 rounded-3xl"></Skeleton>
-                                    <SkeletonCircle startColor={"gray.100"} className="absolute top-40 right-2 bg-white" />
+                                    <SkeletonCircle startColor={"gray.100"} className="absolute top-36 right-2 bg-white" />
                                 </div>
-                                <div className="w-56">
+                                <div className="w-52">
                                     <SkeletonText startColor="gray.100" endColor="gray.200" noOfLines={2} mt={2} spacing={2} skeletonHeight={2}/>
                                 </div>
                             </div>

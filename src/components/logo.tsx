@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useFirebaseAuth } from "../firebase/auth"
 
 
-export function Logo({ to="restaurant" }: { to?: string }) {
+export function Logo({ to="feed" }: { to?: string }) {
     const { loggedIn } = useFirebaseAuth();
     return (
         <Link to={loggedIn ? to : '/'}>

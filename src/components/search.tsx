@@ -1,13 +1,13 @@
 import clsx from "clsx"
 import { CirclePulseButton } from "./button"
 
-export function Search() {
+export function Search({ placeholder }: { placeholder?: string}) {
     return (
-        <div className="w-full rounded-md relative py-1 focus:border-b-[2px] focus:border-black mx-8">
+        <div className="w-full rounded-xl relative py-1 focus:border-b-[2px]  mx-8">
             <SearchLogo className="text-[20px] absolute top-1/2 -translate-y-1/2 left-2 text-black"/>
             <input
-                placeholder="Restaurants, groceries, Food, etc"
-                className="focus:shadow-search transition-[box-shadow] ease-in-out delay-150 w-full p-9 py-3 bg-[#EEEEEE] outline-none placeholder:font-semibold placeholder:text-gray-600"
+                placeholder={ placeholder ? placeholder : "Restaurants, groceries, Food, etc" }
+                className="rounded-xl w-full p-9 py-3 bg-gray-100 outline-black placeholder:font-semibold placeholder:text-gray-600"
             />
         </div>
     )

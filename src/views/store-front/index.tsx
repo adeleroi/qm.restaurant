@@ -132,46 +132,78 @@ export function StoreFront() {
     }, [onOpen, onClose, shouldOpenCart])
 
     return (
-        <section className="px-16">
-            <div style={{backgroundColor: storeInfos?.backgroundColor}} className="relative w-full grid h-40">
-                <div className="absolute left-5 bottom-0">
-                    <div className="w-24 h-24 border-[1px] bg-white rounded-full flex justify-center items-center mr-2 my-4 px-2">
-                        <img className="object-contain" src={storeInfos.imgUrl} alt="lcbo-logo"/>
+            <React.Fragment>
+                <div className="flex w-full px-16 relative">
+                    <div className="w-[20%] max-h-screen sticky top-[4.3rem]">
+                        <StoreSummary storeInfos={storeInfos}/>
+                        {/* <div className="border-t-[1px] h-1 my-6 shadow-custom"></div> */}
+                        <div className="sticky top-[250px] max-h-[calc(100%-250px)] overflow-y-auto pb-8">
+                            <CategoryList categories={categories}/>
+                        </div>
+                    </div>
+                    <div className="w-[80%] pl-4">
+                        <Outlet/>
                     </div>
                 </div>
-            </div>
-            <StoreSummary storeInfos={storeInfos}/>
-            <CategoryFilter categories={categories} />
-            { shouldOpenCart ? <DrawerCart storeId={storeId} onClose={() => {
-                navigate(location.pathname, { replace: true })
-                onClose();
-            }} isOpen={isOpen} loaderData={rootData}/> : null}
-            <Outlet/>
-        </section>
+                { shouldOpenCart ? <DrawerCart storeId={storeId} onClose={() => {
+                    navigate(location.pathname, { replace: true })
+                    onClose();
+                }} isOpen={isOpen} loaderData={rootData}/> : null}
+            </React.Fragment>
     )
 }
 
 function StoreSummary({ storeInfos }: { storeInfos: Store}) {
     return (
-        <div className="text-black mt-5 grid">
-        <p className="font-bold text-3xl mb-3">{ storeInfos?.name }</p>
-        <div>
-            <span className="text-[14px] text-gray-600">{storeInfos.location.address}</span>
-            <span> • </span>
-            <span className="text-[14px] text-gray-600">Delivery fee (3.69$)</span>
+        <div className="text-black pt-5 grid place-items-center sticky top-[4.3rem] z-20 bg-white mb-4 pb-4 border-b-[1px]">
+            <div className="">
+                <div className="w-24 h-24 border-[1px] shadow-custom bg-white rounded-full flex justify-center items-center mr-2 mb-4 px-2">
+                    <img className="object-contain" src={storeInfos.imgUrl} alt="lcbo-logo"/>
+                </div>
+            </div>
+            <p className="font-bold text-xl mb-1 text-center">{ storeInfos?.name }</p>
+            <div className="grid place-items-center">
+                <span className="text-[14px] text-gray-600">{storeInfos.location.address}</span>
+                <span className="text-[12px] text-gray-600">Delivery fee (3.69$)</span>
+            </div>
+            <div className="text-[12px] text-gray-600 grid place-items-center">
+                <div>
+                    <span className="text-defaultGreen font-semibold">Open now</span>
+                    <span> • </span>
+                    <span>Closes at 11:39 PM</span>
+                </div>
+                <StoreInfoModal storeInfos={storeInfos}>
+                    <span className="text-[12px] text-gray-600 underline cursor-pointer">More Infos</span>
+                </StoreInfoModal>
+            </div>
         </div>
-        <div className="text-[14px] text-gray-600">
-            <span className="text-defaultGreen font-semibold">Open now</span>
-            <span> • </span>
-            <span>Closes at 11:39 PM</span>
-            <span> • </span>
-            <StoreInfoModal storeInfos={storeInfos}>
-                <span className="text-[14px] text-gray-600 underline cursor-pointer">More Infos</span>
-            </StoreInfoModal>
-        </div>
-        <div>
-        </div>
-    </div>
+    )
+}
+
+function CategoryList({ categories }: { categories: Array<string>}) {
+    const { categoryId: currentCategory } = useParams();
+    const [selected, setSelected] = React.useState(currentCategory);
+    const navigate = useNavigate();
+
+    function handleSelection(value: string) {
+        if (currentCategory === value) {
+            setSelected('')
+            navigate("./", { relative: 'path' });
+            return;
+        }
+        setSelected(value);
+        navigate(`category/${encodeURIComponent(value)}`);
+    }
+
+    return (
+        <ul className="w-full bg-white pr-3">
+            { categories?.map((category:string) => (
+                <li key={category} className={clsx("rounded-lg capitalize text-gray-800 font-semibold text-ls py-2 w-full cursor-pointer px-2 ",{
+                    "bg-defaultGreen hover:bg-green-800 text-white": selected === category,
+                    "hover:bg-gray-100 my-1": selected !== category
+                })} onClick={() => handleSelection(category)}>{category}</li>
+            ))}
+        </ul>
     )
 }
 
@@ -218,7 +250,7 @@ export function ScrollableList({ as="div", title, children }: { as, children: Re
     }, [])
 
     return (
-        <div className="my-16" key={title}>
+        <div className="mb-16 mt-10" key={title}>
             <div className="flex justify-between w-full">
                 <h1 className="text-2xl font-bold capitalize">{title}</h1>
                 {
@@ -275,7 +307,7 @@ export function Product({product, action, to}: ProductProps) {
     )
 }
 
-function CategoryFilter({ categories }: { categories: Array<string> }) {
+export function CategoryFilter({ categories }: { categories: Array<string> }) {
     const { categoryId: currentCategory } = useParams();
     const [selected, setSelected] = React.useState(currentCategory);
     const navigate = useNavigate();
@@ -314,14 +346,14 @@ export function ProductListSkeleton() {
                     <div className="mt-16 w-32">
                         <SkeletonText startColor="gray.100" endColor="gray.200" noOfLines={1} skeletonHeight={4}/>
                     </div>
-                    <div className="grid xl:grid-cols-6 2xl:grid-cols-7 gap-8 my-10">
+                    <div className="grid xl:grid-cols-5 2xl:grid-cols-6 gap-8 my-10">
                         {
                             Array.from({length: 6}).map((_, idx) => (
                                 <React.Fragment key={idx}>
                                     <div>
-                                        <div className="w-56 h-52 rounded-xl overflow-hidden relative">
+                                        <div className="w-52 h-48 rounded-xl overflow-hidden relative">
                                             <Skeleton startColor="gray.100" endColor="gray.200" key={idx} className="w-full h-full mb-2 rounded-3xl"></Skeleton>
-                                            <SkeletonCircle startColor={"gray.100"} className="absolute top-40 right-2 bg-white" />
+                                            <SkeletonCircle startColor={"gray.100"} className="absolute top-36 right-2 bg-white" />
                                         </div>
                                         <div className="w-56">
                                             <SkeletonText startColor="gray.100" endColor="gray.200" noOfLines={2} mt={2} spacing={2} skeletonHeight={2}/>

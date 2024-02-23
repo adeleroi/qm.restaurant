@@ -10,12 +10,12 @@ import { useFirebaseAuth } from "../firebase/auth";
 export function Navbar() {
     const { loggedIn } = useFirebaseAuth();
     return (
-        <nav className="flex justify-between w-full py-4 px-16 items-center bg-white shadow-xl gap-2 top-0 z-20 sticky">
+        <nav className="flex justify-between w-full py-2 px-16 items-center bg-white border-b-[1px] border-gray-200 gap-2 top-0 z-20 sticky">
             <div className="w-68 flex items-center justify-start gap-4">
                 { loggedIn ? <Menu/> : null }
                 <Logo/>
             </div>
-            <div className="hidden">
+            <div className="w-full px-16 flex justify-center">
                 <Search/>
             </div>
             <ButtonSection/>
@@ -33,7 +33,7 @@ function ButtonSection() {
         return (
             <>
                 <CarTriggerForCheckout triggerElement={
-                    <button className="group/cartbtn py-1 pr-4 pl-3 max-w-[80px] rounded-3xl shadow-custom bg-defaultGreen hover:bg-green-800 hover:shadow-custom text-black relative">
+                    <button className="group/cartbtn py-2 pr-4 pl-3 max-w-[80px] rounded-3xl shadow-custom bg-defaultGreen hover:bg-green-800 hover:shadow-custom text-black relative">
                         <CartIcon/>
                     </button>
                 }/>

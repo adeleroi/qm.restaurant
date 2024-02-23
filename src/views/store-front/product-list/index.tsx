@@ -8,7 +8,7 @@ export function ProductList() {
     const navigation = useNavigation();
 
     return (
-        <div className="mt-10">
+        <div className="mt-5">
             {
                 navigation.state === 'loading' && !navigation.location.pathname.includes('product') ? (
                         <FilteredProductListSkeleton />
