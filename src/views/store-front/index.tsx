@@ -86,6 +86,8 @@ export async function loader({params, request}: LoaderFunctionArgs) {
     const storeDoc = await getDoc(doc(db, "store", storeId));
     const storeInfos = { id: storeDoc.id, ...storeDoc.data() }
 
+    console.log(searchQuery, searchResults.length);
+
     return json({ productMap, storeInfos, categories: [...new Set(categories)], searchQuery, searchResults });
 }
 
@@ -146,8 +148,8 @@ export function StoreFront() {
 
     return (
             <React.Fragment>
-                <div className="flex w-full px-[5vw] relative">
-                    <div className="w-[20%] max-h-screen sticky top-[4.3rem]">
+                <div className="flex w-full px-[5vw]">
+                    <div className="w-[20%] max-h-screen sticky top-[6.3rem]">
                         <StoreSummary storeInfos={storeInfos}/>
                         <div className="sticky top-[250px] max-h-[calc(100%-250px)] overflow-y-auto pb-8">
                             <CategoryList categories={categories}/>
@@ -167,7 +169,7 @@ export function StoreFront() {
 
 function StoreSummary({ storeInfos }: { storeInfos: Store}) {
     return (
-        <div className="text-black pt-5 sticky top-[4.3rem] z-20 bg-white mb-4 pb-4 border-b-[1px]">
+        <div className="text-black sticky top-[6.3rem] z-20 bg-white mb-4 pb-4 border-b-[1px]">
             <div className="">
                 <div className="w-24 h-24 border-[1px] shadow-custom bg-white rounded-full flex items-center mr-2 mb-4 px-2">
                     <img className="object-contain" src={storeInfos.imgUrl} alt="lcbo-logo"/>

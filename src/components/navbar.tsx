@@ -18,12 +18,16 @@ export function Navbar() {
     const location: string | undefined = currLocation.pathname.match(regex)?.[0];
 
     return (
-        <nav className="flex justify-between w-full py-2 px-16 items-center bg-white border-b-[1px] border-gray-200 gap-2 top-0 z-20 sticky">
-            <div className="w-68 flex items-center justify-start gap-4">
+        <nav className="flex justify-between w-full py-2 px-16 items-center bg-white border-b-[1px] border-gray-200 gap-2 top-0 z-40 sticky">
+            <div className="flex items-center justify-start gap-4">
                 { loggedIn ? <Menu/> : null }
                 <Logo/>
             </div>
-            <div className={clsx("w-full px-16 flex justify-center", { "hidden": !loggedIn })}>
+            <div className="cursor-pointer focus:border-black text-lg font-bold text-black px-3 py-2 bg-gray-100 rounded-3xl flex gap-2 items-center justify-center">
+                <span className="material-symbols-outlined font-black text-lg">location_on</span>
+                <p className="text-[15px]">75 Daly Ave</p>
+            </div>
+            <div className={clsx("min-w-[200px] w-[800px] flex justify-center", { "hidden": !loggedIn })}>
                 <Search searchType={location}/>
             </div>
             <ButtonSection/>
