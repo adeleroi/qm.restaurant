@@ -68,7 +68,9 @@ export async function loader({params, request}: LoaderFunctionArgs) {
         const productInStore = { id: prod.id, count: 0, storeId, ...prod.data() } as Product;
 
         if (searchQuery) {
-            if (productInStore.name.includes(searchQuery) || productInStore.description.includes(searchQuery)) {
+            if (productInStore.name.toLocaleLowerCase().includes(searchQuery.toLocaleLowerCase()) ||
+                productInStore.description.toLocaleLowerCase().includes(searchQuery.toLocaleLowerCase())
+            ) {
                 searchResults.push(productInStore);
             }
             return;
@@ -86,7 +88,6 @@ export async function loader({params, request}: LoaderFunctionArgs) {
     const storeDoc = await getDoc(doc(db, "store", storeId));
     const storeInfos = { id: storeDoc.id, ...storeDoc.data() }
 
-    console.log(searchQuery, searchResults.length);
 
     return json({ productMap, storeInfos, categories: [...new Set(categories)], searchQuery, searchResults });
 }

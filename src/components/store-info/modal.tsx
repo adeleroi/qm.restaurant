@@ -11,6 +11,7 @@ import { Trigger } from "../../utils/trigger";
 import { Store } from "../../views/feed";
 import clsx from "clsx";
 import { StoreMap } from "./map-google";
+import { StoreMapBox } from "./map-mapbox";
 
 
 export function StoreInfoModal({ children, storeInfos } : { children: React.ReactNode, storeInfos: Store }) {
@@ -28,9 +29,10 @@ export function StoreInfoModal({ children, storeInfos } : { children: React.Reac
                         <div>
                             <h1 className="p-3 py-4 text-2xl font-bold">{storeInfos?.name}</h1>
                             <div className="relative w-full h-64 bg-gray-100">
-                                <StoreMap/>
+                                {/* <StoreMap/> */}
+                                <StoreMapBox/>
                             </div>
-                            <ul className="">
+                            <ul className="relative z-50">
                                 <li>
                                     <a href={`tel:+1${storeInfos?.phoneNumber}`} className="outline-none ring-0">
                                         <div className="px-4 flex gap-8 border-t-[1px] py-4 items-center cursor-pointer">
