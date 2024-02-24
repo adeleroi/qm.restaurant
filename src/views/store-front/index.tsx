@@ -33,8 +33,9 @@ export async function loader({params, request}: LoaderFunctionArgs) {
     }
 
   
-    const searchQuery = new URL(request.url).searchParams.get('searchQuery');
+    const searchQuery = new URL(request.url).searchParams.get('searchQuery') || "";
     const searchResults = [] as Array<Product>;
+    const defaultSearchSuggestions = [] as Array<Product>;
 
     const storeId = params.storeId as string;
     const carts: Array<Product> = [];
@@ -89,7 +90,7 @@ export async function loader({params, request}: LoaderFunctionArgs) {
     const storeInfos = { id: storeDoc.id, ...storeDoc.data() }
 
 
-    return json({ productMap, storeInfos, categories: [...new Set(categories)], searchQuery, searchResults });
+    return json({ productMap, storeInfos, categories: [...new Set(categories)], searchQuery, searchResults, defaultSearchSuggestions });
 }
 
 export async function action({request, params}: ActionFunctionArgs) {
@@ -224,7 +225,7 @@ function CategoryList({ categories }: { categories: Array<string>}) {
     )
 }
 
-export function ScrollableList({ as="div", title, children }: { as, children: React.ReactNode, title: string }) {
+export function ScrollableList({ as="div", title, children }: { as:string, children: React.ReactNode, title: string }) {
     const As = as;
     const slideRef = React.useRef<HTMLDivElement | null>(null);
     const [ disabledNextBtn, setDisabledNextBtn ] = React.useState(false);

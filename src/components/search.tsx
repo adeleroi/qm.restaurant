@@ -1,7 +1,7 @@
 import React from "react";
 import clsx from "clsx";
 import { CirclePulseButton } from "./button";
-import { Form, useFetcher, useLocation, useRouteLoaderData } from "react-router-dom";
+import { Form, useFetcher, useNavigate, useRouteLoaderData } from "react-router-dom";
 import { Product } from "../views/store-front";
 
 const ROUTES_FOR_SEARCH = ['store', 'feed', 'restaurant'];
@@ -46,20 +46,19 @@ function useRelativeResize(
 
 export function Search({ searchType } : { searchType?: string | undefined }) {
     const fetcher = useFetcher();
-    const { searchQuery, storeInfos } = useRouteLoaderData(searchType as string);
+    const { searchQuery, storeInfos, searchResults, defaultSearchSuggestions } = useRouteLoaderData(searchType as string);
     const { name, id: storeId } = storeInfos;
-    const location = useLocation();
     const action = getAction(searchType, storeId);
     const formRef = React.useRef<HTMLFormElement | null>(null);
     const inputRef = React.useRef<HTMLInputElement | null>(null);
     const suggestionRef = React.useRef<HTMLFormElement | null>(null);
 
     const [ isOpen, setIsOpen ] = React.useState(false);
+    const [ query, setQuery ] = React.useState(searchQuery);
 
     function handleBlur(event: React.FocusEvent<HTMLElement, Element>) {
         console.log(event.relatedTarget?.contains?.(suggestionRef.current))
         if (!event.relatedTarget?.contains?.(suggestionRef.current)) {
-                console.log('currentTarget', event.relatedTarget, suggestionRef.current, event.currentTarget);
             setIsOpen(false);
         } else {
             inputRef.current?.focus();
@@ -67,50 +66,70 @@ export function Search({ searchType } : { searchType?: string | undefined }) {
     }
 
     React.useEffect(() => {
-        const inputEl = inputRef.current;
-        if (!inputEl) return;
-        if (inputEl && location.search) {
-            inputEl.value = searchQuery;
-        }
-    }, [searchQuery, location])
+        setQuery(searchQuery);
+    }, [searchQuery])
 
     useRelativeResize(formRef, suggestionRef);
     
     return (
         <div className="w-full grid">
-            <Form ref={formRef} action={action} role="search" className="w-full rounded-xl relative py-1 focus:border-b-[2px]">
-                <SearchIcon className="text-[24px] absolute top-1/2 -translate-y-1/2 left-4 text-black"/>
+            <Form 
+                onSubmit={() => {setIsOpen(false)}}
+                ref={formRef} action={action} role="search" className="w-full rounded-xl relative py-1 focus:border-b-[2px]">
+                <SearchIcon className="text-[20px] absolute top-1/2 -translate-y-1/2 left-4 text-black"/>
                 <input
                     ref={inputRef}
                     onBlur={handleBlur}
-                    onFocus={() => setIsOpen(true)}
+                    onClick={() => setIsOpen(true)}
                     autoComplete="off"
                     id="main-search-bar"
-                    defaultValue={searchQuery}
+                    value={query}
                     name="searchQuery"
                     placeholder={ getPlaceholder(searchType, name) }
                     className="rounded-3xl w-full px-12 py-3 bg-gray-100 outline-black placeholder:font-semibold placeholder:text-gray-600"
                     onChange={(event) => {
+                        setQuery(event.target.value);
                         fetcher.submit(event.currentTarget.form);
                     }}
                 />
+                {
+                    query && <ClearIcon onClick={() => setQuery("")} className="absolute top-1/2 -translate-y-1/2 right-4 text-[24px]"/>
+                }
             </Form>
             {
-                isOpen ? <SearchSuggestion results={fetcher.data?.searchResults}  ref={suggestionRef}/> : null
+                isOpen ?
+                    <SearchSuggestion
+                        onSelect={() => setIsOpen(false)}
+                        results={
+                            fetcher.data?.searchResults || query && searchResults || defaultSearchSuggestions
+                        }
+                        ref={suggestionRef}/>
+                    : null
             }
         </div>
     )
 }
 
-const SearchSuggestion = React.forwardRef(function SearchSuggestion({ results } : { results: Array<Product> }, ref) {
+type SearchSuggestionProps = {
+    results: Array<Product>,
+    onSelect: () => void,
+}
+const SearchSuggestion = React.forwardRef(function SearchSuggestion({ results, onSelect } : SearchSuggestionProps, ref) {
+    const navigate = useNavigate();
+    function handleClick(suggestion: string) {
+        navigate(`?searchQuery=${suggestion}`);
+        onSelect();
+    }
     return (
         <div className="top-[4.5rem] left-0 fixed w-screen h-screen flex justify-center bg-search-overlay">
-            <ul tabIndex={1} ref={ref} className="p-3 bg-white z-100 opacity-100 absolute h-96 shadow-custom rounded-md overflow-y-scroll"
-                >
+            <ul tabIndex={1} ref={ref} className="p-3 bg-white z-100 opacity-100 absolute h-96 shadow-custom rounded-md overflow-y-scroll">
                 {
                     results?.map((result: Product) => {
                         return (
-                            <li className="rounded-lg flex hover:bg-gray-100 py-2 cursor-pointer" key={result.name}>
+                            <li className="rounded-lg flex hover:bg-gray-100 py-2 cursor-pointer"
+                                key={result.name}
+                                onClick={() => handleClick(result.name)}
+                            >
                                 <div className="flex pl-3 text-lg  items-center">
                                     <div className="bg-white flex w-10 h-10 rounded-full overflow-hidden">
                                         <img className="flex w-10 h-10 object-contain" src={result.imgUrl} />
@@ -134,6 +153,14 @@ function SearchIcon({ className }: { className: string }) {
             <span className={clsx("material-symbols-outlined font-semibold", className)}>
                 search
             </span>
+        </button>
+    )
+}
+
+function ClearIcon({ className, onClick } : { className?: string, onClick: () => void }) {
+    return (
+        <button type="button" onClick={onClick}>
+            <span className={clsx("material-symbols-outlined", className)}>close</span>
         </button>
     )
 }
