@@ -9,14 +9,13 @@ import {
     // Spinner
     Spinner
   } from '@chakra-ui/react'
-import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
-import React, { useCallback } from 'react';
-import { LoaderFunctionArgs, json, useFetcher, useLoaderData, useNavigate } from 'react-router-dom';
-import { db } from '../../../firebase/fireStore';
+import React, { LegacyRef, useCallback } from 'react';
+import { useLoaderData, useNavigate } from 'react-router-dom';
 import { priceFormat } from '../../../utils/currency';
 import { ButtonIncrement, Product } from '..';
-import Cookies from 'js-cookie';
 import clsx from 'clsx';
+import { ProductCountProvider } from './product-count-provider';
+import { useProductCountContext } from './product-count-context';
 
 interface IntersectionObserverOption {
     root: HTMLElement|null,
@@ -36,33 +35,6 @@ function useIntersectionObserverEffect(
         observer.observe(target);
         return () => { target && observer.unobserve(target) };
     });
-}
-
-export async function loader({ params }: LoaderFunctionArgs) {
-    const userId = Cookies.get('qm_session_id') as string;
-    const { productId, storeId } = params as Record<string, string>;
-
-    const cartItems = new Map<string, number>();
-    const similarProductList: Array<Product> = [];
-
-    const cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
-    cartSnapshot.forEach(item => {
-        cartItems.set(item.id, item.data().count);
-    });
-
-    const productDoc = await getDoc(doc(db, 'store', storeId, 'product', productId));
-    const count = !cartItems.get(productDoc.id) ? 1 : cartItems.get(productDoc.id);
-    const currProduct = { id: productDoc.id, ...productDoc.data(), count, storeId } as Product ;
-    
-    const similarProductQuery = query(collection(db, "store", storeId, "product"), where('category', '==', currProduct.category));
-    const similarProductSnapshot = await getDocs(similarProductQuery);
-
-    similarProductSnapshot.forEach(product => {
-        if (product.id == currProduct.id) return;
-        similarProductList.push({ id: product.id, ...product.data(), count: cartItems.get(product.id), storeId } as Product);
-    })
-
-    return json({ product: currProduct, similarProductList, cartItemMap: Object.fromEntries(cartItems) });
 }
 
 const SHOW_HEADER_STYLE = 'will-change-auto h-24 opacity-100 flex items-center justify-between animate-open-header shadow-xl flex absolute z-50 w-full top-0 bg-white';
@@ -101,7 +73,7 @@ export function ImageZoom({imgUrl, imgAlt }: { imgUrl: string, imgAlt: string })
 const CustomModalHeader = React.forwardRef(({product}: {product: Product}, headerRef) => {
     const { quantity, updateQuantity, hasQuantityChanged, isAlreadyInCart, isSubmitting, submitToCart } = useProductCountContext();
     return (
-        <div ref={headerRef} className="hidden" style={{paddingLeft: '0px', paddingRight: '0px'}}>
+        <div ref={headerRef as LegacyRef<HTMLDivElement> | undefined} className="hidden" style={{paddingLeft: '0px', paddingRight: '0px'}}>
             <div  className='pl-10 flex items-center gap-2'>
                 <div className='w-12 h-12 rounded-xl overflow-hidden'>
                     <img src={product?.imgUrl} className='object-contain'/>
@@ -202,7 +174,7 @@ const AddToCartWithCountButton = React.forwardRef(function AddToCartWithCountBut
             disabled={disableButton}
             onClick={onClick}
             type={type}
-            ref={ref}
+            ref={ref as LegacyRef<HTMLButtonElement> | undefined}
         >
             <span className='mr-4'>{ isSubmitting ? <Spinner color='white' size="sm" /> : null }</span>
             <span className={clsx('capitalize', {'text-gray-100': disableButton})}>{getText()}</span>
@@ -279,56 +251,4 @@ export function ProductModal() {
         </Modal>
       </>
     )
-}
-
-type ProductContextState = {
-    quantity: number,
-    updateQuantity: (t:number) => void,
-    hasQuantityChanged: boolean,
-    isAlreadyInCart?: boolean,
-    isSubmitting: boolean,
-    submitToCart: () => void,
-};
-
-const productCountContext = React.createContext<ProductContextState|null>(null);
-
-export function ProductCountProvider({ children, product, isAlreadyInCart } : { children: React.ReactNode, product: Product, isAlreadyInCart?: boolean }) {
-    const [ quantity, setQuantity ] = React.useState(product?.count || 0);
-    const [ hasQuantityChanged, setQuantityChanged ] = React.useState(false);
-    const updateQuantity = (count: number) => {
-        setQuantity(count);
-        setQuantityChanged(true);
-    }
-    const fetcher = useFetcher();
-    const isSubmitting = fetcher.state !== 'idle';
-
-    function submitToCart() {
-        if (isAlreadyInCart && !hasQuantityChanged) {
-            return;
-        }
-        fetcher.submit(
-            JSON.stringify({count: quantity, productId: product?.id}),
-            { method: 'post', encType: 'application/json', action: `/store/${product.storeId}?openCart=true` }
-        );
-    }
-    return (
-        <productCountContext.Provider value={{
-            hasQuantityChanged,
-            quantity,
-            updateQuantity,
-            isAlreadyInCart,
-            isSubmitting,
-            submitToCart,
-        }}>
-            { children }
-        </productCountContext.Provider>
-    )
-}
-
-function useProductCountContext() {
-    const value = React.useContext(productCountContext);
-    if (!value) {
-        throw new Error("The useProductCountContext hooks must be used within a ProductCountProvider");
-    }
-    return value;
 }

@@ -1,14 +1,11 @@
-import { Link, json, useLoaderData } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import { StoreCard } from "../../components/card";
-import { getDocs } from "firebase/firestore";
-import { storeCollection } from "../../firebase/fireStore";
 import Nigeria from '../../assets/country-flag/nigeria.png';
 import China from '../../assets/country-flag/china.png';
 import Italy from '../../assets/country-flag/italy.png';
 import IvoryCoast from '../../assets/country-flag/ivory-coast.png';
-import clsx from 'clsx';
 import { priceFormat } from "../../utils/currency";
-import { ScrollableList } from "../store-front";
+import { ScrollableList } from "../store-front/list-product";
 
 const COUNTRY_FOODS = [
     { image: "https://restaurantclicks.com/wp-content/uploads/2022/06/Popular-Nigerian-Food.jpg", flag: Nigeria, name: "Nigerian BBQ", description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. blanditiis." },
@@ -54,15 +51,6 @@ export type Store = {
     openingHour: Date
     backgroundColor: string,
     // estimatedDeliveryTime: Date 
-}
-
-export async function loader() {
-    const stores: Array<Store> = [];
-    const snapshot = await getDocs(storeCollection);
-    snapshot.forEach(doc => {
-        stores.push({id: doc.id, ...doc.data()} as Store)
-    })
-    return json({stores})
 }
 
 export function Feed() {
@@ -125,8 +113,21 @@ export function Restaurant() {
     )
 }
 
+type Offer = {
+    value: number,
+}
 
-function RestaurantCard({ name, flag, image, openingStatus, deliveryTime, offers, distanceFrom }) {
+type RestaurantCardProps = {
+    name: string,
+    flag: string,
+    image: string,
+    openingStatus?: string,
+    deliveryTime?: string,
+    offers?: Array<Offer>,
+    distanceFrom?: number
+}
+
+function RestaurantCard({ name, flag, image } : RestaurantCardProps) {
     return (
         <li className='cursor-pointer group'>
             <div className="relative w-72 h-36 rounded-lg  flex items-center overflow-hidden">

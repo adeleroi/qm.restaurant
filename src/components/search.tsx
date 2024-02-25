@@ -1,4 +1,4 @@
-import React from "react";
+import React, { LegacyRef } from "react";
 import clsx from "clsx";
 import { CirclePulseButton } from "./button";
 import { Form, useFetcher, useNavigate, useRouteLoaderData } from "react-router-dom";
@@ -101,7 +101,7 @@ export function Search({ searchType } : { searchType?: string | undefined }) {
                     <SearchSuggestion
                         onSelect={() => setIsOpen(false)}
                         results={
-                            fetcher.data?.searchResults || query && searchResults || defaultSearchSuggestions
+                            query && (fetcher.data?.searchResults || searchResults) || defaultSearchSuggestions
                         }
                         ref={suggestionRef}/>
                     : null
@@ -122,7 +122,7 @@ const SearchSuggestion = React.forwardRef(function SearchSuggestion({ results, o
     }
     return (
         <div className="top-[4.5rem] left-0 fixed w-screen h-screen flex justify-center bg-search-overlay">
-            <ul tabIndex={1} ref={ref} className="p-3 bg-white z-100 opacity-100 absolute h-96 shadow-custom rounded-md overflow-y-scroll">
+            <ul tabIndex={1} ref={ref as LegacyRef<HTMLUListElement> | undefined} className="p-3 bg-white z-100 opacity-100 absolute max-h-[26rem] shadow-custom rounded-md overflow-y-scroll">
                 {
                     results?.map((result: Product) => {
                         return (
@@ -149,7 +149,7 @@ const SearchSuggestion = React.forwardRef(function SearchSuggestion({ results, o
 
 function SearchIcon({ className }: { className: string }) {
     return (
-        <button type="submit">
+        <button type="button">
             <span className={clsx("material-symbols-outlined font-semibold", className)}>
                 search
             </span>

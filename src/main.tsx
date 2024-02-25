@@ -6,16 +6,19 @@ import {
   createBrowserRouter,
   RouterProvider
 } from "react-router-dom";
-import { Feed, loader as FeedLoader } from './views/feed/index.tsx';
+import { Feed } from './views/feed/index.tsx';
 import { ErrorPage } from './views/error.tsx';
 import { Home } from './views/home.tsx';
 import { action as rootAction, loader as rootLoader } from './App.tsx';
 import { StoreFront } from './views/store-front/index.tsx';
-import { ProductModal, loader as ProductModalLoader } from './views/store-front/product-modal.tsx/index.tsx';
-import { ProductListFilteredByCategory, loader as FilteredProductLoader } from './views/store-front/product-list-filtered-category/index.tsx';
+import { ProductModal } from './views/store-front/product-modal.tsx/index.tsx';
+import { ProductListFilteredByCategory } from './views/store-front/product-list-filtered-category/index.tsx';
 import { ProductList } from './views/store-front/product-list/index.tsx';
 import { storeFrontAction } from './views/store-front/action.ts';
 import { storeFrontLoader } from './views/store-front/loader.ts';
+import { ProductModalLoader } from './views/store-front/product-modal.tsx/loader.ts';
+import { FilteredByCategoryProductLoader } from './views/store-front/product-list-filtered-category/loader.ts';
+import { Feedloader } from './views/feed/loader.ts';
 
 const router = createBrowserRouter([
   {
@@ -33,7 +36,7 @@ const router = createBrowserRouter([
       {
         path: "feed",
         element: <Feed/>,
-        loader: FeedLoader,
+        loader: Feedloader,
         id: "feed",
       },
       {
@@ -56,7 +59,7 @@ const router = createBrowserRouter([
           {
             path: "category/:categoryId",
             element: <ProductListFilteredByCategory />,
-            loader: FilteredProductLoader,
+            loader: FilteredByCategoryProductLoader,
             children: [
               {
                 path: "product/:productId",

@@ -3,7 +3,7 @@ import React from "react";
 import { Link, Outlet, useFetcher, useLoaderData, useLocation, useNavigate, useParams, useRouteLoaderData } from "react-router-dom"
 import { priceFormat } from "../../utils/currency";
 import { Store } from "../feed";
-import { Skeleton, SkeletonCircle, SkeletonText, useDisclosure } from '@chakra-ui/react'
+import { useDisclosure } from '@chakra-ui/react'
 import { SubmitTarget } from "react-router-dom/dist/dom";
 import { DrawerCart } from "../../components/cart/cart";
 import { StoreInfoModal } from "../../components/store-info/modal";
@@ -62,7 +62,7 @@ export function StoreFront() {
                         <Outlet/>
                     </div>
                 </div>
-                { shouldOpenCart ? <DrawerCart storeId={storeId} onClose={() => {
+                { shouldOpenCart ? <DrawerCart storeId={storeId as string} onClose={() => {
                     navigate(location.pathname, { replace: true });
                     onClose();
                 }} isOpen={isOpen} loaderData={rootData}/> : null}
@@ -126,77 +126,6 @@ function CategoryList({ categories }: { categories: Array<string>}) {
     )
 }
 
-export function ScrollableList({ as="div", title, children }: { as:string, children: React.ReactNode, title: string }) {
-    const As = as;
-    const slideRef = React.useRef<HTMLDivElement | null>(null);
-    const [ disabledNextBtn, setDisabledNextBtn ] = React.useState(false);
-    const [ disabledPrevBtn, setDisabledPrevBtn ] = React.useState(true);
-
-    const [ displayScrollBtn, setDisplayScrollBtn ] = React.useState(false);
-
-    function handleClick(position: 'left' | 'right') {
-        const el = slideRef.current;
-        if (!el) return;
-        el.scrollBy({
-            left: position === 'left' ? - el.offsetWidth : el.offsetWidth,
-            behavior: "smooth",
-        });
-    }
-
-    function handleScroll() {
-        const el = slideRef.current
-        if (!el) return;
-        const prevBtnActivationTreshold = 0; // 0.5 * el.offsetWidth;
-        if (el.scrollLeft > prevBtnActivationTreshold) {
-            setDisabledPrevBtn(false)
-        } else {
-            setDisabledPrevBtn(true)
-        }
-
-        const hasReachedTheRightEndSide = el.scrollLeft + el.offsetWidth == el.scrollWidth;
-        if (hasReachedTheRightEndSide) {
-            setDisabledNextBtn(true);
-        } else {
-            setDisabledNextBtn(false)
-        }
-    }
-
-    React.useEffect(() => {
-        const el = slideRef.current;
-        if (el) {
-            setDisplayScrollBtn(el.scrollWidth > el.offsetWidth);
-        }
-    }, [])
-
-    return (
-        <div className="mb-16 mt-10" key={title}>
-            <div className="flex justify-between w-full">
-                <h1 className="text-2xl font-bold capitalize">{title}</h1>
-                {
-                  displayScrollBtn ? (
-                    <div className="flex gap-2">
-                        <button disabled={disabledPrevBtn} onClick={() => handleClick('left')} className="disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:bg-gray-200 rounded-full w-10 h-10 bg-gray-200 hover:bg-gray-300 text-black grid place-items-center">
-                            <span className="material-symbols-outlined text-[16px] font-bold">
-                                arrow_back_ios
-                            </span>
-                        </button>
-                        <button disabled={disabledNextBtn} onClick={() => handleClick('right')} className="disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:bg-gray-200  rounded-full w-10 h-10 bg-gray-200 hover:bg-gray-300 text-black grid place-items-center">
-                            <span className="material-symbols-outlined text-[16px] font-bold">
-                                arrow_forward_ios
-                            </span>
-                        </button>
-                    </div>
-                    ): null
-
-                }
-            </div>
-            <As className="item-list my-5 py-4 gap-2 mb-10 flex overflow-x-auto snap-x scroll-smooth" ref={slideRef} onScroll={handleScroll}>
-                { children }
-            </As>
-        </div>
-    )
-}
-
 type ProductProps = {
     product: Product,
     action?: string,
@@ -253,39 +182,6 @@ export function CategoryFilter({ categories }: { categories: Array<string> }) {
                 ))}
             </ul>
         </div>
-    )
-}
-
-export function ProductListSkeleton() {
-    return (
-        <React.Fragment>
-            {
-                Array.from({length: 5}).map((_, idx) => ((
-                    <React.Fragment key={idx}>
-                    <div className="mt-16 w-32">
-                        <SkeletonText startColor="gray.100" endColor="gray.200" noOfLines={1} skeletonHeight={4}/>
-                    </div>
-                    <div className="grid xl:grid-cols-5 2xl:grid-cols-6 gap-8 my-10">
-                        {
-                            Array.from({length: 6}).map((_, idx) => (
-                                <React.Fragment key={idx}>
-                                    <div>
-                                        <div className="w-52 h-48 rounded-xl overflow-hidden relative">
-                                            <Skeleton startColor="gray.100" endColor="gray.200" key={idx} className="w-full h-full mb-2 rounded-3xl"></Skeleton>
-                                            <SkeletonCircle startColor={"gray.100"} className="absolute top-36 right-2 bg-white" />
-                                        </div>
-                                        <div className="w-56">
-                                            <SkeletonText startColor="gray.100" endColor="gray.200" noOfLines={2} mt={2} spacing={2} skeletonHeight={2}/>
-                                        </div>
-                                    </div>
-                                </React.Fragment>
-                            ))
-                        }
-                    </div>
-                    </React.Fragment>
-                )))
-            }
-        </React.Fragment>
     )
 }
 
