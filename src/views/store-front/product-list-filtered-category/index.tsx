@@ -26,14 +26,14 @@ export async function loader({params}: LoaderFunctionArgs) {
     });
 
     filteredProductSnapshot.forEach(prod => {
-        const product = { id: prod.id, count: 0, ...prod.data() } as Product;
+        const product = { id: prod.id, count: 0, ...prod.data(), storeId } as Product;
         if (cartItemIds.has(prod.id)) {
             product.count = Number(cartItemIds.get(prod.id));
         }
         productList.push(product);
     });
 
-    return json({productList});
+    return json({ productList });
 }
 
 export function ProductListFilteredByCategory() {
@@ -66,7 +66,7 @@ export function ListOfProduct({ productList } : { productList: Array<Product> })
             <div className="grid xl:grid-cols-5 2xl:grid-cols-6 gap-8 justify-between mt-10 mb-32">
                 {
                     productList?.map(product => {
-                        return <Product product={product} key={product?.id}/>
+                        return <Product product={product} key={product?.id} action={`/store/${product.storeId}`}/>
                     })
                 }            
             </div>

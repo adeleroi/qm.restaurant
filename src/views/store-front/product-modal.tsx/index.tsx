@@ -9,9 +9,9 @@ import {
     // Spinner
     Spinner
   } from '@chakra-ui/react'
-import { collection, doc, getDoc, getDocs, query, runTransaction, serverTimestamp, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import React, { useCallback } from 'react';
-import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect, useFetcher, useLoaderData, useNavigate, useNavigation } from 'react-router-dom';
+import { LoaderFunctionArgs, json, useFetcher, useLoaderData, useNavigate } from 'react-router-dom';
 import { db } from '../../../firebase/fireStore';
 import { priceFormat } from '../../../utils/currency';
 import { ButtonIncrement, Product } from '..';
@@ -52,7 +52,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
     const productDoc = await getDoc(doc(db, 'store', storeId, 'product', productId));
     const count = !cartItems.get(productDoc.id) ? 1 : cartItems.get(productDoc.id);
-    const currProduct = { id: productDoc.id, ...productDoc.data(), count } as Product ;
+    const currProduct = { id: productDoc.id, ...productDoc.data(), count, storeId } as Product ;
     
     const similarProductQuery = query(collection(db, "store", storeId, "product"), where('category', '==', currProduct.category));
     const similarProductSnapshot = await getDocs(similarProductQuery);
@@ -63,34 +63,6 @@ export async function loader({ params }: LoaderFunctionArgs) {
     })
 
     return json({ product: currProduct, similarProductList, cartItemMap: Object.fromEntries(cartItems) });
-}
-
-export async function action({ params, request }: ActionFunctionArgs) {
-    const { storeId, categoryId } = params as Record<string, string>;
-    const userId = Cookies.get('qm_session_id') as string;
-    const { productId, count: itemCount } = await request.json() as Record<string, string>;
-    const productInStore = await getDoc(doc(db, "store", storeId, "product", productId));
-    const productInCartRef = doc(db, "users", userId, "cart", productId);
-
-    await runTransaction(db, async (transaction) => {
-        const productInCartDoc = await transaction.get(productInCartRef);
-        if (!productInCartDoc.exists()) {
-            transaction.set(productInCartRef, {
-                ...productInStore.data(),
-                timestamp: serverTimestamp(),
-                count: +itemCount,
-                storeId,
-            })
-            return;
-        }
-        if (+itemCount !== 0) {
-            transaction.update(productInCartRef, {count: +itemCount, timestamp: serverTimestamp()});
-        } else {
-            transaction.delete(productInCartRef);
-        }
-    });
-
-    return redirect(categoryId ? `/store/${storeId}/category/${categoryId}?openCart=true` : `/store/${storeId}?openCart=true`);
 }
 
 const SHOW_HEADER_STYLE = 'will-change-auto h-24 opacity-100 flex items-center justify-between animate-open-header shadow-xl flex absolute z-50 w-full top-0 bg-white';
@@ -323,7 +295,6 @@ const productCountContext = React.createContext<ProductContextState|null>(null);
 export function ProductCountProvider({ children, product, isAlreadyInCart } : { children: React.ReactNode, product: Product, isAlreadyInCart?: boolean }) {
     const [ quantity, setQuantity ] = React.useState(product?.count || 0);
     const [ hasQuantityChanged, setQuantityChanged ] = React.useState(false);
-    // const hasQuantityChanged = !!(isUpdated && isAlreadyInCart);
     const updateQuantity = (count: number) => {
         setQuantity(count);
         setQuantityChanged(true);
@@ -337,7 +308,7 @@ export function ProductCountProvider({ children, product, isAlreadyInCart } : { 
         }
         fetcher.submit(
             JSON.stringify({count: quantity, productId: product?.id}),
-            { method: 'post', encType: 'application/json', action: '.' }
+            { method: 'post', encType: 'application/json', action: `/store/${product.storeId}?openCart=true` }
         );
     }
     return (

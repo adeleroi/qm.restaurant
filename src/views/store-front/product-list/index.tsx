@@ -44,7 +44,7 @@ function ListOfProductByCategory({ categories, productMap } : { categories: Arra
                                             productMap?.[category]?.map((prod, idx) => {
                                                 return (
                                                     <div key={idx} className="snap-center">
-                                                        <Product product={prod} action={`.`}/>
+                                                        <Product product={prod} action={`/store/${prod.storeId}`}/>
                                                     </div>
                                                 )
                                             })

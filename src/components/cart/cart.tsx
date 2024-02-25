@@ -35,7 +35,7 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
     )
 }
 
-export function DrawerCart({ isOpen, onClose, loaderData, storeId, action }: { isOpen: boolean, onClose: () => void, loaderData: any, action: string, storeId: string }) {
+export function DrawerCart({ isOpen, onClose, loaderData, storeId, action }: { isOpen: boolean, onClose: () => void, loaderData: any, action?: string, storeId: string }) {
     const initialFocusRef = React.useRef(null);
     const cartCount = loaderData?.cartCount;
     const data = loaderData?.storeCartInfos;
