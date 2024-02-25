@@ -51,17 +51,16 @@ export function StoreFront() {
 
     return (
             <React.Fragment>
-                <div className="flex w-full px-[5vw]">
-                    <div className="w-[20%] max-h-screen sticky top-[6.3rem]">
+                <div className="flex w-full px-16">
+                    <div className="w-[300px] max-h-screen fixed top-[6.3rem]">
                         <StoreSummary storeInfos={storeInfos}/>
-                        <div className="sticky top-[250px] max-h-[calc(100vh-250px)] pb-8">
-                            <div className="overflow-y-auto scroll-smooth h-[calc(100vh-250px)] pb-32">
-                                <div className="h-8"></div>
+                        <div className="sticky top-[250px] max-h-[calc(100vh-250px)] pb-8 pt-3">
+                            <div className="overflow-y-auto scroll-smooth h-[calc(100vh-250px)] pb-32" style={{ scrollbarWidth: 'thin'}}>
                                 <CategoryList categories={categories}/>
                             </div>
                         </div>
                     </div>
-                    <div className="w-[80%] pl-4">
+                    <div className="ml-[300px] w-[calc(100%-300px)] pl-10">
                         <Outlet/>
                     </div>
                 </div>
@@ -122,8 +121,8 @@ function CategoryList({ categories }: { categories: Array<string>}) {
     }, [currentCategory])
 
     return (
-        <ul className="w-full bg-white pr-3">
-            { Array.from({length: 25}, (_, idx) => `${categories[idx % 3]}${idx}`)?.map((category:string) => (
+        <ul className="w-full bg-white">
+            { categories?.map((category:string) => (
                 <li key={category} className={clsx("rounded-lg capitalize text-gray-800 font-semibold text-ls py-2 w-full  cursor-pointer px-2 first:mt-0",{
                     "bg-defaultGreen hover:bg-green-800 text-white": selected === category,
                     "hover:bg-gray-100 my-1": selected !== category

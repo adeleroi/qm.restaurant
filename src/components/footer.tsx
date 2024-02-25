@@ -9,7 +9,7 @@ export function Footer() {
         <React.Fragment>
             {
                 !storeId ?
-                    <footer className="rfixed bottom-0 flex justify-center h-96 px-24 mt-0 pt-16 bg-smoke">
+                    <footer className="flex justify-center h-96 px-24 mt-0 pt-16 bg-smoke">
                         <div className="flex flex-1 flex-col items-start justify-center gap-8">
                             <div className="w-full flex items-center flex-col justify-center  border-b-[1px] pb-2">
                                 <Logo/>
