@@ -1,6 +1,6 @@
-import { Outlet, useLoaderData, useNavigation } from "react-router-dom";
+import { Outlet, useLoaderData, useNavigation, useParams } from "react-router-dom";
 import { Product } from "..";
-import { ListOfProduct } from "../list-product";
+import { FilterByCategory } from "../list-product";
 import { FilteredProductListSkeleton, ProductListSkeleton } from "../skeleton";
 
 // This one must be ProductListFilteredBy-Sub-Category
@@ -8,6 +8,7 @@ export function ProductListFilteredByCategory() {
     const loaderData = useLoaderData() as { productList: Array<Product> };
     const productList = loaderData?.productList;
     const navigation = useNavigation();
+    const { categoryId } = useParams();
     return (
         <>
             {
@@ -17,7 +18,7 @@ export function ProductListFilteredByCategory() {
                     ) : (
                         <ProductListSkeleton />
                     ) : (
-                        <ListOfProduct productList={productList} />
+                        <FilterByCategory productList={productList} category={categoryId as string} />
                     ) 
             }
             <Outlet/>

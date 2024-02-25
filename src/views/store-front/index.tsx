@@ -54,8 +54,11 @@ export function StoreFront() {
                 <div className="flex w-full px-[5vw]">
                     <div className="w-[20%] max-h-screen sticky top-[6.3rem]">
                         <StoreSummary storeInfos={storeInfos}/>
-                        <div className="sticky top-[250px] max-h-[calc(100%-250px)] overflow-y-auto pb-8">
-                            <CategoryList categories={categories}/>
+                        <div className="sticky top-[250px] max-h-[calc(100vh-250px)] pb-8">
+                            <div className="overflow-y-auto scroll-smooth h-[calc(100vh-250px)] pb-32">
+                                <div className="h-8"></div>
+                                <CategoryList categories={categories}/>
+                            </div>
                         </div>
                     </div>
                     <div className="w-[80%] pl-4">
@@ -72,7 +75,7 @@ export function StoreFront() {
 
 function StoreSummary({ storeInfos }: { storeInfos: Store}) {
     return (
-        <div className="text-black sticky top-[6.3rem] z-20 bg-white mb-4 pb-4 border-b-[1px]">
+        <div className="text-black sticky top-[6.3rem] z-20 bg-white pb-4 border-b-[1px]">
             <div className="">
                 <div className="w-24 h-24 border-[1px] shadow-custom bg-white rounded-full flex items-center mr-2 mb-4 px-2">
                     <img className="object-contain" src={storeInfos.imgUrl} alt="lcbo-logo"/>
@@ -114,9 +117,13 @@ function CategoryList({ categories }: { categories: Array<string>}) {
         navigate(`category/${encodeURIComponent(value)}`);
     }
 
+    React.useEffect(() => {
+        setSelected(currentCategory);
+    }, [currentCategory])
+
     return (
         <ul className="w-full bg-white pr-3">
-            { categories?.map((category:string) => (
+            { Array.from({length: 25}, (_, idx) => `${categories[idx % 3]}${idx}`)?.map((category:string) => (
                 <li key={category} className={clsx("rounded-lg capitalize text-gray-800 font-semibold text-ls py-2 w-full  cursor-pointer px-2 first:mt-0",{
                     "bg-defaultGreen hover:bg-green-800 text-white": selected === category,
                     "hover:bg-gray-100 my-1": selected !== category

@@ -1,12 +1,10 @@
 import React, { JSXElementConstructor } from "react"
 import { Product } from "."
+import { useLocation, useNavigate } from "react-router-dom"
 
 export function ListOfProduct({ productList } : { productList: Array<Product> }) {
     return (
         <React.Fragment>
-            <div className="mt-10">
-                <p className="text-2xl font-bold">{productList.length} Result(s)</p>
-            </div>
             <div className="grid xl:grid-cols-5 2xl:grid-cols-6 gap-8 justify-between mt-10 mb-32">
                 {
                     productList?.map(product => {
@@ -18,25 +16,47 @@ export function ListOfProduct({ productList } : { productList: Array<Product> })
     )
 }
 
+type FilterByCategoryProps = {
+    productList: Array<Product>,
+    category: string
+}
+
+export function FilterByCategory({ productList, category } : FilterByCategoryProps) {
+    return (
+        <React.Fragment>
+            <div className="mt-10">
+                <p className="text-2xl font-bold capitalize">{ category }</p>
+            </div>
+            <ListOfProduct productList={productList}/>
+        </React.Fragment>
+    )
+}
+
 type SearchResultProps = {
     productList: Array<Product>,
     searchQuery: string
 }
 
 export function SearchResults({ productList, searchQuery } : SearchResultProps) {
+    const navigate = useNavigate();
+    const location = useLocation();
     const resultPlural = productList.length > 1 ? "results" : "result";
+
+    function handleClick() {
+        navigate(location.pathname);
+    }
+
     return (
         <React.Fragment>
-            <div className="mt-10">
+            <div className="flex text-[14px] font-bold items-center">
+                <span className="text-gray-400 hover:underline cursor-pointer" onClick={handleClick}>All items</span>
+                <span className="material-symbols-outlined text-gray-400 text-2xl font-black">chevron_right</span>
+                <span className="">Search results</span>
+            </div>
+            <div className="mt-6">
                 <p className="text-2xl font-bold">{productList.length} {resultPlural} for "{searchQuery}"</p>
             </div>
-            <div className="grid xl:grid-cols-5 2xl:grid-cols-6 gap-8 justify-between mt-10 mb-32">
-                {
-                    productList?.map(product => {
-                        return <Product product={product} key={product?.id} action={`/store/${product.storeId}`}/>
-                    })
-                }            
-            </div>
+            <ListOfProduct productList={productList} />
         </React.Fragment>
     )
 }

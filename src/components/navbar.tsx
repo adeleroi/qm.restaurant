@@ -23,7 +23,7 @@ export function Navbar() {
                 { loggedIn ? <Menu/> : null }
                 <Logo/>
             </div>
-            <button className="w-44 cursor-pointer focus:border-2 focus:border-black text-lg font-bold text-black px-3 py-[10px] bg-gray-100 rounded-3xl flex gap-2 items-center justify-center">
+            <button className="w-44 cursor-pointer focus:border-2 focus:border-black text-lg font-bold text-black px-3 h-12 bg-gray-100 rounded-3xl flex gap-2 items-center justify-center">
                 <span className="material-symbols-outlined font-black text-lg">location_on</span>
                 <p className="text-[15px]">75 Daly Ave</p>
             </button>
