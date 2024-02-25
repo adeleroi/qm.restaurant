@@ -100,7 +100,7 @@ export function DrawerCart({ isOpen, onClose, loaderData, storeId, action }: { i
     )
 }
 
-export function NoCart({ onClose }: {onClose: () => void}) {
+export function NoCart({ onClose }: { onClose: () => void }) {
     return (
         <div className='h-full grid place-items-center'>
             <div className='flex items-center justify-center flex-col'>

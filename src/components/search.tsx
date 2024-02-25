@@ -114,6 +114,7 @@ type SearchSuggestionProps = {
     results: Array<Product>,
     onSelect: () => void,
 }
+
 const SearchSuggestion = React.forwardRef(function SearchSuggestion({ results, onSelect } : SearchSuggestionProps, ref) {
     const navigate = useNavigate();
     function handleClick(suggestion: string) {

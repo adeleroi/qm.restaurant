@@ -5,7 +5,30 @@ export function ListOfProduct({ productList } : { productList: Array<Product> })
     return (
         <React.Fragment>
             <div className="mt-10">
-                <p className="text-md underline font-bold">{productList.length} Result(s)</p>
+                <p className="text-2xl font-bold">{productList.length} Result(s)</p>
+            </div>
+            <div className="grid xl:grid-cols-5 2xl:grid-cols-6 gap-8 justify-between mt-10 mb-32">
+                {
+                    productList?.map(product => {
+                        return <Product product={product} key={product?.id} action={`/store/${product.storeId}`}/>
+                    })
+                }            
+            </div>
+        </React.Fragment>
+    )
+}
+
+type SearchResultProps = {
+    productList: Array<Product>,
+    searchQuery: string
+}
+
+export function SearchResults({ productList, searchQuery } : SearchResultProps) {
+    const resultPlural = productList.length > 1 ? "results" : "result";
+    return (
+        <React.Fragment>
+            <div className="mt-10">
+                <p className="text-2xl font-bold">{productList.length} {resultPlural} for "{searchQuery}"</p>
             </div>
             <div className="grid xl:grid-cols-5 2xl:grid-cols-6 gap-8 justify-between mt-10 mb-32">
                 {

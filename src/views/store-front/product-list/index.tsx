@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet, useLoaderData, useNavigation } from "react-router-dom";
 import { StoreFrontLoader } from "..";
-import { ListOfProduct, ListOfProductByCategory } from "../list-product";
+import { ListOfProductByCategory, SearchResults } from "../list-product";
 import { FilteredProductListSkeleton } from "../skeleton";
 
 export function ProductList() {
@@ -17,7 +17,7 @@ export function ProductList() {
                         <React.Fragment>
                             {
                                 searchQuery ? (
-                                    <ListOfProduct productList={searchResults}/>
+                                    <SearchResults productList={searchResults} searchQuery={searchQuery}/>
                                 ) : (
                                     <ListOfProductByCategory categories={categories} productMap={productMap} />
                                 )
