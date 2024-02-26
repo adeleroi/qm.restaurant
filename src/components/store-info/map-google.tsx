@@ -1,6 +1,6 @@
 import {APIProvider, Map, AdvancedMarker as Marker} from '@vis.gl/react-google-maps';
 
-export function StoreMap() {
+export function GoogleMap() {
   const position = { lat: 45.414430, lng: -75.649230 };
 
   return (

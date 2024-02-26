@@ -52,7 +52,7 @@ export function StoreFront() {
     return (
             <React.Fragment>
                 <div className="flex w-full px-16">
-                    <div className="w-[300px] max-h-screen fixed top-[6.3rem]">
+                    <div className="w-[250px] max-h-screen fixed top-[6.3rem]">
                         <StoreSummary storeInfos={storeInfos}/>
                         <div className="sticky top-[250px] max-h-[calc(100vh-250px)] pb-8 pt-3">
                             <div className="overflow-y-auto scroll-smooth h-[calc(100vh-250px)] pb-32" style={{ scrollbarWidth: 'thin'}}>
@@ -60,7 +60,7 @@ export function StoreFront() {
                             </div>
                         </div>
                     </div>
-                    <div className="ml-[300px] w-[calc(100%-300px)] pl-10">
+                    <div className="ml-[250px] w-[calc(100%-250px)] pl-10">
                         <Outlet/>
                     </div>
                 </div>
@@ -83,7 +83,7 @@ function StoreSummary({ storeInfos }: { storeInfos: Store}) {
             <div className="pl-2">
                 <p className="font-bold text-xl mb-1">{ storeInfos?.name }</p>
                 <div className="grid">
-                    <span className="text-[14px] text-gray-600">{storeInfos.location.address}</span>
+                    <span className="text-[14px] text-gray-600">{storeInfos?.location?.address}</span>
                     <span className="text-[12px] text-gray-600">Delivery fee (3.69$)</span>
                 </div>
                 <div className="text-[12px] text-gray-600r">
