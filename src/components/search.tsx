@@ -23,7 +23,7 @@ function getAction(searchType: string | undefined, storeId: string) {
     return  "feed/";
 } 
 
-function useRelativeResize(
+export function useRelativeResize(
     targetRef: React.MutableRefObject<HTMLElement | null>,
     toResizeRef: React.MutableRefObject<HTMLElement | null>,
 ) {
@@ -117,8 +117,8 @@ type SearchSuggestionProps = {
 
 const SearchSuggestion = React.forwardRef(function SearchSuggestion({ results, onSelect } : SearchSuggestionProps, ref) {
     const navigate = useNavigate();
-    function handleClick(suggestion: string) {
-        navigate(`?searchQuery=${suggestion}`);
+    function handleClick(suggestion: string, storeId: string) {
+        navigate(`/store/${storeId}?searchQuery=${suggestion}`);
         onSelect();
     }
     return (
@@ -129,7 +129,7 @@ const SearchSuggestion = React.forwardRef(function SearchSuggestion({ results, o
                         return (
                             <li className="rounded-lg flex hover:bg-gray-100 py-2 cursor-pointer"
                                 key={result.name}
-                                onClick={() => handleClick(result.name)}
+                                onClick={() => handleClick(result.name, result.storeId)}
                             >
                                 <div className="flex pl-3 text-lg  items-center">
                                     <div className="bg-white flex w-10 h-10 rounded-full overflow-hidden">
