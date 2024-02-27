@@ -20,9 +20,6 @@ import { IconMarker, MapBoxMap } from "../components/store-info/map-mapbox";
 import { AddressForm } from "./location-form";
 import { useRelativeResize } from "../utils/hooks";
 
-
-
-
 export type LatLng = { lat: number, lng: number };
 
 export type SearchResult = LatLng & {
@@ -126,6 +123,7 @@ type GooglePopoverBodyProps = {
 
 const GooglePopoverBody = React.forwardRef(function GooglePopoverBody({ setSearchResult, searchResult, isOpen } : GooglePopoverBodyProps, ref) {
     const suggestionRef = React.useRef<HTMLUListElement | null>(null);
+
     const { 
         ready,
         value,

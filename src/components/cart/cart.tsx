@@ -56,7 +56,7 @@ export function DrawerCart({ isOpen, onClose, loaderData, storeId, action }: { i
         }}>
             <DrawerOverlay />
             <DrawerContent>
-                <DrawerHeader className='border-b-[1px] border-gray-200'>
+                <DrawerHeader>
                     <div className='relative'>
                         <DrawerCloseButton className='outline-2' style={{zIndex: 2, fontSize: '16px', top: '50%', transform: 'translateY(-50%)', borderRadius: '50%', padding: '0px', left: '-13px'}} />
                         {
