@@ -1,23 +1,19 @@
 import { Button } from "./button";
 import { Logo } from "./logo";
-import { Search } from "./search";
+import { Search } from "./search/search";
 import { useLoginFormAction } from "../context/hooks";
 import { AuthFormTrigger } from "./auth-form";
 import { Menu } from "./menu";
 import { CarTriggerForCheckout, CartIcon } from "./cart/cart";
 import { useFirebaseAuth } from "../firebase/auth";
-import { useLocation } from "react-router-dom";
 import clsx from "clsx";
 import { GooglePlace } from "../user-location/new-google-place-autocomplete";
 import { forwardRef } from "@chakra-ui/react";
 import { IconMarker } from "./store-info/map-mapbox";
-
-const regex = /[a-z]+/i;
+import { SearchSwitcher } from "./search/global-search-bar";
 
 export function Navbar() {
     const { loggedIn } = useFirebaseAuth();
-    const currLocation = useLocation();
-    const location: string | undefined = currLocation.pathname.match(regex)?.[0];
 
     return (
         <nav className="flex justify-between w-full py-2 px-16 items-center bg-white border-b-[1px] border-gray-200 gap-2 top-0 z-40 sticky">
@@ -29,7 +25,7 @@ export function Navbar() {
                 <AddressButton />
             </GooglePlace>
             <div className={clsx("w-full flex-1 justify-center px-4", { "hidden": !loggedIn })}>
-                <Search searchType={location}/>
+                <SearchSwitcher />
             </div>
             <div className="ml-8">
                 <ButtonSection/>

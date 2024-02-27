@@ -1,34 +1,20 @@
 import React, { LegacyRef } from "react";
 import clsx from "clsx";
-import { CirclePulseButton } from "./button";
-import { Form, useFetcher, useNavigate, useRouteLoaderData } from "react-router-dom";
-import { Product } from "../views/store-front";
-import { useRelativeResize } from "../utils/hooks";
+import { Form, useFetcher, useNavigate } from "react-router-dom";
+import { Product } from "../../views/store-front";
+import { useRelativeResize } from "../../utils/hooks";
 
-const ROUTES_FOR_SEARCH = ['store', 'feed', 'restaurant'];
-
-function getPlaceholder(searchType: string | undefined, name: string): string {
-    // TODO: Put that to the utils folder after
-    if (!ROUTES_FOR_SEARCH.includes(searchType as string)) return "";
-    if (searchType && searchType !== 'feed') {
-        return `Search in ${name}`
-    }
-    return  "Restaurants, groceries, Food, etc";
+type SearchProps = {
+    searchType?: string | undefined,
+    action: string,
+    placeholder: string,
+    searchQuery: string,
+    searchResults: Array<Partial<Product>>,
+    defaultSearchSuggestions: Array<Partial<Product>>,
 }
 
-function getAction(searchType: string | undefined, storeId: string) {
-    if (!ROUTES_FOR_SEARCH.includes(searchType as string)) return ".";
-    if (searchType && searchType !== 'feed') {
-        return `${searchType}/${storeId}`
-    }
-    return  "feed/";
-} 
-
-export function Search({ searchType } : { searchType?: string | undefined }) {
+export function Search({ action, placeholder, searchQuery, searchResults, defaultSearchSuggestions } : SearchProps) {
     const fetcher = useFetcher();
-    const { searchQuery, storeInfos, searchResults, defaultSearchSuggestions } = useRouteLoaderData(searchType as string);
-    const { name, id: storeId } = storeInfos;
-    const action = getAction(searchType, storeId);
     const formRef = React.useRef<HTMLFormElement | null>(null);
     const inputRef = React.useRef<HTMLInputElement | null>(null);
     const suggestionRef = React.useRef<HTMLFormElement | null>(null);
@@ -66,7 +52,7 @@ export function Search({ searchType } : { searchType?: string | undefined }) {
                     id="main-search-bar"
                     value={query}
                     name="searchQuery"
-                    placeholder={ getPlaceholder(searchType, name) }
+                    placeholder={ placeholder }
                     className="rounded-3xl w-full px-12 py-3 bg-gray-100 outline-black placeholder:font-semibold placeholder:text-gray-600"
                     onChange={(event) => {
                         setQuery(event.target.value);
@@ -144,27 +130,5 @@ function ClearIcon({ className, onClick } : { className?: string, onClick: () =>
         <button type="button" onClick={onClick}>
             <span className={clsx("material-symbols-outlined", className)}>close</span>
         </button>
-    )
-}
-
-export function PositionLogo({ className }: { className: string }) {
-    return (
-        <span className={clsx("material-symbols-outlined font-semibold text-[30px]", className)}>
-            explore_nearby
-        </span>
-    )
-}
-
-export function SearchPosition({ themeColor = 'defaultGreen'} :{ themeColor?: string }) {
-    const textColor = 'text-'+themeColor;
-    return (
-        <div id="search-location" className="w-[550px] relative py-1 focus:border-b-[2px] focus:border-black">
-            <PositionLogo className={clsx("text-[20px] absolute top-1/2 -translate-y-1/2 left-2", textColor)}/>
-            <input
-                placeholder="Enter delivery address"
-                className="h-16 text-xl text-black focus:shadow-search transition-[box-shadow] ease-in-out delay-150 w-full px-12 py-3 bg-[#EEEEEE] outline-none placeholder:font-semibold placeholder:text-gray-600"
-            />
-            <CirclePulseButton themeColor={themeColor}/>
-        </div>
     )
 }

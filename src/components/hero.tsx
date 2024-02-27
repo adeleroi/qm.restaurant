@@ -1,4 +1,4 @@
-import { SearchPosition } from "./search";
+import { SearchPosition } from "./search/search";
 
 export function Hero() {
     return (
