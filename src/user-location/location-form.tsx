@@ -1,78 +1,10 @@
-import React from 'react';
 import {
-    Popover,
-    PopoverTrigger,
-    PopoverContent,
-    PopoverHeader,
-    PopoverBody,
-    PopoverArrow,
-    PopoverCloseButton,
-    useDisclosure,
     Select
   } from '@chakra-ui/react';
-import { MapBoxMap } from '../components/store-info/map-mapbox';
 import { Form } from 'react-router-dom';
 import { Field } from '../components/form-element';
-import { GooglePlace, SearchResult } from './new-google-place-autocomplete';
 
-export function AddressPopover() {
-    const searchInputRef = React.useRef<HTMLInputElement | null>(null);
-    const [ searchResult, setSearchResult ] = React.useState<SearchResult | null>();
-    const { onClose, isOpen, onOpen } = useDisclosure();
-
-    function handleClose() {
-        onClose();
-    }
-
-    return (
-        <Popover
-            onOpen={onOpen}
-            onClose={onClose}
-            isOpen={isOpen}
-            initialFocusRef={searchInputRef}>
-            <PopoverTrigger>
-                <button className="mr-4 cursor-pointer text-lg font-bold text-black px-1 h-12 rounded-3xl flex gap-2 items-center justify-center">
-                    <span className="material-symbols-outlined font-black text-2xl text-defaultGreen">location_on</span>
-                    <p className="text-[17px] truncate text-black">Address</p>
-                </button>
-            </PopoverTrigger>
-            <PopoverContent minW={'30rem'} minH={'70vh'} border={''} boxShadow={"1px 7px 25px 8px rgb(0 0 0 / 0.25)"}>
-                <PopoverArrow/>
-                <PopoverCloseButton
-                    onClick={() => handleClose()}
-                    style={{top: '0.5rem', fontWeight: 'bold', fontSize: '16px', width: '2.4rem', height: '2.4rem', borderRadius: '50%'}} />
-                <PopoverHeader border={'none'}>
-                    <h1 className="pt-2 font-semibold max-w-[90%]">
-                        {
-                            searchResult ?
-                            (
-                                <div>
-                                    <p className='text-md'>{ searchResult.address }</p>
-                                    <p className='text-md'>({ searchResult.postalCode })</p>
-                                </div>
-                            )
-                             : "Enter your address"
-                        }
-                    </h1>
-                </PopoverHeader>
-                <PopoverBody>
-                     {
-                        searchResult ?
-                            <div>
-                                <div className="h-44 border-[2px]">
-                                    <MapBoxMap key={searchResult?.lat} latitude={searchResult?.lat} longitude={searchResult?.lng}/>
-                                </div>
-                                <AddressForm cancel={onClose}/>
-                            </div>
-                            : <GooglePlace setSelected={setSearchResult} />
-                        }
-                </PopoverBody>
-            </PopoverContent>
-        </Popover>
-    )
-}
-
-function AddressForm({ cancel } : { cancel: () => void }) {
+export function AddressForm({ cancel } : { cancel: () => void }) {
     return (
         <div className="mt-3">
             <Form>

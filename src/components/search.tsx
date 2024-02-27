@@ -3,6 +3,7 @@ import clsx from "clsx";
 import { CirclePulseButton } from "./button";
 import { Form, useFetcher, useNavigate, useRouteLoaderData } from "react-router-dom";
 import { Product } from "../views/store-front";
+import { useRelativeResize } from "../utils/hooks";
 
 const ROUTES_FOR_SEARCH = ['store', 'feed', 'restaurant'];
 
@@ -22,27 +23,6 @@ function getAction(searchType: string | undefined, storeId: string) {
     }
     return  "feed/";
 } 
-
-export function useRelativeResize(
-    targetRef: React.MutableRefObject<HTMLElement | null>,
-    toResizeRef: React.MutableRefObject<HTMLElement | null>,
-) {
-    React.useEffect(() => {
-        const target = targetRef.current;
-        const targetToResize = toResizeRef.current;
-        if (!target || !targetToResize) return;
-
-        const resizeObser = new ResizeObserver((entries: Array<ResizeObserverEntry>) => {
-            const entry = entries[0];
-            const { width, left } = entry.target.getBoundingClientRect();
-            targetToResize.style.left = `${left}px`;
-            targetToResize.style.width = `${width}px`;
-        });
-
-        resizeObser.observe(target);
-        return () => resizeObser.unobserve(target);
-    })
-}
 
 export function Search({ searchType } : { searchType?: string | undefined }) {
     const fetcher = useFetcher();
@@ -81,6 +61,7 @@ export function Search({ searchType } : { searchType?: string | undefined }) {
                     ref={inputRef}
                     onBlur={handleBlur}
                     onClick={() => setIsOpen(true)}
+                    onFocus={() => setIsOpen(true)}
                     autoComplete="off"
                     id="main-search-bar"
                     value={query}
@@ -123,7 +104,7 @@ const SearchSuggestion = React.forwardRef(function SearchSuggestion({ results, o
     }
     return (
         <div className="top-[4.5rem] left-0 fixed w-screen h-screen flex justify-center bg-search-overlay">
-            <ul tabIndex={1} ref={ref as LegacyRef<HTMLUListElement> | undefined} className="p-3 bg-white z-100 opacity-100 absolute max-h-[26rem] shadow-custom rounded-md overflow-y-scroll">
+            <ul tabIndex={0} ref={ref as LegacyRef<HTMLUListElement> | undefined} className="p-3 bg-white z-100 opacity-100 absolute min-h-[12rem] max-h-[26rem] shadow-custom rounded-md overflow-y-scroll">
                 {
                     results?.map((result: Product) => {
                         return (

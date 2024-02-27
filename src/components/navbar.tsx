@@ -8,7 +8,9 @@ import { CarTriggerForCheckout, CartIcon } from "./cart/cart";
 import { useFirebaseAuth } from "../firebase/auth";
 import { useLocation } from "react-router-dom";
 import clsx from "clsx";
-import { AddressPopover } from "../user-location/location-form";
+import { GooglePlace } from "../user-location/new-google-place-autocomplete";
+import { forwardRef } from "@chakra-ui/react";
+import { IconMarker } from "./store-info/map-mapbox";
 
 const regex = /[a-z]+/i;
 
@@ -23,16 +25,27 @@ export function Navbar() {
                 { loggedIn ? <Menu/> : null }
                 <Logo/>
             </div>
+            <GooglePlace>
+                <AddressButton />
+            </GooglePlace>
             <div className={clsx("w-full flex-1 justify-center px-4", { "hidden": !loggedIn })}>
                 <Search searchType={location}/>
             </div>
-            <AddressPopover/>
             <div className="ml-8">
                 <ButtonSection/>
             </div>
         </nav>
     )
 }
+
+const AddressButton = forwardRef((props, ref) => {
+    return (
+        <button ref={ref} {...props} className="relative ml-10 cursor-pointer font-bold text-black px-2 h-12 rounded-3xl flex items-center justify-center">
+            <IconMarker className="absolute -left-6 top-[5px]" bg="#000"/>
+            <p className="text-[18px] truncate text-black">75 Daly Ave</p>
+        </button>
+    )
+})
 
 function ButtonSection() {
     const { setAction } = useLoginFormAction();

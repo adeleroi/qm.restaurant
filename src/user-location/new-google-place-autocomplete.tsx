@@ -1,88 +1,73 @@
 import { Libraries, useLoadScript } from "@react-google-maps/api";
-import React, { LegacyRef } from "react";
+import React, { LegacyRef, MutableRefObject } from "react";
 import usePlacesAutocomplete, {
     // GeocodeResult,
     getGeocode,
     getLatLng,
     getZipCode
 } from "use-places-autocomplete";
-import { useRelativeResize } from "../components/search";
+import {
+    Popover,
+    PopoverTrigger,
+    PopoverContent,
+    PopoverHeader,
+    PopoverBody,
+    PopoverArrow,
+    PopoverCloseButton,
+    useDisclosure,
+  } from '@chakra-ui/react';
+import { IconMarker, MapBoxMap } from "../components/store-info/map-mapbox";
+import { AddressForm } from "./location-form";
+import { useRelativeResize } from "../utils/hooks";
+
+
+
 
 export type LatLng = { lat: number, lng: number };
-
-// function getSimpleAddress(results: GeocodeResult, useShortName: boolean=true) {
-//     const foundStreetNumber = results.address_components.find(({ types }) => types.includes("street_number"));
-//     const foundRoute = results.address_components.find(({ types }) => types.includes("route"));
-
-//     if (!foundRoute || !foundStreetNumber) return undefined;
-
-//     const key = useShortName ? 'short_name' : 'long_name';
-//     const result = `${foundStreetNumber[key]} ${foundRoute[key]}`;
-//     return result
-// }
 
 export type SearchResult = LatLng & {
     postalCode: string | undefined,
     address: string | undefined,
 }
 
-type PlaceProps = {
-    setSelected(t: SearchResult): void,
-}
-
 const library = ["places"] as Libraries;
-export function GooglePlace({ setSelected } : PlaceProps) {
+export function GooglePlace({ children } : { children: React.ReactNode }) {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAP_API_KEY as string,
         libraries: library,
     })
 
-    return isLoaded ? <PlacesAutoComplete setSelected={setSelected}/> : null;
+    return isLoaded ? <PlacesAutoComplete >{ children}</PlacesAutoComplete> : null;
 }
 
-
-function PlacesAutoComplete({ setSelected } : PlaceProps) {
+function PlacesAutoComplete({ children } : { children: React.ReactNode }) {
+    const [ searchResult, setSearchResult ] = React.useState<SearchResult | null>();
+    const { onClose, isOpen, onOpen } = useDisclosure();
     const inputRef = React.useRef<HTMLInputElement | null>(null);
-    const suggestionRef = React.useRef<HTMLUListElement | null>(null)
-    // const sessionToken = React.useRef(new google.maps.places.AutocompleteSessionToken());
-    // console.log(sessionToken.current);
-
-    const { 
-        ready,
-        value,
-        setValue,
-        suggestions: { status, data },
-        clearSuggestions,
-     } = usePlacesAutocomplete({
-        requestOptions: {
-            componentRestrictions: { country: ["CA"] },
-            // sessionToken,
-            types: ["address"],
-            
-        }
-     });
-
-    async function handleSelect(address:string) {
-        setValue(address, false);
-        clearSuggestions();
-        const results = await getGeocode({ address, componentRestrictions: { country: "CA" } });
-        const { lat, lng } = getLatLng(results[0]);
-        const postalCode = getZipCode(results[0], true);
-        setSelected({ lat, lng, postalCode, address  })
-    }
-
-    useRelativeResize(inputRef, suggestionRef);
 
     return (
-        <div>
-            <input
-                ref={inputRef}
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                disabled={!ready}
-                className="focus:border-black focus:border-2 p-2 bg-gray-100 w-full rounded-lg outline-none" autoComplete="off" />
-            { status === 'OK' ? <PlacesSuggestions ref={suggestionRef} results={data} onSelect={handleSelect}/> : null }
-        </div>
+        <Popover
+            onOpen={onOpen}
+            onClose={onClose}
+            isOpen={isOpen}
+            initialFocusRef={inputRef}
+        >
+            <PopoverTrigger>
+                { children }
+            </PopoverTrigger>
+            <PopoverContent minW={'30rem'} minH={'70vh'} border={''} boxShadow={"1px 7px 25px 8px rgb(0 0 0 / 0.25)"}>
+                <PopoverArrow/>
+                <PopoverCloseButton
+                    onClick={() => onClose()}
+                    style={{top: '0.5rem', fontWeight: 'bold', fontSize: '16px', width: '2.4rem', height: '2.4rem', borderRadius: '50%'}} />
+                <PopoverHeader border={'none'}>
+                    <PopoverTitle searchResult={searchResult} />
+                </PopoverHeader>
+                <PopoverBody>
+                    <GooglePopoverBody searchResult={searchResult} setSearchResult={setSearchResult} isOpen={isOpen} ref={inputRef}/>
+                </PopoverBody>
+            </PopoverContent>
+        </Popover>
     )
 }
 
@@ -92,22 +77,19 @@ type PlacesSuggestionProps = {
 }
 
 const PlacesSuggestions = React.forwardRef(function SearchSuggestion({ results, onSelect } : PlacesSuggestionProps, ref) {
-    function handleClick(address: string) {
-        onSelect(address);
-    }
-
+    function handleClick(address: string) { onSelect(address) }
     return (
         <ul tabIndex={1} ref={ref as LegacyRef<HTMLUListElement> | undefined} className="p-3 bg-white z-100 opacity-100 shadow-custom rounded-md overflow-y-scroll">
             {
                 results?.map(({ place_id, description}) => {
                     return (
-                        <li className="rounded-lg flex hover:bg-gray-100 py-3 cursor-pointer"
+                        <li className="rounded-lg flex hover:bg-gray-100 py-4 cursor-pointer"
                             key={ place_id }
                             onClick={() => handleClick(description)}
                         >
-                            <div className="flex pl-3 text-[14px] font-medium items-center">
-                                <span className="material-symbols-outlined">location_on</span>
-                                <div className="ml-3">
+                            <div className="relative flex pl-3 text-[16px] font-medium items-center">
+                                <IconMarker hideShadow className="left-2 top-1/2 -translate-y-1/2 absolute pt-3" bg="#000"/>
+                                <div className="ml-8">
                                     <p>{ description }</p>
                                 </div>
                             </div>
@@ -116,5 +98,93 @@ const PlacesSuggestions = React.forwardRef(function SearchSuggestion({ results, 
                 })
             }
         </ul>
+    )
+})
+
+function PopoverTitle({ searchResult } : { searchResult: SearchResult | null | undefined}) {
+    return (
+        <h1 className="pt-2 font-semibold max-w-[90%] text-xl">
+            {
+                searchResult ?
+                (
+                    <div>
+                        <p className='text-md'>{ searchResult.address }</p>
+                        <p className='text-md'>({ searchResult.postalCode })</p>
+                    </div>
+                )
+                : "Enter your address"
+            }
+        </h1>
+    )
+}
+
+type GooglePopoverBodyProps = {
+    searchResult: SearchResult | null | undefined,
+    isOpen: boolean,
+    setSearchResult: React.Dispatch<React.SetStateAction<SearchResult | null | undefined>>,
+}
+
+const GooglePopoverBody = React.forwardRef(function GooglePopoverBody({ setSearchResult, searchResult, isOpen } : GooglePopoverBodyProps, ref) {
+    const suggestionRef = React.useRef<HTMLUListElement | null>(null);
+    const { 
+        ready,
+        value,
+        setValue,
+        suggestions: { status, data },
+        clearSuggestions,
+    } = usePlacesAutocomplete({
+        requestOptions: {
+            componentRestrictions: { country: ["CA"] },
+            // sessionToken,
+            types: ["address"],
+            
+        }
+    });
+
+    async function handleSelect(address:string) {
+        setValue(address, false);
+        clearSuggestions();
+        const results = await getGeocode({ address, componentRestrictions: { country: "CA" } });
+        const { lat, lng } = getLatLng(results[0]);
+        const postalCode = getZipCode(results[0], true);
+        setSearchResult({ lat, lng, postalCode, address  })
+    }
+
+    useRelativeResize(ref as MutableRefObject<HTMLElement | null>, suggestionRef);
+
+    const handleFormCancel = React.useCallback(function handleFormCancel() {
+        setValue("", false);
+        clearSuggestions();
+        setSearchResult(null);
+        (ref as MutableRefObject<HTMLElement>).current?.focus();
+    }, [setSearchResult, setValue, clearSuggestions, ref])
+
+    React.useEffect(() => {
+        handleFormCancel();
+    }, [isOpen, handleFormCancel])
+
+    return (
+        <React.Fragment>
+            {
+                searchResult ?
+                    <div>
+                        <div className="h-44 border-[2px]">
+                            <MapBoxMap key={searchResult?.lat} latitude={searchResult?.lat} longitude={searchResult?.lng}/>
+                        </div>
+                        <AddressForm cancel={() => handleFormCancel()}/>
+                    </div>
+                    : (
+                        <div>
+                            <input
+                                ref={ref as LegacyRef<HTMLInputElement> | undefined}
+                                value={value}
+                                onChange={(e) => setValue(e.target.value)}
+                                disabled={!ready}
+                                className="focus:border-black focus:border-2 p-2 bg-gray-100 w-full rounded-lg outline-none" autoComplete="off" />
+                            { status === 'OK' ? <PlacesSuggestions ref={suggestionRef} results={data} onSelect={handleSelect}/> : null }
+                        </div>
+                    )
+            }
+        </React.Fragment>
     )
 })
