@@ -6,7 +6,7 @@ import {
   createBrowserRouter,
   RouterProvider
 } from "react-router-dom";
-import { Feed } from './views/feed/index.tsx';
+import { Feed, Restaurant } from './views/feed/index.tsx';
 import { ErrorPage } from './views/error.tsx';
 import { Home } from './views/home.tsx';
 import { action as rootAction, loader as rootLoader } from './App.tsx';
@@ -19,6 +19,8 @@ import { storeFrontLoader } from './views/store-front/loader.ts';
 import { ProductModalLoader } from './views/store-front/product-modal.tsx/loader.ts';
 import { FilteredByCategoryProductLoader } from './views/store-front/product-list-filtered-category/loader.ts';
 import { Feedloader } from './views/feed/loader.ts';
+import { RestaurantFront } from './views/restaurant/index.tsx';
+import { RestaurantLoader } from './views/restaurant/loader.ts';
 
 const router = createBrowserRouter([
   {
@@ -38,6 +40,12 @@ const router = createBrowserRouter([
         element: <Feed/>,
         loader: Feedloader,
         id: "feed",
+      },
+      {
+        path: "restaurant/:restaurantId",
+        element: <RestaurantFront/>,
+        loader: RestaurantLoader,
+        id: "restaurant",
       },
       {
         path: "store/:storeId",

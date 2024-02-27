@@ -7,14 +7,12 @@ import IvoryCoast from '../../assets/country-flag/ivory-coast.png';
 import { priceFormat } from "../../utils/currency";
 import { ScrollableList } from "../store-front/list-product";
 
-const COUNTRY_FOODS = [
-    { image: "https://restaurantclicks.com/wp-content/uploads/2022/06/Popular-Nigerian-Food.jpg", flag: Nigeria, name: "Nigerian BBQ", description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. blanditiis." },
-    { image: "https://images.pexels.com/photos/6896514/pexels-photo-6896514.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1", flag: China, name: "Mei tuan", description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. blanditiis." },
-    { image: "https://www.cuisineo.com/images/pays/recettes-espagnole-pieuvres.jpg", flag: Italy, name: "Pizza de Roma", description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. blanditiis." },
-    { image: "https://www.cuisineo.com/images/pays/recettes-espagnole-pieuvres.jpg", flag: Italy, name: "Pizza de Roma", description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. blanditiis." },
-    { image: "https://i.ytimg.com/vi/0auGEKaFYdk/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDz6NBMRS0p_4UNYQ6GU8sJymA09A", flag: IvoryCoast, name: "Au poisson piqué", description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. blanditiis." },
-    { image: "https://i.ytimg.com/vi/0auGEKaFYdk/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDz6NBMRS0p_4UNYQ6GU8sJymA09A", flag: IvoryCoast, name: "Au poisson piqué", description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. blanditiis." },
-]
+const FLAGMAP = {
+    "NGA": Nigeria,
+    "CNA": China,
+    "RDC": IvoryCoast,
+    "ITA": Italy,
+}
 
 type StoreOffer = {
     isPercentage: boolean,
@@ -53,20 +51,36 @@ export type Store = {
     // estimatedDeliveryTime: Date 
 }
 
+export type Restaurant = {
+    id: string,
+    name: string,
+    location: Location,
+    phoneNumber: string,
+    description: string,
+    countryTag: Array<keyof typeof FLAGMAP>,
+    imgUrl: string,
+}
+
+type FeedLoaderType = {
+    stores: Array<Store>,
+    restaurants: Array<Restaurant>,
+}
+
 export function Feed() {
-    const loader = useLoaderData();
-    const stores = (loader as unknown as  { stores: Array<Store>})?.stores;
+    const { stores, restaurants } = useLoaderData() as FeedLoaderType;
+
     return (
         <div className="grid place-items-center w-full">
-
         <div className="w-full max-w-7xl">
             <section className="mt-16">
                 <h1 className="text-2xl font-bold">Restaurants</h1>
-                <ul className="max-w-7xl grid grid-cols-4 gap-5 mt-8">
+                <ul className="max-w-7xl grid grid-cols-4 gap-3 mt-8">
                     {
-                        COUNTRY_FOODS.map((food, idx) => {
+                        restaurants?.map((rest, idx) => {
                             return (
-                                <RestaurantCard key={idx} name={food.name} flag={food.flag} image={food.image}/>
+                                <Link to={`/restaurant/${rest.id}`}>
+                                    <RestaurantCard key={idx} name={rest.name} flags={rest.countryTag} image={rest.imgUrl}/>
+                                </Link>
                             )
                         })
                     }
@@ -76,7 +90,7 @@ export function Feed() {
                 <h1 className="text-2xl font-bold">Grocery stores</h1>
                 <ul className='grid grid-flow-col w-full gap-4 max-w-7xl mt-8'>
                     {
-                        stores.map((store, idx) => (
+                        stores?.map((store, idx) => (
                             <Link to={`/store/${store.id}`} key={idx}>
                                 <StoreCard
                                     title={store.name}
@@ -97,14 +111,14 @@ export function Feed() {
     )
 }
 
-export function Restaurant() {
+export function Restaurant({ restaurants } : { restaurants: Array<Restaurant>}) {
     return (
         <section className="mt-16">
             <ScrollableList as={"ul"} title="Restaurants">
                 {
-                    COUNTRY_FOODS.map((food, idx) => {
+                    restaurants?.map((rst, idx) => {
                         return (
-                            <RestaurantCard key={idx} name={food.name} flag={food.flag} image={food.image}/>
+                            <RestaurantCard key={idx} name={rst.name} flags={rst.countryTag} image={rst.imgUrl}/>
                         )
                     })
                 }
@@ -119,7 +133,7 @@ type Offer = {
 
 type RestaurantCardProps = {
     name: string,
-    flag: string,
+    flags: Array<keyof typeof FLAGMAP>,
     image: string,
     openingStatus?: string,
     deliveryTime?: string,
@@ -127,17 +141,11 @@ type RestaurantCardProps = {
     distanceFrom?: number
 }
 
-function RestaurantCard({ name, flag, image } : RestaurantCardProps) {
+function RestaurantCard({ name, image } : RestaurantCardProps) {
     return (
         <li className='cursor-pointer group'>
-            <div className="relative w-72 h-36 rounded-lg  flex items-center overflow-hidden">
-                <img src={image} className='object-contain'/>
-                <div className='absolute flex items-center justify-between px-2 w-full bg-gradient-to-t from-gray-800/85 from-8% bottom-0 h-8'>
-                    <div className='w-6 h-6 border-black border-[1px] rounded-full'>
-                        <img src={flag} alt={`${name}-flag`} className="object-fit"/>
-                    </div>
-                    <div className='text-white font-bold'></div>
-                </div>
+            <div className="bg-[#faf7eb] relative w-72 h-36 flex items-center overflow-hidden py-3 rounded-xl border-gray-400 border-[1px]">
+                <img src={image} className='object-contain w-full h-full'/>
             </div>
             <div className='mt-2'>
                 <p className='font-bold text-md'>{ name }</p>

@@ -1,6 +1,5 @@
 import { Button } from "./button";
 import { Logo } from "./logo";
-import { Search } from "./search/search";
 import { useLoginFormAction } from "../context/hooks";
 import { AuthFormTrigger } from "./auth-form";
 import { Menu } from "./menu";
@@ -11,20 +10,22 @@ import { GooglePlace } from "../user-location/new-google-place-autocomplete";
 import { forwardRef } from "@chakra-ui/react";
 import { IconMarker } from "./store-info/map-mapbox";
 import { SearchSwitcher } from "./search/global-search-bar";
+import { useLocation } from "react-router-dom";
 
 export function Navbar() {
-    const { loggedIn } = useFirebaseAuth();
+    const location = useLocation();
+    const isLandingPage = location.pathname === '/';
 
     return (
         <nav className="flex justify-between w-full py-2 px-16 items-center bg-white border-b-[1px] border-gray-200 gap-2 top-0 z-40 sticky">
             <div className="mr-8 flex items-center justify-start gap-4">
-                { loggedIn ? <Menu/> : null }
+                { isLandingPage ? null: <Menu/> }
                 <Logo/>
             </div>
             <GooglePlace>
                 <AddressButton />
             </GooglePlace>
-            <div className={clsx("w-full flex-1 justify-center px-4", { "hidden": !loggedIn })}>
+            <div className={clsx("w-full flex-1 justify-center px-4", { "hidden": isLandingPage })}>
                 <SearchSwitcher />
             </div>
             <div className="ml-8">

@@ -15,12 +15,12 @@ type SearchProps = {
 
 export function Search({ action, placeholder, searchQuery, searchResults, defaultSearchSuggestions } : SearchProps) {
     const fetcher = useFetcher();
+    const [ isOpen, setIsOpen ] = React.useState(false);
+    const [ query, setQuery ] = React.useState(searchQuery);
+
     const formRef = React.useRef<HTMLFormElement | null>(null);
     const inputRef = React.useRef<HTMLInputElement | null>(null);
     const suggestionRef = React.useRef<HTMLFormElement | null>(null);
-
-    const [ isOpen, setIsOpen ] = React.useState(false);
-    const [ query, setQuery ] = React.useState(searchQuery);
 
     function handleBlur(event: React.FocusEvent<HTMLElement, Element>) {
         console.log(event.relatedTarget?.contains?.(suggestionRef.current))
@@ -96,8 +96,7 @@ const SearchSuggestion = React.forwardRef(function SearchSuggestion({ results, o
                         return (
                             <li className="rounded-lg flex hover:bg-gray-100 py-2 cursor-pointer"
                                 key={result.name}
-                                onClick={() => handleClick(result.name, result.storeId)}
-                            >
+                                onClick={() => handleClick(result.name, result.storeId)}>
                                 <div className="flex pl-3 text-lg  items-center">
                                     <div className="bg-white flex w-10 h-10 rounded-full overflow-hidden">
                                         <img className="flex w-10 h-10 object-contain" src={result.imgUrl} />
