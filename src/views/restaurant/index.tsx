@@ -22,13 +22,11 @@ export function RestaurantFront() {
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach((entry) => {
                         const item = document.getElementById(`list-item-${category}`);
-                        // const categoryContainer = document.getElementById('list-category');
-                        const defaultStyle = "capitalize py-2 rounded-lg underline-offset-8 px-2 cursor-pointer font-semibold";
+                        const defaultStyle = "capitalize py-2 rounded-lg underline-offset-8 px-2 cursor-pointer font-semibold scroll-mb-48";
                         console.log(entry.intersectionRatio);
                         if (entry.isIntersecting) {
+                            item?.setAttribute('class', defaultStyle + ' ' + "underline ");
                             item?.scrollIntoView({ block: 'nearest' })
-                            item?.setAttribute('class', defaultStyle + ' ' + "underline scroll-mb-48");
-                            // categoryContainer?.scrollBy({left: 0, top: 10})
                         } else {
                             item?.setAttribute('class', defaultStyle);
                         }
@@ -39,6 +37,7 @@ export function RestaurantFront() {
             }
         })
     }, [])
+    
     return (
         <React.Fragment>
             <section className="px-16 mb-16" id="food-section">
@@ -58,7 +57,7 @@ export function RestaurantFront() {
                                     CATEGORIES.map((category, idx) => (
                                         <li
                                             onClick={() => {
-                                                document.getElementById(category)?.scrollIntoView();
+                                                document.getElementById(category)?.scrollIntoView({behavior: "instant"});
                                             }}
                                             id={`list-item-${category}`}
                                             key={idx}

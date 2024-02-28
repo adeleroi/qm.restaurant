@@ -23,7 +23,6 @@ export function Search({ action, placeholder, searchQuery, searchResults, defaul
     const suggestionRef = React.useRef<HTMLFormElement | null>(null);
 
     function handleBlur(event: React.FocusEvent<HTMLElement, Element>) {
-        console.log(event.relatedTarget?.contains?.(suggestionRef.current))
         if (!event.relatedTarget?.contains?.(suggestionRef.current)) {
             setIsOpen(false);
         } else {
