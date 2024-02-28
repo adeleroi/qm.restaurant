@@ -16,26 +16,32 @@ export function RestaurantFront() {
     const { restaurantInfos: infos, foodList } = useLoaderData() as { restaurantInfos: Restaurant, foodList: Array<Food> };
 
     React.useEffect(() => {
-        const el = document.getElementById(CATEGORIES[3]);
-        if (el) {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    const item = document.getElementById(`list-item-${CATEGORIES[3]}`);
-                    const defaultStyle = "capitalize py-2 rounded-lg underline-offset-8 px-2 cursor-pointer font-semibold";
-                    if (entry.isIntersecting) {
-                        item?.setAttribute('class', defaultStyle+ ' ' + "underline")
-                    } else {
-                        item?.setAttribute('class', defaultStyle);
-                    }
-                });
-            }, { root: null, threshold: [0.5] })
-    
-            observer.observe(el)
-        }
+        CATEGORIES.forEach((category) => {
+            const el = document.getElementById(category);
+            if (el) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        const item = document.getElementById(`list-item-${category}`);
+                        // const categoryContainer = document.getElementById('list-category');
+                        const defaultStyle = "capitalize py-2 rounded-lg underline-offset-8 px-2 cursor-pointer font-semibold";
+                        console.log(entry.intersectionRatio);
+                        if (entry.isIntersecting) {
+                            item?.scrollIntoView({ block: 'nearest' })
+                            item?.setAttribute('class', defaultStyle + ' ' + "underline scroll-mb-48");
+                            // categoryContainer?.scrollBy({left: 0, top: 10})
+                        } else {
+                            item?.setAttribute('class', defaultStyle);
+                        }
+                    });
+                }, { root: null, threshold: [0], rootMargin: '-12% 0% -84% 0%' })
+        
+                observer.observe(el)
+            }
+        })
     }, [])
     return (
         <React.Fragment>
-            <section className="px-16 mb-16">
+            <section className="px-16 mb-16" id="food-section">
                 <header className="w-full h-44 overflow-hidden">
                     <img
                         className="object-cover h-44 w-full"
@@ -46,7 +52,7 @@ export function RestaurantFront() {
                         <div className="sticky top-[73px] z-20 pt-8 bg-white">
                             <StoreSummary storeInfos={infos} />
                         </div>
-                        <div className="mt-4 sticky overflow-y-auto top-[350px] w-[250px]">
+                        <div id="list-category" className="pb-20 mt-4 sticky overflow-y-auto top-[350px] w-[250px] max-h-[calc(100vh-350px)]">
                             <ul>
                                 {
                                     CATEGORIES.map((category, idx) => (
@@ -89,7 +95,13 @@ const CATEGORIES = [
     "sweets & treats",
     "snacks & sides",
     "condiments",
-    "individual items"
+    "individual items",
+    "halal",
+    "breakfast",
+    "cury only",
+    "Vegetarian",
+    "Poutine (halal)",
+    "Fish Specialties"
 ]
 
 export function FoodCard({ food } : { food: Food }) {
@@ -131,7 +143,7 @@ export function FoodListTest() {
 
 export function FoodCategoryTest({ category } : FoodCategoryProps) {
     return (
-        <div className="mb-16 mt-8 scroll-mt-24" id={category}>
+        <div className="mt-8 scroll-mt-24" id={category}>
             <h1 className="text-2xl font-black capitalize">{ category }</h1>
             <div>
                 <FoodListTest />
