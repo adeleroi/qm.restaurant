@@ -78,8 +78,8 @@ export function StoreSummary({ storeInfos }: { storeInfos: Store | Restaurant}) 
             {
                 storeInfos.imgUrl ? (
                     <div className="">
-                        <div className="w-24 h-24 border-[1px] shadow-custom bg-white rounded-full flex items-center mr-2 mb-4 px-2">
-                            <img className="object-contain" src={storeInfos.imgUrl} alt="lcbo-logo"/>
+                        <div className="overflow-hidden w-28 h-28 border-[1px] shadow-custom bg-white rounded-full flex justify-center items-center mr-2 mb-4 px-2">
+                            <img className="object-contain 2-24 h-24" src={storeInfos.imgUrl} alt="lcbo-logo"/>
                         </div>
                     </div>
                 ) : null

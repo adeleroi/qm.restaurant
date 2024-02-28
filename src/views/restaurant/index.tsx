@@ -14,6 +14,25 @@ export type Food = {
 
 export function RestaurantFront() {
     const { restaurantInfos: infos, foodList } = useLoaderData() as { restaurantInfos: Restaurant, foodList: Array<Food> };
+
+    React.useEffect(() => {
+        const el = document.getElementById(CATEGORIES[3]);
+        if (el) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    const item = document.getElementById(`list-item-${CATEGORIES[3]}`);
+                    const defaultStyle = "capitalize py-2 rounded-lg underline-offset-8 px-2 cursor-pointer font-semibold";
+                    if (entry.isIntersecting) {
+                        item?.setAttribute('class', defaultStyle+ ' ' + "underline")
+                    } else {
+                        item?.setAttribute('class', defaultStyle);
+                    }
+                });
+            }, { root: null, threshold: [0.5] })
+    
+            observer.observe(el)
+        }
+    }, [])
     return (
         <React.Fragment>
             <section className="px-16 mb-16">
@@ -32,8 +51,12 @@ export function RestaurantFront() {
                                 {
                                     CATEGORIES.map((category, idx) => (
                                         <li
+                                            onClick={() => {
+                                                document.getElementById(category)?.scrollIntoView();
+                                            }}
+                                            id={`list-item-${category}`}
                                             key={idx}
-                                            className="capitalize py-2 rounded-lg underline-offset-8 px-2 cursor-pointer font-semibold">
+                                            className="capitalize py-2 rounded-lg px-2 cursor-pointer font-semibold">
                                             { category }
                                         </li>
                                     ))
@@ -41,7 +64,7 @@ export function RestaurantFront() {
                             </ul>
                         </div>
                     </div>
-                    <div className="ml-10">
+                    <div className="ml-4">
                         {
                             CATEGORIES.map((category, idx) => (
                                 <FoodCategoryTest key={idx} category={category}/>
@@ -73,9 +96,9 @@ export function FoodCard({ food } : { food: Food }) {
     return (
         <li className="relative pl-3 border-[1px] w-full rounded-xl overflow-hidden flex justify-between h-40 mb-2 hover:shadow-custom cursor-pointer">
             <div className="pt-3 w-full">
-                <h1 className="font-bold">{ food.name }</h1>
-                <p>{ priceFormat(food.price) }</p>
-                <p className=" text-gray-600 text-[14px] pt-2 text-ellipsis w-full">adkjfalskdf Lorem ipsum, dolor sit amet consectetur adipisicing elit. Cupiditate quo deleniti, est itaque nesciunt quod harum voluptatem ullam veniam asperiores?</p>
+                <h1 className="font-bold capitalize">{ food.name }</h1>
+                <p className="font-black text-gray-500">{ priceFormat(food.price) }</p>
+                <p className=" text-gray-600 text-[14px] pt-2 text-ellipsis overflow-hidden w-full">adkjfalskdf Lorem ipsum, dolor sit amet consectetur adipisicing elit. Cupiditate quo deleniti, est itaque nesciunt quod harum voluptatem ullam veniam asperiores?</p>
             </div>
             <div className="w-72 ml-2">
                 <img className="h-40 object-fit" src={food.imgUrl}/>
@@ -98,7 +121,7 @@ export function FoodListTest() {
                         name: "Half BBQ chicken with plantain",
                         price: 17.5,
                         description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Labore expedita quo voluptate voluptas deleniti doloremque harum nostrum. Qui, deserunt accusantium.",
-                        imgUrl: "https://static.wixstatic.com/media/f0ea0e_ba9eacf0e3964acdaa70bf36cc88b3b4~mv2.png/v1/fill/w_400,h_266,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/african-bbq-house-your-favourites-quarter-chicken.png"
+                        imgUrl: "https://ykochickenbbq.com/wp-content/uploads/2022/11/slider_mobile-1024x1024.png"
                     }} key={idx} />
                 )
             })        }
@@ -108,7 +131,7 @@ export function FoodListTest() {
 
 export function FoodCategoryTest({ category } : FoodCategoryProps) {
     return (
-        <div className="mb-16 mt-8">
+        <div className="mb-16 mt-8 scroll-mt-24" id={category}>
             <h1 className="text-2xl font-black capitalize">{ category }</h1>
             <div>
                 <FoodListTest />

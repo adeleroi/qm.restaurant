@@ -78,8 +78,8 @@ export function Feed() {
                     {
                         restaurants?.map((rest, idx) => {
                             return (
-                                <Link to={`/restaurant/${rest.id}`}>
-                                    <RestaurantCard key={idx} name={rest.name} flags={rest.countryTag} image={rest.imgUrl}/>
+                                <Link to={`/restaurant/${rest.id}`} key={idx}>
+                                    <RestaurantCard name={rest.name} flags={rest.countryTag} image={rest.imgUrl}/>
                                 </Link>
                             )
                         })
