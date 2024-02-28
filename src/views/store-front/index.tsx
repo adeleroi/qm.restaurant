@@ -2,7 +2,7 @@ import clsx from "clsx";
 import React from "react";
 import { Link, Outlet, useFetcher, useLoaderData, useLocation, useNavigate, useParams, useRouteLoaderData } from "react-router-dom"
 import { priceFormat } from "../../utils/currency";
-import { Store } from "../feed";
+import { Restaurant, Store } from "../feed";
 import { useDisclosure } from '@chakra-ui/react'
 import { SubmitTarget } from "react-router-dom/dist/dom";
 import { DrawerCart } from "../../components/cart/cart";
@@ -72,14 +72,18 @@ export function StoreFront() {
     )
 }
 
-function StoreSummary({ storeInfos }: { storeInfos: Store}) {
+export function StoreSummary({ storeInfos }: { storeInfos: Store | Restaurant}) {
     return (
-        <div className="text-black sticky top-[6.3rem] z-20 bg-white pb-4 border-b-[1px]">
-            <div className="">
-                <div className="w-24 h-24 border-[1px] shadow-custom bg-white rounded-full flex items-center mr-2 mb-4 px-2">
-                    <img className="object-contain" src={storeInfos.imgUrl} alt="lcbo-logo"/>
-                </div>
-            </div>
+        <div className="text-black z-20 bg-white pb-4 border-b-[1px]">
+            {
+                storeInfos.imgUrl ? (
+                    <div className="">
+                        <div className="w-24 h-24 border-[1px] shadow-custom bg-white rounded-full flex items-center mr-2 mb-4 px-2">
+                            <img className="object-contain" src={storeInfos.imgUrl} alt="lcbo-logo"/>
+                        </div>
+                    </div>
+                ) : null
+            }
             <div className="pl-2">
                 <p className="font-bold text-xl mb-1">{ storeInfos?.name }</p>
                 <div className="grid">

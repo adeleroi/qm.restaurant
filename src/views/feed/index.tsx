@@ -144,7 +144,7 @@ type RestaurantCardProps = {
 function RestaurantCard({ name, image } : RestaurantCardProps) {
     return (
         <li className='cursor-pointer group'>
-            <div className="bg-[#faf7eb] relative w-72 h-36 flex items-center overflow-hidden py-3 rounded-xl border-gray-400 border-[1px]">
+            <div className="bg-[#faf7eb] relative w-72 h-36 flex items-center overflow-hidden py-3 rounded-xl border-gray-200 border-[1px]">
                 <img src={image} className='object-contain w-full h-full'/>
             </div>
             <div className='mt-2'>

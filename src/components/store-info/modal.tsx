@@ -8,13 +8,13 @@ import {
     useDisclosure,
   } from '@chakra-ui/react'
 import { Trigger } from "../../utils/trigger";
-import { Store } from "../../views/feed";
+import { Restaurant, Store } from "../../views/feed";
 import clsx from "clsx";
 // import { GoogleMap } from "./map-google";
 import { MapBoxMap } from "./map-mapbox";
 
 
-export function StoreInfoModal({ children, storeInfos } : { children: React.ReactNode, storeInfos: Store }) {
+export function StoreInfoModal({ children, storeInfos } : { children: React.ReactNode, storeInfos: Store | Restaurant }) {
     const { onClose, onOpen, isOpen } = useDisclosure();
 
     return (

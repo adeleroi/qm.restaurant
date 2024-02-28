@@ -6,7 +6,7 @@ import {
   createBrowserRouter,
   RouterProvider
 } from "react-router-dom";
-import { Feed, Restaurant } from './views/feed/index.tsx';
+import { Feed } from './views/feed/index.tsx';
 import { ErrorPage } from './views/error.tsx';
 import { Home } from './views/home.tsx';
 import { action as rootAction, loader as rootLoader } from './App.tsx';
