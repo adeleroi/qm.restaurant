@@ -169,8 +169,8 @@ export function Cart({cartItems, storeId, subtotal, onClose, action}) {
 
 function EmptyCart({ onClose }: { onClose: () => void}) {
     return (
-        <div className='px-5 flex items-center flex-col justify-center gap-2'>
-            <h1 className='text-center'>
+        <div className='px-5 flex items-center flex-col justify-center gap-2 min-h-64'>
+            <h1 className='text-center text-lg'>
                 You have no item from this store in your cart
             </h1>
             <button onClick={onClose} className='p-2 rounded-3xl hover:bg-green-800  bg-defaultGreen hover:green-800 text-white font-bold'>Start shopping</button>

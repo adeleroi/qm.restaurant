@@ -22,9 +22,13 @@ export function Navbar() {
                 { isLandingPage ? null: <Menu/> }
                 <Logo/>
             </div>
-            <GooglePlace>
-                <AddressButton />
-            </GooglePlace>
+            {
+                isLandingPage ? null :
+                <GooglePlace>
+                    <AddressButton />
+                </GooglePlace>
+
+            }
             <div className={clsx("w-full flex-1 justify-center px-4", { "hidden": isLandingPage })}>
                 <SearchSwitcher />
             </div>

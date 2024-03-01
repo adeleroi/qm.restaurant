@@ -21,6 +21,9 @@ import { FilteredByCategoryProductLoader } from './views/store-front/product-lis
 import { Feedloader } from './views/feed/loader.ts';
 import { RestaurantFront } from './views/restaurant/index.tsx';
 import { RestaurantLoader } from './views/restaurant/loader.ts';
+import { FoodModal } from './views/restaurant/food-modal/index.tsx';
+import { FoodModalLoader } from './views/restaurant/food-modal/loader.ts';
+import { FoodModalAction } from './views/restaurant/food-modal/action.ts';
 
 const router = createBrowserRouter([
   {
@@ -46,6 +49,14 @@ const router = createBrowserRouter([
         element: <RestaurantFront/>,
         loader: RestaurantLoader,
         id: "restaurant",
+        children: [
+          {
+            path: "food/:foodId",
+            element: <FoodModal />,
+            loader: FoodModalLoader,
+            action: FoodModalAction,
+          }
+        ]
       },
       {
         path: "store/:storeId",

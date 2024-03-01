@@ -1,16 +1,9 @@
 import React from "react";
-import { useLoaderData } from "react-router-dom";
+import { Link, Outlet, useLoaderData } from "react-router-dom";
 import { Restaurant } from "../feed";
 import { StoreSummary } from "../store-front";
 import { priceFormat } from "../../utils/currency";
-
-export type Food = {
-    id: string,
-    name: string,
-    price: number,
-    imgUrl: string,
-    description?: string,
-}
+import { Food } from "./food-modal/model";
 
 export function RestaurantFront() {
     const { restaurantInfos: infos, foodList } = useLoaderData() as { restaurantInfos: Restaurant, foodList: Array<Food> };
@@ -22,8 +15,7 @@ export function RestaurantFront() {
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach((entry) => {
                         const item = document.getElementById(`list-item-${category}`);
-                        const defaultStyle = "capitalize py-2 rounded-lg underline-offset-8 px-2 cursor-pointer font-semibold scroll-mb-48";
-                        console.log(entry.intersectionRatio);
+                        const defaultStyle = "capitalize py-2 rounded-lg underline-offset-8 px-2 cursor-pointer font-semibold scroll-my-48";
                         if (entry.isIntersecting) {
                             item?.setAttribute('class', defaultStyle + ' ' + "underline ");
                             item?.scrollIntoView({ block: 'nearest' })
@@ -48,10 +40,10 @@ export function RestaurantFront() {
                 </header>
                 <div className="flex mt-8">
                     <div className="">
-                        <div className="sticky top-[73px] z-20 pt-8 bg-white">
+                        <div className="z-20 pt-8 bg-white">
                             <StoreSummary storeInfos={infos} />
                         </div>
-                        <div id="list-category" className="pb-20 mt-4 sticky overflow-y-auto top-[350px] w-[250px] max-h-[calc(100vh-350px)]">
+                        <div id="list-category" className="pb-20 mt-4 sticky overflow-y-auto top-[80px] w-[250px] max-h-[calc(100vh-80px)]">
                             <ul>
                                 {
                                     CATEGORIES.map((category, idx) => (
@@ -77,6 +69,7 @@ export function RestaurantFront() {
                         }
                     </div>
                 </div>
+                <Outlet />
             </section>
         </React.Fragment>
     )
@@ -105,38 +98,44 @@ const CATEGORIES = [
 
 export function FoodCard({ food } : { food: Food }) {
     return (
-        <li className="relative pl-3 border-[1px] w-full rounded-xl overflow-hidden flex justify-between h-40 mb-2 hover:shadow-custom cursor-pointer">
-            <div className="pt-3 w-full">
-                <h1 className="font-bold capitalize">{ food.name }</h1>
-                <p className="font-black text-gray-500">{ priceFormat(food.price) }</p>
-                <p className=" text-gray-600 text-[14px] pt-2 text-ellipsis overflow-hidden w-full">adkjfalskdf Lorem ipsum, dolor sit amet consectetur adipisicing elit. Cupiditate quo deleniti, est itaque nesciunt quod harum voluptatem ullam veniam asperiores?</p>
-            </div>
-            <div className="w-72 ml-2">
-                <img className="h-40 object-fit" src={food.imgUrl}/>
-            </div>
-            <div className="absolute bottom-2 right-2">
-                <CircleButton/>
-            </div>
-        </li>
+        <Link to="food/EI0V7KJulrr3AsRhy87e">
+            <li className="relative pl-3 border-[1px] w-full rounded-xl overflow-hidden flex justify-between h-40 mb-2 hover:shadow-custom cursor-pointer">
+                <div className="pt-3 w-full">
+                    <h1 className="font-bold capitalize">{ food.name }</h1>
+                    <p className="font-black text-gray-500">{ priceFormat(food.price) }</p>
+                    <p className=" text-gray-600 text-[14px] pt-2 w-full">adkjfalskdf Lorem ipsum, dolor sit amet consectetur adipisicing elit. Cupiditate quo deleniti, est itaque nesciunt quod harum voluptatem ullam veniam asperiores?</p>
+                </div>
+                <div className="w-72 ml-2">
+                    <img className="h-40 object-fit" src={food.imgUrl}/>
+                </div>
+                <div className="absolute bottom-2 right-2">
+                    <CircleButton/>
+                </div>
+            </li>
+        </Link>
     )
 }
 
 export function FoodListTest() {
     return (
         <ul className="grid grid-cols-2 gap-4 pt-4">
-        {
-            Array.from({length: 5}, (_, idx) => {
-                return (
-                    <FoodCard food={{
-                        id: idx + "food",
-                        name: "Half BBQ chicken with plantain",
-                        price: 17.5,
-                        description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Labore expedita quo voluptate voluptas deleniti doloremque harum nostrum. Qui, deserunt accusantium.",
-                        imgUrl: "https://ykochickenbbq.com/wp-content/uploads/2022/11/slider_mobile-1024x1024.png"
-                    }} key={idx} />
-                )
-            })        }
-    </ul>
+            {
+                Array.from({length: 5}, (_, idx) => {
+                    return (
+                        <FoodCard
+                            key={idx}
+                            food={{
+                                id: idx + "food",
+                                name: "Half BBQ chicken with plantain",
+                                price: 17.5,
+                                description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Labore expedita quo voluptate voluptas deleniti doloremque harum nostrum. Qui, deserunt accusantium.",
+                                imgUrl: "https://ykochickenbbq.com/wp-content/uploads/2022/11/slider_mobile-1024x1024.png"
+                            }}
+                        />
+                    )
+                })
+            }
+        </ul>
     )
 }
 
@@ -153,7 +152,7 @@ export function FoodCategoryTest({ category } : FoodCategoryProps) {
 
 function CircleButton() {
     return (
-        <div className="bg-black w-8 h-8 flex items-center justify-center shadow-custom rounded-full font-semibold text-white">
+        <div className="bg-whtie text-black w-8 h-8 flex items-center justify-center shadow-custom rounded-full font-bold ">
             <span className="material-symbols-outlined">add</span>
         </div>
     )

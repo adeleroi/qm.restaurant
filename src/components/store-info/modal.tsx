@@ -16,7 +16,6 @@ import { MapBoxMap } from "./map-mapbox";
 
 export function StoreInfoModal({ children, storeInfos } : { children: React.ReactNode, storeInfos: Store | Restaurant }) {
     const { onClose, onOpen, isOpen } = useDisclosure();
-
     return (
         <React.Fragment>
             <Trigger onOpen={onOpen}>
@@ -30,7 +29,9 @@ export function StoreInfoModal({ children, storeInfos } : { children: React.Reac
                             <h1 className="p-3 py-4 text-2xl font-bold">{storeInfos?.name}</h1>
                             <div className="relative w-full h-64 bg-gray-100">
                                 {/* <GoogleMap/> */}
-                                <MapBoxMap/>
+                                <MapBoxMap
+                                    latitude={storeInfos.location.geolocation?.latitude}
+                                    longitude={storeInfos.location.geolocation?.longitude}/>
                             </div>
                             <ul>
                                 <li>

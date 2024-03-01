@@ -79,7 +79,7 @@ export function StoreSummary({ storeInfos }: { storeInfos: Store | Restaurant}) 
                 storeInfos.imgUrl ? (
                     <div className="">
                         <div className="overflow-hidden w-28 h-28 border-[1px] shadow-custom bg-white rounded-full flex justify-center items-center mr-2 mb-4 px-2">
-                            <img className="object-contain 2-24 h-24" src={storeInfos.imgUrl} alt="lcbo-logo"/>
+                            { storeInfos.imgUrl ? <img className="object-contain 2-24 h-24" src={storeInfos.imgUrl} alt="lcbo-logo"/> : null }
                         </div>
                     </div>
                 ) : null
@@ -87,7 +87,7 @@ export function StoreSummary({ storeInfos }: { storeInfos: Store | Restaurant}) 
             <div className="pl-2">
                 <p className="font-bold text-xl mb-1">{ storeInfos?.name }</p>
                 <div className="grid">
-                    <span className="text-[14px] text-gray-600">{storeInfos?.location?.address}</span>
+                    <span className="text-[12px] text-gray-600">{storeInfos?.location?.address}</span>
                     <span className="text-[12px] text-gray-600">Delivery fee (3.69$)</span>
                 </div>
                 <div className="text-[12px] text-gray-600r">
