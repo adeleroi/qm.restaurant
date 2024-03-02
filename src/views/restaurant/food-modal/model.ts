@@ -26,5 +26,6 @@ export type Food = {
     description?: string,
     imgUrl?: string,
     reviewData?: FoodReview
-    customization: Array<FoodOptionList>
+    customization: Array<FoodOptionList>,
+    hasCustomization?: boolean,
 }

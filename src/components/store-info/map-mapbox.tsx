@@ -42,7 +42,7 @@ type IconMarkerProps = {
 
 export function IconMarker({ className, circleColor="#fff", bg="#099500", hideShadow=false } : IconMarkerProps) {
     return (
-        <svg className={className} id="marker" data-name="marker" xmlns="http://www.w3.org/2000/svg" width="25" height="50" viewBox="0 0 20 48">
+        <svg className={className} id="marker" data-name="marker" xmlns="http://www.w3.org/2000/svg" width="25" height="40" viewBox="0 0 20 48">
             <g id="mapbox-marker-icon">
                 <g id="icon">
                 <ellipse id="shadow" cx="10" cy="27" rx="9" ry="5" fill={ !hideShadow ? "#c4c4c4" : "#fff" } opacity="0.3" style={{"isolation": "isolate"}}/>

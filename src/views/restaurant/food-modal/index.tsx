@@ -12,51 +12,31 @@ import {
     CheckboxGroup,
     Checkbox,
 } from '@chakra-ui/react'
-import { Form, useFetcher, useLoaderData, useNavigate } from "react-router-dom";
+import { Form, useLoaderData, useNavigate, useSubmit } from "react-router-dom";
 import { priceFormat } from "../../../utils/currency";
 import { Food, FoodOption, FoodOptionList } from "./model.ts";
 import clsx from "clsx";
 
-function getRequiredOptions(food: Food) {
-    return food.customization.filter((foodOptionList) => (foodOptionList.minNumOptions > 0));
-}
-
-type RequiredOptionsMap = Record<string, {minNumOptions: number, maxNumOptions: number}>;
-
-function buildRequiredOptionSchema(food: Food) {
-    const requiredOptions = getRequiredOptions(food);
-    const requiredOptionsMap = {} as RequiredOptionsMap;
-    requiredOptions.forEach(opList => {
-        requiredOptionsMap[opList.id] = { minNumOptions: opList.minNumOptions, maxNumOptions: opList.maxNumOptions } 
-    });
-    return requiredOptionsMap;
-}
-
-
-type FormDataMap = Record<string, Array<string>>;
-type ErrorMap = Record<string, boolean>;
-
-function validateSubmission(formMap: FormDataMap = {}, schema: RequiredOptionsMap) {
-    const errorMap = {} as ErrorMap;
-    for (const key of Object.keys(schema)) {
-        const { minNumOptions, maxNumOptions } = schema[key];
-        const selectedOptionSize = formMap[key].length || 0;
-
-        if (minNumOptions > selectedOptionSize || maxNumOptions < selectedOptionSize) {
-            errorMap[key] = true;
-        }
-    }
-    return errorMap
-}
-
 export function FoodModal() {
     const { onOpen, onClose, isOpen } = useDisclosure();
     const { food, requiredOptionState } = useLoaderData() as { food: Food, requiredOptionState: Record<string, boolean> };
-    console.log('requiredOptionState', requiredOptionState);
-    const [ requiredOptions, setRequiredOptions ] = React.useState<Record<string, boolean>>(requiredOptionState);
+    const [ requiredOptionsValidity, setRequiredOptionsValidity ] = React.useState<Record<string, boolean>>(requiredOptionState);
     const [ isSubmit, setIsSubmit ] = React.useState(false);
+    const submit = useSubmit();
 
     const navigate = useNavigate();
+
+    function handleSubmit(e) {
+        e.preventDefault();
+        setIsSubmit(true);
+        const invalidFields = Object.keys(requiredOptionsValidity).filter(key  => !requiredOptionsValidity[key]);
+        console.log('invalidFields', invalidFields)
+        if (!invalidFields.length) {
+            submit(e.currentTarget);
+        } else {
+            document.getElementById(invalidFields[0])?.scrollIntoView({behavior: "smooth", block: 'center'});
+        }
+    }
 
     React.useEffect(() => {
         onOpen();
@@ -71,7 +51,7 @@ export function FoodModal() {
                 isCentered
                 onClose={() => {
                     navigate(-1);
-                    onClose();
+                    // onClose();
                 }}
                 isOpen={isOpen}
                 >
@@ -82,32 +62,28 @@ export function FoodModal() {
                                 <h1 className="text-black capitalize font-black text-2xl">{ food.name }</h1>
                                 <p className="font-black text-gray-500 mt-1 text-xl">{ priceFormat(food.price) }</p>
                                 <div>
-                                    <Form id="food-customization-form" className="" onSubmit={e => {
-                                        // console.log(e.target.closest('form').elements)
-                                        setIsSubmit(true);
-                                        const isValid = Object.keys(requiredOptions).every(key  => requiredOptions[key]);
-                                        if (isValid) {
-                                            console.log('form is valid');
-                                        } else {
-                                            console.log('form is invalid');
-                                        }
-                                    }}>
+                                    <Form id="food-customization-form" className="" onSubmit={handleSubmit}>
                                         {
                                             food.customization.map((custom, idx) => {
                                                 return (
                                                     <FoodCustomization
                                                         key={idx}
                                                         isInvalid={
-                                                            isOptionRequired(custom.minNumOptions) && isSubmit && !requiredOptions[custom.title]
+                                                            isOptionRequired(custom.minNumOptions) && isSubmit && !requiredOptionsValidity[custom.title]
                                                         }
+                                                        isIdle={!isSubmit}
                                                         customization={custom}
-                                                        setRequiredOptions={setRequiredOptions}
+                                                        setRequiredOptionsValidity={setRequiredOptionsValidity}
                                                     />
                                                 )
                                             })
                                         }
                                         <div className="w-full flex justify-end">
-                                            <button type="submit" className="bg-black text-white font-bold text-xl py-2 rounded-lg w-44 mt-8 mb-4">Save</button>
+                                            <button
+                                                type="submit"
+                                                className="bg-black text-white font-bold text-xl py-2 rounded-lg w-44 mt-8 mb-4">
+                                                    Save
+                                            </button>
                                         </div>
                                     </Form>
                                 </div>
@@ -123,48 +99,136 @@ function isOptionRequired(min: number) {
     return min === 0 ? false : true;
 }
 
-function RequiredPill({ isRequired, quantity, isInvalid } : { isRequired: boolean, quantity: number, isInvalid: boolean }) {
-    const el = isRequired ? (
-            <div className="flex gap-1 items-center mt-1">
+type RequiredPillProps = {
+    children: React.ReactNode,
+    isInvalid: boolean,
+    isIdle: boolean
+}
+
+function RequiredPill({ children, isInvalid, isIdle } : RequiredPillProps) {
+    return (
+        <React.Fragment>
+            <div className="flex gap-1 items-center">
                 <div className={clsx(" p-[0.6px] text-[13px] font-semibold gap-1 flex justify-center items-center rounded-3xl", {
-                    "bg-gray-200 w-[4.7rem]": !isInvalid,
-                    "w-[5.8rem] bg-red-100 text-red-600": isInvalid
+                    "bg-gray-200 w-[4.7rem]": !isInvalid && isIdle,
+                    "w-[5.8rem] bg-green-100 text-defaultGreen": !isInvalid && !isIdle,
+                    "w-[5.8rem] bg-red-100 text-red-600": isInvalid,
                 })}>
-                    { isInvalid ? <span className="material-symbols-outlined font-black text-red-600 text-[16px]">error</span> : null }
+                    { children }
                     Required
                 </div>
-                <div className="text-gray-500 font-semibold text-[14px]">
-                    • Select 1
-                </div>
             </div>
-        ) : <span className="text-gray-500 font-semibold text-[14px]">(Optional) • Select up to {quantity}</span>
-    return el;
+        </React.Fragment>
+    )
+}
+
+function RequiredPillIcon({ isInvalid, isIdle } : { isInvalid: boolean, isIdle: boolean }) {
+    if (isInvalid) {
+        return <span className="material-symbols-outlined font-black text-red-600 text-[16px]">error</span>;
+    }
+    if (!isInvalid && !isIdle) {
+        return <span className="material-symbols-outlined font-black text-[16px]">check_circle</span>;
+    }
+    return null;
+}
+
+function RequiredPillMessage({ quantity } : { quantity: number }) {
+    return <span className="text-gray-500 font-semibold text-[14px]">• Select { quantity }</span>
+}
+
+type RequiredInstructionProps = {
+    quantity: number,
+    isInvalid: boolean,
+    isIdle: boolean,
+}
+
+function RequiredInstruction({ quantity, isInvalid, isIdle } : RequiredInstructionProps) {
+    return (
+        <div className="flex gap-1 items-center mt-1">
+            <RequiredPill isIdle={isIdle} isInvalid={isInvalid}>
+                <RequiredPillIcon isIdle={isIdle} isInvalid={isInvalid}/>
+            </RequiredPill>
+            <RequiredPillMessage quantity={quantity}/>
+        </div>
+    )
+}
+
+function OptionalInstruction({ quantity } : { quantity: number }) {
+    return (
+        <span className="text-gray-500 font-semibold text-[14px]">
+            (Optional) • Select up to {quantity}
+        </span>
+    )
 }
 
 type FoodCustomizationProps = {
     customization: FoodOptionList,
-    setRequiredOptions: Dispatch<SetStateAction<Record<string, boolean>>>,
+    setRequiredOptionsValidity: Dispatch<SetStateAction<Record<string, boolean>>>,
     isInvalid: boolean,
+    isIdle: boolean,
 };
 
-export function FoodCustomization({ customization, setRequiredOptions, isInvalid } : FoodCustomizationProps) {
+export function FoodCustomization({ customization, setRequiredOptionsValidity, isInvalid, isIdle } : FoodCustomizationProps) {
     const isCustomizationRequired = isOptionRequired(customization.minNumOptions);
     return (
         <section>
             <div className="mt-8 py-2">
                     <div className="mb-4">
                         <h1 className="font-black text-lg capitalize">{ customization.title }</h1>
-                        <RequiredPill isRequired={isCustomizationRequired} quantity={customization.options.length} isInvalid={isInvalid}/>
+                        <FoodCustomizationInstruction
+                            isIdle={isIdle}
+                            isInvalid={isInvalid}
+                            isRequired={isCustomizationRequired}
+                            quantity={customization.options.length}
+                        />
+                        
                     </div>
                     <div className="w-full">
                         {
                             isCustomizationRequired ?
-                                <CustomizationRadioGroup options={customization.options} title={customization.title} setRequiredOptions={setRequiredOptions} />
+                                <CustomizationRadioGroup
+                                    options={customization.options}
+                                    title={customization.title}
+                                    setRequiredOptionsValidity={setRequiredOptionsValidity}
+                                />
                                 : <CustomizationCheckBoxGroup options={customization.options} title={customization.title} />
                         }
                     </div>
             </div>
         </section>
+    )
+}
+
+
+// function RequiredFoodCustomizationSelect({ min, max }) {
+//     if (min == 1) {
+//         return <CustomizationRadioGroup/>
+//     }
+//     if (min > 1) {
+//         return <CustomizationCheckBoxGroup/>
+//     }
+// }
+
+// function OptionalFoodCustomizationSelect() {
+//     return <CustomizationCheckBoxGroup/>
+// }
+
+type FoodCustomizationInstructionProps = {
+    isRequired: boolean,
+    quantity: number,
+    isInvalid: boolean,
+    isIdle: boolean,
+}
+
+function FoodCustomizationInstruction({ isRequired, quantity, isInvalid, isIdle } : FoodCustomizationInstructionProps) {
+    return (
+        <React.Fragment>
+            {
+                isRequired ?
+                    <RequiredInstruction isInvalid={isInvalid} isIdle={isIdle} quantity={quantity}/>
+                    : <OptionalInstruction quantity={quantity}/>
+            }
+        </React.Fragment>
     )
 }
 
@@ -187,16 +251,22 @@ function CustomizationCheckBoxGroup({ options, title } : { options: Array<FoodOp
     )
 }
 
-function CustomizationRadioGroup({ options, title, setRequiredOptions } : { options: Array<FoodOption>, title: string, setRequiredOptions: Dispatch<SetStateAction<Record<string, boolean>>>  }) {
+type CustomizationRadioGroupProps = {
+    options: Array<FoodOption>,
+    title: string,
+    setRequiredOptionsValidity: Dispatch<SetStateAction<Record<string, boolean>>>,
+}
+
+function CustomizationRadioGroup({ options, title, setRequiredOptionsValidity } : CustomizationRadioGroupProps) {
     const [ value, setValue ] = React.useState<string | undefined>(undefined);
 
     function handleChange(value: string) {
         setValue(value);
-        setRequiredOptions(option => ({ ...option, [title]: true }));
+        setRequiredOptionsValidity(option => ({ ...option, [title]: true }));
     }
 
     return (
-        <RadioGroup className="grid" defaultValue="1" name={ title } onChange={handleChange} value={value}>
+        <RadioGroup className="grid" defaultValue="1" name={ title } onChange={handleChange} value={value} id={title}>
             {
                 options?.map(({name, price}: FoodOption, idx) => (
                     <div className="py-3 pl-3 border-b-[1px]" key={idx}>

@@ -13,6 +13,8 @@ import React from 'react';
 import { ButtonIncrement, Product } from '../../views/store-front';
 import { getSubtotal, priceFormat } from '../../utils/currency';
 import clsx from 'clsx';
+import { CartIcon as SVGCartIcon } from '../icons/cartIcon';
+
 
 export function CarTriggerForCheckout({ triggerElement }: { triggerElement: React.ReactNode}) {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -170,10 +172,10 @@ export function Cart({cartItems, storeId, subtotal, onClose, action}) {
 function EmptyCart({ onClose }: { onClose: () => void}) {
     return (
         <div className='px-5 flex items-center flex-col justify-center gap-2 min-h-64'>
-            <h1 className='text-center text-lg'>
+            <h1 className='text-center text-lg font-bold text-gray-400'>
                 You have no item from this store in your cart
             </h1>
-            <button onClick={onClose} className='p-2 rounded-3xl hover:bg-green-800  bg-defaultGreen hover:green-800 text-white font-bold'>Start shopping</button>
+            <button onClick={onClose} className='py-2 px-3 rounded-3xl hover:bg-green-800 bg-defaultGreen hover:green-800 text-white font-bold'>Start shopping</button>
         </div>
     )
 }
@@ -217,21 +219,24 @@ function getSubtotalAndCount(arr: Array<Product> = []) {
     return arr?.reduce((acc, curr) => ({...acc, count: acc?.count + curr?.count, price: curr?.price * curr?.count + acc?.price}), {count: 0, price: 0});
 }
 
-const fullCartIcon = <span className="material-symbols-outlined text-white font-bold text-xl">remove_shopping_cart</span>;
+// const fullCartIcon = <span className="material-symbols-outlined text-white font-bold text-xl">remove_shopping_cart</span>;
 
-const emptyCartIcon = <span className="material-symbols-outlined text-white font-bold text-xl">shopping_cart</span>
+// const emptyCartIcon = <span className="material-symbols-outlined text-white font-bold text-xl">shopping_cart</span>
+
+
 
 export function CartIcon() {
     const {  storeCartInfos, carts } = useLoaderData();
     const { storeId } = useParams();
     const totalNumberOfCartItem = getSubtotalAndCount(carts).count;
     const { count: numberOfCartItemByStore } = getSubtotalAndCount(storeCartInfos[storeId]?.cart);
-    const showEmptyCartIcon = storeId && numberOfCartItemByStore == 0 || !storeId && totalNumberOfCartItem == 0;
+    // const showEmptyCartIcon = storeId && numberOfCartItemByStore == 0 || !storeId && totalNumberOfCartItem == 0;
 
     return (
-        <div className="flex justify-between items-center text-white w-full gap-2">
-            { showEmptyCartIcon ? emptyCartIcon : fullCartIcon }
-            <span className="text-[14px] bg-green-800 px-2 rounded-3xl group-hover/cartbtn:bg-defaultGreen font-black"> { storeId ? numberOfCartItemByStore : totalNumberOfCartItem }</span>
+        <div className="flex justify-between items-center text-white w-full">
+            {/* { showEmptyCartIcon ? emptyCartIcon : fullCartIcon } */}
+            <SVGCartIcon />
+            <span className="ml-1 text-[13px] bg-green-800 px-[7px] rounded-3xl group-hover/cartbtn:bg-defaultGreen font-bold"> { storeId ? numberOfCartItemByStore : totalNumberOfCartItem }</span>
         </div>
     )
 }
@@ -264,9 +269,9 @@ function CartSummary({ store, onClose }) {
                         <p className='text-[14px] font-bold text-defaultGreen'>{Math.random() * 10 > 4 ? "Closed . Open in 58 min": null }</p>
                     </div>
                 </div>
-                <div className='flex bg-defaultGreen rounded-xl justify-between items-center'>
-                    <div className='w-6 relative rounded-full flex items-center justify-center font-bold'>
-                        <span className='text-white text-md font-bold'>{ count }</span>
+                <div className='flex bg-defaultGreen rounded-full justify-between items-center'>
+                    <div className='w-8 h-8 flex items-center justify-center font-bold'>
+                        <span className='text-white text-[14px] font-bold'>{ count }</span>
                     </div>
                 </div>
             </div>

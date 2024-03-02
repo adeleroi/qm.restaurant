@@ -41,9 +41,9 @@ export function Navbar() {
 
 const AddressButton = forwardRef((props, ref) => {
     return (
-        <button ref={ref} {...props} className="relative ml-10 cursor-pointer font-bold text-black px-2 h-12 rounded-3xl flex items-center justify-center">
-            <IconMarker className="absolute -left-6 top-[5px]" bg="#000"/>
-            <p className="text-[18px] truncate text-black">75 Daly Ave</p>
+        <button ref={ref} {...props} className="relative ml-10 cursor-pointer text-black px-2 h-12 rounded-3xl flex items-center justify-center">
+            <IconMarker className="absolute -left-5 top-[9px]" bg="#000"/>
+            <p className="truncate font-semibold text-[16px]">75 Daly Ave</p>
         </button>
     )
 })
@@ -58,7 +58,7 @@ function ButtonSection() {
         return (
             <>
                 <CarTriggerForCheckout triggerElement={
-                    <button className="group/cartbtn py-[9px] pr-4 pl-3 max-w-[80px] rounded-3xl shadow-custom bg-defaultGreen hover:bg-green-800 hover:shadow-custom text-black relative">
+                    <button className="group/cartbtn py-[9px] pr-4 pl-3 rounded-3xl shadow-custom bg-defaultGreen hover:bg-green-800 hover:shadow-custom text-black relative">
                         <CartIcon/>
                     </button>
                 }/>
