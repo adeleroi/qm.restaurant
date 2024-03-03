@@ -32,13 +32,14 @@ export function RestaurantFront() {
     
     return (
         <React.Fragment>
-            <section className="px-16 mb-16" id="food-section">
-                <header className="w-full h-44 overflow-hidden">
+            <section className="mb-16" id="food-section">
+                <header className="relative w-full h-64 overflow-hidden">
+                    <div className="inset-0 bg absolute bg-hero-overlay h-64 z-10"></div>
                     <img
-                        className="object-cover h-44 w-full"
+                        className="object-cover h-64 w-full"
                         src="https://tb-static.uber.com/prod/image-proc/processed_images/6a3368e8b89834d00d62c35a9658baff/16bb0a3ab8ea98cfe8906135767f7bf4.webp" />
                 </header>
-                <div className="flex mt-8">
+                <div className="flex mt-8 px-16">
                     <div className="">
                         <div className="z-20 pt-8 bg-white">
                             <StoreSummary storeInfos={infos} />

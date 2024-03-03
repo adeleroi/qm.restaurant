@@ -18,7 +18,10 @@ export default {
         'overlay-white': 'rgb(255,255, 255, 0.6)',
         'brown-bg': '#f2ebd1',
         'bg-product': 'rgba(0, 0, 0, 0.03)',
-        'search-overlay': 'rgba(0, 0, 0, 0.2)'
+        'search-overlay': 'rgba(0, 0, 0, 0.2)',
+      },
+      backgroundImage: {
+        'hero-overlay': 'linear-gradient(rgba(0, 0, 0, 0.61) 0%, rgba(0, 0, 0, 0.41) 100%)',
       },
       fontFamily: {
         sans: 'montserrat',

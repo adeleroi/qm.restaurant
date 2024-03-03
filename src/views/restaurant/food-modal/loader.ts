@@ -16,6 +16,7 @@ function buildRequiredOptionState(food: Food) {
     requiredOptions.forEach(opList => {
         requiredOptionsMap[opList.title] = false; 
     });
+    console.log('map', requiredOptionsMap);
     return requiredOptionsMap;
 }
 

@@ -132,23 +132,30 @@ function RequiredPillIcon({ isInvalid, isIdle } : { isInvalid: boolean, isIdle: 
     return null;
 }
 
-function RequiredPillMessage({ quantity } : { quantity: number }) {
-    return <span className="text-gray-500 font-semibold text-[14px]">• Select { quantity }</span>
+function RequiredPillMessage({ min, max } : { min: number, max: number }) {
+    if (min === 1) {
+        return <span className="text-gray-500 font-semibold text-[14px]">• Select { min }</span>
+    }
+    if (min > 1) {
+        return <span className="text-gray-500 font-semibold text-[14px]">• Select between { min } and { max }</span>
+    }   
 }
 
 type RequiredInstructionProps = {
-    quantity: number,
+    min: number,
+    max: number,
+    // quantity: number,
     isInvalid: boolean,
     isIdle: boolean,
 }
 
-function RequiredInstruction({ quantity, isInvalid, isIdle } : RequiredInstructionProps) {
+function RequiredInstruction({ min, max, isInvalid, isIdle } : RequiredInstructionProps) {
     return (
         <div className="flex gap-1 items-center mt-1">
             <RequiredPill isIdle={isIdle} isInvalid={isInvalid}>
                 <RequiredPillIcon isIdle={isIdle} isInvalid={isInvalid}/>
             </RequiredPill>
-            <RequiredPillMessage quantity={quantity}/>
+            <RequiredPillMessage min={min} max={max}/>
         </div>
     )
 }
@@ -180,18 +187,27 @@ export function FoodCustomization({ customization, setRequiredOptionsValidity, i
                             isInvalid={isInvalid}
                             isRequired={isCustomizationRequired}
                             quantity={customization.options.length}
+                            min={customization.minNumOptions}
+                            max={customization.maxNumOptions}
                         />
-                        
                     </div>
                     <div className="w-full">
                         {
                             isCustomizationRequired ?
-                                <CustomizationRadioGroup
+                                <RequiredFoodCustomizationSelect
+                                    min={customization.minNumOptions}
+                                    max={customization.maxNumOptions}
                                     options={customization.options}
                                     title={customization.title}
                                     setRequiredOptionsValidity={setRequiredOptionsValidity}
+                                    />
+                                    : <OptionalFoodCustomizationSelect
+                                        options={customization.options}
+                                        title={customization.title}
+                                        min={customization.minNumOptions}
+                                        max={customization.maxNumOptions}
+                                        setRequiredOptionsValidity={setRequiredOptionsValidity}
                                 />
-                                : <CustomizationCheckBoxGroup options={customization.options} title={customization.title} />
                         }
                     </div>
             </div>
@@ -199,46 +215,103 @@ export function FoodCustomization({ customization, setRequiredOptionsValidity, i
     )
 }
 
+type FoodCustomizationSelectProps = {
+    min: number,
+    max: number,
+    options: Array<FoodOption>,
+    title: string,
+    setRequiredOptionsValidity: Dispatch<SetStateAction<Record<string, boolean>>>,
+}
 
-// function RequiredFoodCustomizationSelect({ min, max }) {
-//     if (min == 1) {
-//         return <CustomizationRadioGroup/>
-//     }
-//     if (min > 1) {
-//         return <CustomizationCheckBoxGroup/>
-//     }
-// }
+function RequiredFoodCustomizationSelect({ min, options, title, max, setRequiredOptionsValidity } : FoodCustomizationSelectProps) {
+    if (min == 1) {
+        return (
+            <CustomizationRadioGroup
+                options={options}
+                title={title}
+                setRequiredOptionsValidity={setRequiredOptionsValidity}
+            />
+        )
+    }
+    if (min > 1) {
+        return (
+            <CustomizationCheckBoxGroup
+                options={options}
+                title={title}
+                min={min}
+                max={max}
+                setRequiredOptionsValidity={setRequiredOptionsValidity}/>
+        )
+    }
+}
 
-// function OptionalFoodCustomizationSelect() {
-//     return <CustomizationCheckBoxGroup/>
-// }
+function OptionalFoodCustomizationSelect({ options, title, min, max, setRequiredOptionsValidity } : FoodCustomizationSelectProps) {
+    return (
+        <CustomizationCheckBoxGroup
+            options={options}
+            title={title}
+            min={min}
+            max={max}
+            setRequiredOptionsValidity={setRequiredOptionsValidity} />
+    )
+}
 
 type FoodCustomizationInstructionProps = {
-    isRequired: boolean,
     quantity: number,
+    isRequired: boolean,
+    min: number,
+    max: number,
     isInvalid: boolean,
     isIdle: boolean,
 }
 
-function FoodCustomizationInstruction({ isRequired, quantity, isInvalid, isIdle } : FoodCustomizationInstructionProps) {
+function FoodCustomizationInstruction({ isRequired, min, max, isInvalid, isIdle, quantity } : FoodCustomizationInstructionProps) {
     return (
         <React.Fragment>
             {
                 isRequired ?
-                    <RequiredInstruction isInvalid={isInvalid} isIdle={isIdle} quantity={quantity}/>
+                    <RequiredInstruction isInvalid={isInvalid} isIdle={isIdle} min={min} max={max}/>
                     : <OptionalInstruction quantity={quantity}/>
             }
         </React.Fragment>
     )
 }
 
-function CustomizationCheckBoxGroup({ options, title } : { options: Array<FoodOption>, title: string }) {
+type CustomizationCheckBoxGroupProps = {
+    options: Array<FoodOption>,
+    title: string,
+    setRequiredOptionsValidity: Dispatch<SetStateAction<Record<string, boolean>>>,
+    min: number,
+    max: number,
+}
+
+function CustomizationCheckBoxGroup({ options, title, setRequiredOptionsValidity, min, max } : CustomizationCheckBoxGroupProps) {
+    const [ checkedCount, setCheckedCount ] = React.useState<number>(0);
+    console.log(title, checkedCount);
+
+    function handleChange(value: boolean) {
+        let newCount = 0;
+        if (value) {
+            newCount = checkedCount + 1;
+            setCheckedCount(newCount);
+        } else {
+            newCount = checkedCount - 1;
+            setCheckedCount(newCount)
+        }
+
+        if (newCount >= min && newCount <= max) {
+            setRequiredOptionsValidity(option => ({ ...option, [title]: true }));
+        } else {
+            setRequiredOptionsValidity(option => ({ ...option, [title]: false }));
+        }
+    }
+
     return (
         <CheckboxGroup colorScheme="green">
             {
                 options?.map(({ name, price }: FoodOption, idx) => (
                     <div className="py-3 pl-3 border-b-[1px] cursor-pointer" key={idx}>
-                        <Checkbox form="food-customization-form" name={title} size={'lg'} value={name}>
+                        <Checkbox form="food-customization-form" name={title} size={'lg'} value={name}  onChange={(e) => handleChange(e.target.checked)}>
                             <div className="grid pl-2">
                                 <span className="font-semibold text-[14px] capitalize">{ name }</span>
                                 <span className="font-bold text-[14px] text-gray-500">{ price ? priceFormat(price) : null }</span>
@@ -261,6 +334,7 @@ function CustomizationRadioGroup({ options, title, setRequiredOptionsValidity } 
     const [ value, setValue ] = React.useState<string | undefined>(undefined);
 
     function handleChange(value: string) {
+        console.log('value', value);
         setValue(value);
         setRequiredOptionsValidity(option => ({ ...option, [title]: true }));
     }

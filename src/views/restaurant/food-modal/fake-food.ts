@@ -16,11 +16,15 @@ export function createRandomFood(): Food {
 }
 
 function generateFoodOptionList(): FoodOptionList {
-    const options: Array<FoodOption> = Array.from({length: 4}).map(() => ({
+    let min = faker.number.int({min: 0, max: 2});
+    let max = faker.number.int({min: min, max: min + 3});
+    if (min > max) {
+        [min, max] = [max, min];
+    }
+    
+    const options: Array<FoodOption> = Array.from({length: max + 2}).map(() => ({
         ...generateOption()
     }))
-    const min = faker.number.int({min: 0, max: 1});
-    const max = faker.number.int({min: 1, max: 2});
 
     return {
         id: faker.string.uuid(),
