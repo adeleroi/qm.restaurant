@@ -13,7 +13,7 @@ import React from 'react';
 import { ButtonIncrement, Product } from '../../views/store-front';
 import { getSubtotal, priceFormat } from '../../utils/currency';
 import clsx from 'clsx';
-import { CartIcon as SVGCartIcon } from '../icons/cartIcon';
+import { CartIcon as SVGCartIcon } from '../icons/icon';
 
 
 export function CarTriggerForCheckout({ triggerElement }: { triggerElement: React.ReactNode}) {

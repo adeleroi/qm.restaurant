@@ -14,10 +14,11 @@ import {
     ModalCloseButton,
     ModalOverlay,
   } from '@chakra-ui/react';
-import { IconMarker, MapBoxMap } from "../components/store-info/map-mapbox";
+import { MapBoxMap } from "../components/store-info/map-mapbox";
 import { AddressForm } from "./location-form";
 import { useRelativeResize } from "../utils/hooks";
 import { Trigger } from "../utils/trigger";
+import { CustomMarker, GoogleLogo } from "../components/icons/icon";
 
 export type LatLng = { lat: number, lng: number };
 
@@ -41,6 +42,10 @@ function PlacesAutoComplete({ children } : { children: React.ReactNode }) {
     const { onClose, isOpen, onOpen } = useDisclosure();
     const inputRef = React.useRef<HTMLInputElement | null>(null);
 
+    React.useEffect(() => {
+        inputRef.current?.focus();
+    })
+
     return (
         <React.Fragment>
             <Trigger onOpen={onOpen}>
@@ -61,8 +66,8 @@ function PlacesAutoComplete({ children } : { children: React.ReactNode }) {
                     />
                     <ModalBody padding={"0px 0px 0px 0px"}>
                         <div className="min-h-44 flex flex-col justify-center items-center w-full gap-5">
-                        { !searchResult ? <p className="text-center text-lg font-semibold mt-2">Enter your address</p> : null }
-                        <GooglePopoverBody searchResult={searchResult} setSearchResult={setSearchResult} isOpen={isOpen} ref={inputRef}/>
+                        { !searchResult ? <p className="text-center text-xl font-semibold mt-2">Choose an address</p> : null }
+                        <GooglePopoverBody searchResult={searchResult} setSearchResult={setSearchResult} ref={inputRef}/>
                         </div>
                     </ModalBody>
                 </ModalContent>
@@ -78,36 +83,51 @@ type PlacesSuggestionProps = {
 
 const PlacesSuggestions = React.forwardRef(function SearchSuggestion({ results, onSelect } : PlacesSuggestionProps, ref) {
     function handleClick(address: string) { onSelect(address) }
+
+    function formatAddress(_address: string) {
+        const comaIdx = _address.indexOf(',');
+        const address = _address.slice(0, comaIdx)
+        const postalCode = _address.slice(comaIdx+2);
+        return [ address, postalCode ];
+    }
+
     return (
-        <ul tabIndex={1} ref={ref as LegacyRef<HTMLUListElement> | undefined} className="p-3 bg-white z-100 opacity-100 shadow-custom rounded-md overflow-y-scroll">
+        <ul tabIndex={1} ref={ref as LegacyRef<HTMLUListElement> | undefined} className="p-3 bg-white z-100 opacity-100 shadow-custom rounded-md overflow-y-scroll mt-1">
             {
                 results?.map(({ place_id, description}) => {
+                    const [ address, postalCode ] = formatAddress(description);
                     return (
-                        <li className="rounded-lg flex hover:bg-gray-100 py-4 cursor-pointer"
+                        <li className="group rounded-lg flex hover:bg-gray-100 py-3 cursor-pointer"
                             key={ place_id }
                             onClick={() => handleClick(description)}
                         >
-                            <div className="relative flex pl-3 text-[16px] font-medium items-center">
-                                <IconMarker hideShadow className="left-2 top-1/2 -translate-y-1/2 absolute pt-3" bg="#000"/>
+                            <div className="relative flex pl-3 text-[16px] font-medium items-center w-full">
+                                <div className="w-10 h-10 rounded-full bg-gray-100 group-hover:bg-white flex items-center justify-center">
+                                        <CustomMarker width={20} height={20}/>
+                                </div>
                                 <div className="ml-8">
-                                    <p>{ description }</p>
+                                    <p className="font-semibold">{ address }</p>
+                                    <p className="text-[14px] text-gray-500">{ postalCode }</p>
                                 </div>
                             </div>
                         </li>
                     )
                 })
             }
+            <li className="w-full text-gray-400 flex justify-end items-center gap-1 mt-2">
+                powered by<GoogleLogo className="h-5 mt-1"/>
+            </li>
         </ul>
     )
 })
 
 type GooglePopoverBodyProps = {
     searchResult: SearchResult | null | undefined,
-    isOpen: boolean,
+    isOpen?: boolean,
     setSearchResult: React.Dispatch<React.SetStateAction<SearchResult | null | undefined>>,
 }
 
-const GooglePopoverBody = React.forwardRef(function GooglePopoverBody({ setSearchResult, searchResult, isOpen } : GooglePopoverBodyProps, ref) {
+const GooglePopoverBody = React.forwardRef(function GooglePopoverBody({ setSearchResult, searchResult } : GooglePopoverBodyProps, ref) {
     const suggestionRef = React.useRef<HTMLUListElement | null>(null);
 
     const { 
@@ -121,7 +141,6 @@ const GooglePopoverBody = React.forwardRef(function GooglePopoverBody({ setSearc
             componentRestrictions: { country: ["CA"] },
             // sessionToken,
             types: ["address"],
-            
         }
     });
 
@@ -136,40 +155,45 @@ const GooglePopoverBody = React.forwardRef(function GooglePopoverBody({ setSearc
 
     useRelativeResize(ref as MutableRefObject<HTMLElement | null>, suggestionRef);
 
-    const handleFormCancel = React.useCallback(function handleFormCancel() {
+    function handleFormCancel() {
         setValue("", false);
         clearSuggestions();
         setSearchResult(null);
-        (ref as MutableRefObject<HTMLElement>).current?.focus();
-    }, [setSearchResult, setValue, clearSuggestions, ref])
+    }
 
     React.useEffect(() => {
-        handleFormCancel();
-    }, [isOpen, handleFormCancel])
+        (ref as React.MutableRefObject<HTMLInputElement> | undefined)?.current?.focus();
+    })
+
 
     return (
         <React.Fragment>
             {
-                searchResult ?
-                    <div className="w-full">
-                        <div className="h-56">
-                            <MapBoxMap key={searchResult?.lat} latitude={searchResult?.lat} longitude={searchResult?.lng}/>
-                        </div>
-                        <AddressForm
-                            address={searchResult.address as string}
-                            postalCode={searchResult.postalCode as string}
-                            cancel={() => handleFormCancel()}
-                        />
-                    </div>
-                    : (
-                        <div className="px-3 w-full">
+                !searchResult ?
+                        <div className="px-3 w-full h-10 relative">
+                            <div className="absolute top-1/2 -translate-y-1/2 left-5">
+                                <CustomMarker fill="#96999e" width={20} height={20} />
+                            </div>
                             <input
+                                autoFocus
                                 ref={ref as LegacyRef<HTMLInputElement> | undefined}
                                 value={value}
                                 onChange={(e) => setValue(e.target.value)}
                                 disabled={!ready}
-                                className="focus:border-black focus:border-2 p-2 bg-gray-100 w-full rounded-lg outline-none" autoComplete="off" />
+                                placeholder="Enter your address"
+                                className="focus:border-black focus:border-2 py-2 pl-8  bg-gray-100 border-2 w-full rounded-lg outline-none" autoComplete="off" />
                             { status === 'OK' ? <PlacesSuggestions ref={suggestionRef} results={data} onSelect={handleSelect}/> : null }
+                        </div>
+                    : (
+                        <div className="w-full">
+                            <div className="h-56">
+                                <MapBoxMap key={searchResult?.lat} latitude={searchResult?.lat} longitude={searchResult?.lng}/>
+                            </div>
+                            <AddressForm
+                                address={searchResult.address as string}
+                                postalCode={searchResult.postalCode as string}
+                                cancel={() => handleFormCancel()}
+                            />
                         </div>
                     )
             }

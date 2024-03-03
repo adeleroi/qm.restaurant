@@ -97,7 +97,7 @@ const AuthForm = React.forwardRef(function AuthForm(_, ref) {
               <span
                 onClick={() => {
                   setAction('reset');
-                  ref?.current?.focus()
+                  (ref as React.MutableRefObject<HTMLInputElement>)?.current?.focus()
                 }}
                 className='text-defaultGreen font-bold cursor-pointer hover:text-green-700'>Reset it</span>
             </p>
@@ -138,7 +138,7 @@ const AuthFormFooter = React.forwardRef(function AuthFormFooter(_, ref) {
         setAction('signup');
         break
     }
-    ref?.current?.focus();
+    (ref as React.MutableRefObject<HTMLInputElement>)?.current?.focus();
   }
   return (
     <>
