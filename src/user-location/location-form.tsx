@@ -4,10 +4,16 @@ import {
 import { Form } from 'react-router-dom';
 import { Field } from '../components/form-element';
 
-export function AddressForm({ cancel } : { cancel: () => void }) {
+export function AddressForm({ address, cancel } : { address: string, cancel: () => void }) {
     return (
-        <div className="mt-3">
+        <div className="mt-3 px-2">
             <Form>
+                <Field className="mb-3">
+                    <input
+                        disabled
+                        defaultValue={address}
+                        className="p-3 mt-[2px] bg-gray-100 focus:border-black outline-none focus:border-2 w-full placeholder-gray-700"/>
+                </Field>
                 <Field className="mb-3">
                     <input
                         placeholder='Appartment, suite, floor'

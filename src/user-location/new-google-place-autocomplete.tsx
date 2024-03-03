@@ -52,16 +52,19 @@ function PlacesAutoComplete({ children } : { children: React.ReactNode }) {
             <PopoverTrigger>
                 { children }
             </PopoverTrigger>
-            <PopoverContent minW={'30rem'} minH={'70vh'} border={''} boxShadow={"1px 7px 25px 8px rgb(0 0 0 / 0.25)"}>
+            <PopoverContent  border={''} minW={'30vw'} boxShadow={"1px 7px 25px 8px rgb(0 0 0 / 0.25)"} borderRadius={'12px'} padding={"0px 0px 0px 0px"}>
                 <PopoverArrow/>
                 <PopoverCloseButton
                     onClick={() => onClose()}
                     style={{top: '0.5rem', fontWeight: 'bold', fontSize: '16px', width: '2.4rem', height: '2.4rem', borderRadius: '50%'}} />
-                <PopoverHeader border={'none'}>
+                {/* <PopoverHeader border={'none'}>
                     <PopoverTitle searchResult={searchResult} />
-                </PopoverHeader>
-                <PopoverBody>
+                </PopoverHeader> */}
+                <PopoverBody padding={"0px 0px 0px 0px"}>
+                    <div className="min-h-44 flex flex-col justify-center items-center w-full gap-5">
+                    { !searchResult ? <p className="text-center text-lg font-semibold mt-2">Enter your address</p> : null }
                     <GooglePopoverBody searchResult={searchResult} setSearchResult={setSearchResult} isOpen={isOpen} ref={inputRef}/>
+                    </div>
                 </PopoverBody>
             </PopoverContent>
         </Popover>
@@ -109,7 +112,7 @@ function PopoverTitle({ searchResult } : { searchResult: SearchResult | null | u
                         <p className='text-md'>({ searchResult.postalCode })</p>
                     </div>
                 )
-                : "Enter your address"
+                : <p className="text-center">Enter your address</p>
             }
         </h1>
     )
@@ -165,14 +168,18 @@ const GooglePopoverBody = React.forwardRef(function GooglePopoverBody({ setSearc
         <React.Fragment>
             {
                 searchResult ?
-                    <div>
-                        <div className="h-44 border-[2px]">
+                    <div className="w-full">
+                        <div className="h-56">
                             <MapBoxMap key={searchResult?.lat} latitude={searchResult?.lat} longitude={searchResult?.lng}/>
                         </div>
-                        <AddressForm cancel={() => handleFormCancel()}/>
+                        {/* <div className="px-3 flex">
+                            <p className='text-md'>{ searchResult.address }</p>
+                            <p className='text-md'>({ searchResult.postalCode })</p>
+                        </div> */}
+                        <AddressForm address={searchResult.address as string} cancel={() => handleFormCancel()}/>
                     </div>
                     : (
-                        <div>
+                        <div className="px-3 w-full">
                             <input
                                 ref={ref as LegacyRef<HTMLInputElement> | undefined}
                                 value={value}

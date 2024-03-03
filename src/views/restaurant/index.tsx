@@ -109,8 +109,11 @@ export function FoodCard({ food } : { food: Food }) {
                 <div className="w-72 ml-2">
                     <img className="h-40 object-fit" src={food.imgUrl}/>
                 </div>
-                <div className="absolute bottom-2 right-2">
+                <div className="absolute bottom-1 right-1 z-20">
                     <CircleButton/>
+                </div>
+                <div className="absolute -bottom-8 -right-8 w-20 h-20 rounded-full bg-defaultGreen">
+
                 </div>
             </li>
         </Link>
@@ -151,10 +154,12 @@ export function FoodCategoryTest({ category } : FoodCategoryProps) {
     )
 }
 
-function CircleButton() {
+function CircleButton({ count=0 } : { count?: number }) {
     return (
-        <div className="bg-whtie text-black w-8 h-8 flex items-center justify-center shadow-custom rounded-full font-bold ">
-            <span className="material-symbols-outlined">add</span>
+        <div className="bg-white text-black w-8 h-8 flex items-center justify-center shadow-custom rounded-full font-bold hover:bg-gray-200">
+            <button className="flex items-center rounded-full">
+                { count > 0 ? count : <span className="material-symbols-outlined">add</span> }
+            </button>
         </div>
     )
 }
