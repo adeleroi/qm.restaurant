@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, LegacyRef, SetStateAction } from "react";
 import {
     // Modal
     Modal,
@@ -6,7 +6,7 @@ import {
     ModalContent,
     ModalBody,
     useDisclosure,
-    // Radio
+    // Radio
     Radio,
     RadioGroup,
     CheckboxGroup,
@@ -30,7 +30,6 @@ export function FoodModal() {
         e.preventDefault();
         setIsSubmit(true);
         const invalidFields = Object.keys(requiredOptionsValidity).filter(key  => !requiredOptionsValidity[key]);
-        console.log('invalidFields', invalidFields)
         if (!invalidFields.length) {
             submit(e.currentTarget);
         } else {
@@ -144,7 +143,6 @@ function RequiredPillMessage({ min, max } : { min: number, max: number }) {
 type RequiredInstructionProps = {
     min: number,
     max: number,
-    // quantity: number,
     isInvalid: boolean,
     isIdle: boolean,
 }
@@ -170,9 +168,9 @@ function OptionalInstruction({ quantity } : { quantity: number }) {
 
 type FoodCustomizationProps = {
     customization: FoodOptionList,
-    setRequiredOptionsValidity: Dispatch<SetStateAction<Record<string, boolean>>>,
     isInvalid: boolean,
     isIdle: boolean,
+    setRequiredOptionsValidity: Dispatch<SetStateAction<Record<string, boolean>>>,
 };
 
 export function FoodCustomization({ customization, setRequiredOptionsValidity, isInvalid, isIdle } : FoodCustomizationProps) {
@@ -216,6 +214,7 @@ export function FoodCustomization({ customization, setRequiredOptionsValidity, i
 }
 
 type FoodCustomizationSelectProps = {
+    isRequired?: boolean,
     min: number,
     max: number,
     options: Array<FoodOption>,
@@ -236,6 +235,7 @@ function RequiredFoodCustomizationSelect({ min, options, title, max, setRequired
     if (min > 1) {
         return (
             <CustomizationCheckBoxGroup
+                isRequired
                 options={options}
                 title={title}
                 min={min}
@@ -278,25 +278,30 @@ function FoodCustomizationInstruction({ isRequired, min, max, isInvalid, isIdle,
 }
 
 type CustomizationCheckBoxGroupProps = {
+    isRequired?: boolean,
     options: Array<FoodOption>,
     title: string,
-    setRequiredOptionsValidity: Dispatch<SetStateAction<Record<string, boolean>>>,
     min: number,
     max: number,
+    setRequiredOptionsValidity: Dispatch<SetStateAction<Record<string, boolean>>>,
 }
 
-function CustomizationCheckBoxGroup({ options, title, setRequiredOptionsValidity, min, max } : CustomizationCheckBoxGroupProps) {
+function CustomizationCheckBoxGroup({ options, title, isRequired, min, max, setRequiredOptionsValidity } : CustomizationCheckBoxGroupProps) {
     const [ checkedCount, setCheckedCount ] = React.useState<number>(0);
-    console.log(title, checkedCount);
+    const [ checkedList, setCheckedList] = React.useState<Array<string>>([]);
+    const checkboxContainerRef = React.useRef<HTMLElement | null>(null);
+    const disableUnchecked = checkedCount === max && isRequired
 
-    function handleChange(value: boolean) {
+    function handleChange(checked: boolean, checkboxName: string) {
         let newCount = 0;
-        if (value) {
+        if (checked) {
             newCount = checkedCount + 1;
             setCheckedCount(newCount);
+            setCheckedList(list => [...list, checkboxName]);
         } else {
             newCount = checkedCount - 1;
             setCheckedCount(newCount)
+            setCheckedList(checkedList.filter(name => name !== checkboxName));
         }
 
         if (newCount >= min && newCount <= max) {
@@ -307,20 +312,28 @@ function CustomizationCheckBoxGroup({ options, title, setRequiredOptionsValidity
     }
 
     return (
-        <CheckboxGroup colorScheme="green">
-            {
-                options?.map(({ name, price }: FoodOption, idx) => (
-                    <div className="py-3 pl-3 border-b-[1px] cursor-pointer" key={idx}>
-                        <Checkbox form="food-customization-form" name={title} size={'lg'} value={name}  onChange={(e) => handleChange(e.target.checked)}>
+        <div ref={checkboxContainerRef as LegacyRef<HTMLDivElement> | undefined}>
+            <CheckboxGroup colorScheme="green">
+                {
+                    options?.map(({ name, price }: FoodOption, idx) => (
+                        <div className="py-3 pl-3 border-b-[1px] flex items-center " key={idx} id={title}>
+                            <Checkbox
+                                disabled={disableUnchecked && !checkedList?.includes(name)}
+                                _disabled={{backgroundColor: 'gray.200', cursor: 'not-allowed'}}
+                                form="food-customization-form"
+                                name={title} size={'lg'}
+                                value={name} 
+                                onChange={(e) => handleChange(e.target.checked, name)}>
+                            </Checkbox>
                             <div className="grid pl-2">
                                 <span className="font-semibold text-[14px] capitalize">{ name }</span>
                                 <span className="font-bold text-[14px] text-gray-500">{ price ? priceFormat(price) : null }</span>
                             </div>
-                        </Checkbox>
-                    </div>
-                ))
-            }
-        </CheckboxGroup>
+                        </div>
+                    ))
+                }
+            </CheckboxGroup>
+        </div>
     )
 }
 
@@ -334,7 +347,6 @@ function CustomizationRadioGroup({ options, title, setRequiredOptionsValidity } 
     const [ value, setValue ] = React.useState<string | undefined>(undefined);
 
     function handleChange(value: string) {
-        console.log('value', value);
         setValue(value);
         setRequiredOptionsValidity(option => ({ ...option, [title]: true }));
     }
