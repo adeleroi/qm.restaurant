@@ -20,22 +20,7 @@ import clsx from "clsx";
 export function FoodModal() {
     const { onOpen, onClose, isOpen } = useDisclosure();
     const { food, requiredOptionState } = useLoaderData() as { food: Food, requiredOptionState: Record<string, boolean> };
-    const [ requiredOptionsValidity, setRequiredOptionsValidity ] = React.useState<Record<string, boolean>>(requiredOptionState);
-    const [ isSubmit, setIsSubmit ] = React.useState(false);
-    const submit = useSubmit();
-
     const navigate = useNavigate();
-
-    function handleSubmit(e) {
-        e.preventDefault();
-        setIsSubmit(true);
-        const invalidFields = Object.keys(requiredOptionsValidity).filter(key  => !requiredOptionsValidity[key]);
-        if (!invalidFields.length) {
-            submit(e.currentTarget);
-        } else {
-            document.getElementById(invalidFields[0])?.scrollIntoView({behavior: "smooth", block: 'center'});
-        }
-    }
 
     React.useEffect(() => {
         onOpen();
@@ -57,40 +42,73 @@ export function FoodModal() {
                 <ModalOverlay/>
                 <ModalContent className="min-h-[90vh] px-2 pt-10 relative" style={{position: 'relative', borderRadius: 0}}>
                     <ModalBody className="">
-                            <div className="overflow-y-auto ">
-                                <h1 className="text-black capitalize font-black text-2xl">{ food.name }</h1>
-                                <p className="font-black text-gray-500 mt-1 text-xl">{ priceFormat(food.price) }</p>
-                                <div>
-                                    <Form id="food-customization-form" className="" onSubmit={handleSubmit}>
-                                        {
-                                            food.customization.map((custom, idx) => {
-                                                return (
-                                                    <FoodCustomization
-                                                        key={idx}
-                                                        isInvalid={
-                                                            isOptionRequired(custom.minNumOptions) && isSubmit && !requiredOptionsValidity[custom.title]
-                                                        }
-                                                        isIdle={!isSubmit}
-                                                        customization={custom}
-                                                        setRequiredOptionsValidity={setRequiredOptionsValidity}
-                                                    />
-                                                )
-                                            })
-                                        }
-                                        <div className="w-full flex justify-end">
-                                            <button
-                                                type="submit"
-                                                className="bg-black text-white font-bold text-xl py-2 rounded-lg w-44 mt-8 mb-4">
-                                                    Save
-                                            </button>
-                                        </div>
-                                    </Form>
-                                </div>
-                            </div>
+                        <FoodCustomizationTitle price={food.price} name={food.name}/>
+                        <FoodCustomizationForm food={food} requiredOptionState={requiredOptionState}/>
                     </ModalBody>
                 </ModalContent>
             </Modal>
         </React.Fragment>
+    )
+}
+
+function FoodCustomizationTitle({ name, price } : { name: string, price: number }) {
+    return (
+        <div className="overflow-y-auto ">
+            <h1 className="text-black capitalize font-black text-2xl">{ name }</h1>
+            <p className="font-black text-gray-500 mt-1 text-xl">{ priceFormat(price) }</p>
+            <div>
+
+            </div>
+        </div>        
+    )
+}
+
+type FoodCustomizationFormProps = {
+    food: Food,
+    requiredOptionState: Record<string, boolean>
+}
+
+function FoodCustomizationForm({ food, requiredOptionState } : FoodCustomizationFormProps) {
+    const [ requiredOptionsValidity, setRequiredOptionsValidity ] = React.useState<Record<string, boolean>>(requiredOptionState);
+    const [ isSubmit, setIsSubmit ] = React.useState(false);
+    const submit = useSubmit();
+
+    function handleSubmit(e:  React.FormEvent<HTMLFormElement>) {
+        e.preventDefault(); // Need to check after
+        setIsSubmit(true);
+        const invalidFields = Object.keys(requiredOptionsValidity).filter(key  => !requiredOptionsValidity[key]);
+        if (!invalidFields.length) {
+            submit(e.currentTarget);
+        } else {
+            document.getElementById(invalidFields[0])?.scrollIntoView({behavior: "smooth", block: 'center'});
+        }
+    }
+    
+    return (
+        <Form id="food-customization-form" className="" onSubmit={handleSubmit}>
+            {
+                food.customization.map((custom, idx) => {
+                    return (
+                        <FoodCustomization
+                            key={idx}
+                            isInvalid={
+                                isOptionRequired(custom.minNumOptions) && isSubmit && !requiredOptionsValidity[custom.title]
+                            }
+                            isIdle={!isSubmit}
+                            customization={custom}
+                            setRequiredOptionsValidity={setRequiredOptionsValidity}
+                        />
+                    )
+                })
+            }
+            <div className="w-full flex justify-end">
+                <button
+                    type="submit"
+                    className="bg-black text-white font-bold text-xl py-2 rounded-lg w-44 mt-8 mb-4">
+                        Save
+                </button>
+            </div>
+        </Form>
     )
 }
 
@@ -132,11 +150,11 @@ function RequiredPillIcon({ isInvalid, isIdle } : { isInvalid: boolean, isIdle: 
 }
 
 function RequiredPillMessage({ min, max } : { min: number, max: number }) {
-    if (min === 1) {
-        return <span className="text-gray-500 font-semibold text-[14px]">• Select { min }</span>
+    if (min === 1 || min === max) {
+        return <span className="text-gray-500 font-semibold text-[14px]">• Select { min }</span>;
     }
     if (min > 1) {
-        return <span className="text-gray-500 font-semibold text-[14px]">• Select between { min } and { max }</span>
+        return <span className="text-gray-500 font-semibold text-[14px]">• Select between { min } and { max }</span>;
     }   
 }
 
