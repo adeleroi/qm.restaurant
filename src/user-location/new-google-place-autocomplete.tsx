@@ -7,18 +7,17 @@ import usePlacesAutocomplete, {
     getZipCode
 } from "use-places-autocomplete";
 import {
-    Popover,
-    PopoverTrigger,
-    PopoverContent,
-    PopoverHeader,
-    PopoverBody,
-    PopoverArrow,
-    PopoverCloseButton,
     useDisclosure,
+    Modal,
+    ModalContent,
+    ModalBody,
+    ModalCloseButton,
+    ModalOverlay,
   } from '@chakra-ui/react';
 import { IconMarker, MapBoxMap } from "../components/store-info/map-mapbox";
 import { AddressForm } from "./location-form";
 import { useRelativeResize } from "../utils/hooks";
+import { Trigger } from "../utils/trigger";
 
 export type LatLng = { lat: number, lng: number };
 
@@ -43,31 +42,32 @@ function PlacesAutoComplete({ children } : { children: React.ReactNode }) {
     const inputRef = React.useRef<HTMLInputElement | null>(null);
 
     return (
-        <Popover
-            onOpen={onOpen}
-            onClose={onClose}
-            isOpen={isOpen}
-            initialFocusRef={inputRef}
-        >
-            <PopoverTrigger>
+        <React.Fragment>
+            <Trigger onOpen={onOpen}>
                 { children }
-            </PopoverTrigger>
-            <PopoverContent  border={''} minW={'30vw'} boxShadow={"1px 7px 25px 8px rgb(0 0 0 / 0.25)"} borderRadius={'12px'} padding={"0px 0px 0px 0px"}>
-                <PopoverArrow/>
-                <PopoverCloseButton
-                    onClick={() => onClose()}
-                    style={{top: '0.5rem', fontWeight: 'bold', fontSize: '16px', width: '2.4rem', height: '2.4rem', borderRadius: '50%'}} />
-                {/* <PopoverHeader border={'none'}>
-                    <PopoverTitle searchResult={searchResult} />
-                </PopoverHeader> */}
-                <PopoverBody padding={"0px 0px 0px 0px"}>
-                    <div className="min-h-44 flex flex-col justify-center items-center w-full gap-5">
-                    { !searchResult ? <p className="text-center text-lg font-semibold mt-2">Enter your address</p> : null }
-                    <GooglePopoverBody searchResult={searchResult} setSearchResult={setSearchResult} isOpen={isOpen} ref={inputRef}/>
-                    </div>
-                </PopoverBody>
-            </PopoverContent>
-        </Popover>
+            </Trigger>
+            <Modal
+                size={'lg'}
+                onClose={onClose}
+                isOpen={isOpen}
+                initialFocusRef={inputRef}
+                isCentered
+            >
+                <ModalOverlay/>
+                <ModalContent minH={'85vh'} borderRadius={'10px'} padding={"0px 0px 0px 0px"} overflow={'hidden'}>
+                    <ModalCloseButton
+                        onClick={() => onClose()}
+                        style={{top: '0.5rem', fontWeight: 'bold', fontSize: '16px', width: '2.4rem', height: '2.4rem', borderRadius: '50%'}}
+                    />
+                    <ModalBody padding={"0px 0px 0px 0px"}>
+                        <div className="min-h-44 flex flex-col justify-center items-center w-full gap-5">
+                        { !searchResult ? <p className="text-center text-lg font-semibold mt-2">Enter your address</p> : null }
+                        <GooglePopoverBody searchResult={searchResult} setSearchResult={setSearchResult} isOpen={isOpen} ref={inputRef}/>
+                        </div>
+                    </ModalBody>
+                </ModalContent>
+            </Modal>
+        </React.Fragment>
     )
 }
 
@@ -100,23 +100,6 @@ const PlacesSuggestions = React.forwardRef(function SearchSuggestion({ results, 
         </ul>
     )
 })
-
-function PopoverTitle({ searchResult } : { searchResult: SearchResult | null | undefined}) {
-    return (
-        <h1 className="pt-2 font-semibold max-w-[90%] text-xl">
-            {
-                searchResult ?
-                (
-                    <div>
-                        <p className='text-md'>{ searchResult.address }</p>
-                        <p className='text-md'>({ searchResult.postalCode })</p>
-                    </div>
-                )
-                : <p className="text-center">Enter your address</p>
-            }
-        </h1>
-    )
-}
 
 type GooglePopoverBodyProps = {
     searchResult: SearchResult | null | undefined,
@@ -172,11 +155,11 @@ const GooglePopoverBody = React.forwardRef(function GooglePopoverBody({ setSearc
                         <div className="h-56">
                             <MapBoxMap key={searchResult?.lat} latitude={searchResult?.lat} longitude={searchResult?.lng}/>
                         </div>
-                        {/* <div className="px-3 flex">
-                            <p className='text-md'>{ searchResult.address }</p>
-                            <p className='text-md'>({ searchResult.postalCode })</p>
-                        </div> */}
-                        <AddressForm address={searchResult.address as string} cancel={() => handleFormCancel()}/>
+                        <AddressForm
+                            address={searchResult.address as string}
+                            postalCode={searchResult.postalCode as string}
+                            cancel={() => handleFormCancel()}
+                        />
                     </div>
                     : (
                         <div className="px-3 w-full">
