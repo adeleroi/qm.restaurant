@@ -66,8 +66,13 @@ function PlacesAutoComplete({ children } : { children: React.ReactNode }) {
                     />
                     <ModalBody padding={"0px 0px 0px 0px"}>
                         <div className="flex flex-col justify-center items-center w-full gap-5">
-                            { !searchResult ? <p className="text-center text-xl font-semibold mt-16">Choose an address</p> : null }
-                            <GooglePopoverBody searchResult={searchResult} setSearchResult={setSearchResult} ref={inputRef} isOpen={isOpen}/>
+                            { !searchResult ? (
+                                    <div className="w-full mt-16">
+                                        <p className="text-center mb-2 text-xl font-semibold">Choose an address</p>
+                                        <GoogleAutocomplete setSearchResult={setSearchResult} ref={inputRef} />
+                                    </div>
+                                ): <LocationForm searchResult={searchResult} handleFormCancel={() => setSearchResult(null) }/>
+                            }
                         </div>
                     </ModalBody>
                 </ModalContent>
@@ -122,12 +127,10 @@ const PlacesSuggestions = React.forwardRef(function SearchSuggestion({ results, 
 })
 
 type GooglePopoverBodyProps = {
-    searchResult: SearchResult | null | undefined,
-    isOpen?: boolean,
     setSearchResult: React.Dispatch<React.SetStateAction<SearchResult | null | undefined>>,
 }
 
-const GooglePopoverBody = React.forwardRef(function GooglePopoverBody({ setSearchResult, searchResult, isOpen } : GooglePopoverBodyProps, ref) {
+export const GoogleAutocomplete = React.forwardRef(function GooglePopoverBody({ setSearchResult } : GooglePopoverBodyProps, ref) {
     const suggestionRef = React.useRef<HTMLUListElement | null>(null);
 
     const { 
@@ -155,52 +158,40 @@ const GooglePopoverBody = React.forwardRef(function GooglePopoverBody({ setSearc
 
     useRelativeResize(ref as MutableRefObject<HTMLElement | null>, suggestionRef);
 
-    const handleFormCancel = React.useCallback(function handleFormCancel() {
-        setValue("", false);
-        clearSuggestions();
-        setSearchResult(null);
-    }, [setValue, clearSuggestions, setSearchResult])
-
     React.useEffect(() => {
         (ref as React.MutableRefObject<HTMLInputElement> | undefined)?.current?.focus();
     })
 
-    React.useEffect(() => {
-        handleFormCancel();
-    }, [isOpen, handleFormCancel])
-
-
     return (
-        <React.Fragment>
-            {
-                !searchResult ?
-                        <div className="px-3 w-full h-10 relative">
-                            <div className="absolute top-1/2 -translate-y-1/2 left-5">
-                                <CustomMarker fill="#96999e" width={20} height={20} />
-                            </div>
-                            <input
-                                autoFocus
-                                ref={ref as LegacyRef<HTMLInputElement> | undefined}
-                                value={value}
-                                onChange={(e) => setValue(e.target.value)}
-                                disabled={!ready}
-                                placeholder="Enter your address"
-                                className="focus:border-black focus:border-2 py-2 pl-8  bg-gray-100 border-2 w-full rounded-lg outline-none" autoComplete="off" />
-                            { status === 'OK' ? <PlacesSuggestions ref={suggestionRef} results={data} onSelect={handleSelect}/> : null }
-                        </div>
-                    : (
-                        <div className="w-full">
-                            <div className="h-72">
-                                <MapBoxMap key={searchResult?.lat} latitude={searchResult?.lat} longitude={searchResult?.lng}/>
-                            </div>
-                            <AddressForm
-                                address={searchResult.address as string}
-                                postalCode={searchResult.postalCode as string}
-                                cancel={() => handleFormCancel()}
-                            />
-                        </div>
-                    )
-            }
-        </React.Fragment>
+        <div className="px-3 w-full h-10 relative">
+            <div className="absolute top-1/2 -translate-y-1/2 left-5">
+                <CustomMarker fill="#96999e" width={20} height={20} />
+            </div>
+            <input
+                autoFocus
+                ref={ref as LegacyRef<HTMLInputElement> | undefined}
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                onFocus={(e) => setValue(e.target.value)}
+                disabled={!ready}
+                placeholder="Enter your address"
+                className="focus:border-black focus:border-2 py-2 pl-8  bg-gray-100 border-2 w-full rounded-lg outline-none" autoComplete="off" />
+            { status === 'OK' ? <PlacesSuggestions ref={suggestionRef} results={data} onSelect={handleSelect}/> : null }
+        </div>
     )
 })
+
+function LocationForm({ searchResult, handleFormCancel } : { searchResult: SearchResult, handleFormCancel: () => void}) {
+    return (
+        <div className="w-full">
+            <div className="h-72">
+                <MapBoxMap key={searchResult?.lat} latitude={searchResult?.lat} longitude={searchResult?.lng}/>
+            </div>
+            <AddressForm
+                address={searchResult.address as string}
+                postalCode={searchResult.postalCode as string}
+                cancel={() => handleFormCancel()}
+            />
+        </div>
+    )
+}
