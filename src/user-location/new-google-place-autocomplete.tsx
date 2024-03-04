@@ -34,17 +34,12 @@ export function GooglePlace({ children } : { children: React.ReactNode }) {
         libraries: library,
     })
 
-    return isLoaded ? <PlacesAutoComplete >{ children}</PlacesAutoComplete> : null;
+    return isLoaded ? <PlacesAutoCompleteModal >{ children}</PlacesAutoCompleteModal> : null;
 }
 
-function PlacesAutoComplete({ children } : { children: React.ReactNode }) {
+export function PlacesAutoCompleteModal({ children } : { children: React.ReactNode }) {
     const [ searchResult, setSearchResult ] = React.useState<SearchResult | null>();
     const { onClose, isOpen, onOpen } = useDisclosure();
-    const inputRef = React.useRef<HTMLInputElement | null>(null);
-
-    React.useEffect(() => {
-        inputRef.current?.focus();
-    })
 
     return (
         <React.Fragment>
@@ -58,7 +53,6 @@ function PlacesAutoComplete({ children } : { children: React.ReactNode }) {
                     onClose();
                 }}
                 isOpen={isOpen}
-                initialFocusRef={inputRef}
                 isCentered
             >
                 <ModalOverlay/>
@@ -72,7 +66,7 @@ function PlacesAutoComplete({ children } : { children: React.ReactNode }) {
                             { !searchResult ? (
                                     <div className="w-full mt-16">
                                         <p className="text-center mb-2 text-xl font-semibold">Choose an address</p>
-                                        <GoogleAutocomplete setSearchResult={setSearchResult} ref={inputRef} />
+                                        <GoogleAutocomplete setSearchResult={setSearchResult} />
                                     </div>
                                 ): <LocationForm searchResult={searchResult} handleFormCancel={() => setSearchResult(null) }/>
                             }
@@ -129,12 +123,13 @@ const PlacesSuggestions = React.forwardRef(function SearchSuggestion({ results, 
     )
 })
 
-type GooglePopoverBodyProps = {
+type GoogleAutocompleteProps = {
     setSearchResult: React.Dispatch<React.SetStateAction<SearchResult | null | undefined>>,
 }
 
-export const GoogleAutocomplete = React.forwardRef(function GooglePopoverBody({ setSearchResult } : GooglePopoverBodyProps, ref) {
+export function GoogleAutocomplete({ setSearchResult } : GoogleAutocompleteProps) {
     const suggestionRef = React.useRef<HTMLUListElement | null>(null);
+    const inputRef = React.useRef<HTMLInputElement | null>(null);
 
     const { 
         ready,
@@ -159,10 +154,10 @@ export const GoogleAutocomplete = React.forwardRef(function GooglePopoverBody({ 
         setSearchResult({ lat, lng, postalCode, address  })
     }
 
-    useRelativeResize(ref as MutableRefObject<HTMLElement | null>, suggestionRef);
+    useRelativeResize(inputRef as MutableRefObject<HTMLElement | null>, suggestionRef);
 
     React.useEffect(() => {
-        (ref as React.MutableRefObject<HTMLInputElement> | undefined)?.current?.focus();
+        (inputRef as React.MutableRefObject<HTMLInputElement> | undefined)?.current?.focus();
     })
 
     return (
@@ -172,7 +167,7 @@ export const GoogleAutocomplete = React.forwardRef(function GooglePopoverBody({ 
             </div>
             <input
                 autoFocus
-                ref={ref as LegacyRef<HTMLInputElement> | undefined}
+                ref={inputRef as LegacyRef<HTMLInputElement> | undefined}
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 onFocus={(e) => setValue(e.target.value)}
@@ -182,7 +177,7 @@ export const GoogleAutocomplete = React.forwardRef(function GooglePopoverBody({ 
             { status === 'OK' ? <PlacesSuggestions ref={suggestionRef} results={data} onSelect={handleSelect}/> : null }
         </div>
     )
-})
+}
 
 function LocationForm({ searchResult, handleFormCancel } : { searchResult: SearchResult, handleFormCancel: () => void}) {
     return (
