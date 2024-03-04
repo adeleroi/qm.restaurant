@@ -59,15 +59,15 @@ function PlacesAutoComplete({ children } : { children: React.ReactNode }) {
                 isCentered
             >
                 <ModalOverlay/>
-                <ModalContent minH={'85vh'} borderRadius={'10px'} padding={"0px 0px 0px 0px"} overflow={'hidden'}>
+                <ModalContent minH={'80vh'} borderRadius={'10px'} padding={"0px 0px 0px 0px"} overflow={'hidden'}>
                     <ModalCloseButton
                         onClick={() => onClose()}
                         style={{top: '0.5rem', fontWeight: 'bold', fontSize: '16px', width: '2.4rem', height: '2.4rem', borderRadius: '50%'}}
                     />
                     <ModalBody padding={"0px 0px 0px 0px"}>
-                        <div className="min-h-44 flex flex-col justify-center items-center w-full gap-5">
-                        { !searchResult ? <p className="text-center text-xl font-semibold mt-2">Choose an address</p> : null }
-                        <GooglePopoverBody searchResult={searchResult} setSearchResult={setSearchResult} ref={inputRef}/>
+                        <div className="flex flex-col justify-center items-center w-full gap-5">
+                            { !searchResult ? <p className="text-center text-xl font-semibold mt-16">Choose an address</p> : null }
+                            <GooglePopoverBody searchResult={searchResult} setSearchResult={setSearchResult} ref={inputRef} isOpen={isOpen}/>
                         </div>
                     </ModalBody>
                 </ModalContent>
@@ -127,7 +127,7 @@ type GooglePopoverBodyProps = {
     setSearchResult: React.Dispatch<React.SetStateAction<SearchResult | null | undefined>>,
 }
 
-const GooglePopoverBody = React.forwardRef(function GooglePopoverBody({ setSearchResult, searchResult } : GooglePopoverBodyProps, ref) {
+const GooglePopoverBody = React.forwardRef(function GooglePopoverBody({ setSearchResult, searchResult, isOpen } : GooglePopoverBodyProps, ref) {
     const suggestionRef = React.useRef<HTMLUListElement | null>(null);
 
     const { 
@@ -155,15 +155,19 @@ const GooglePopoverBody = React.forwardRef(function GooglePopoverBody({ setSearc
 
     useRelativeResize(ref as MutableRefObject<HTMLElement | null>, suggestionRef);
 
-    function handleFormCancel() {
+    const handleFormCancel = React.useCallback(function handleFormCancel() {
         setValue("", false);
         clearSuggestions();
         setSearchResult(null);
-    }
+    }, [setValue, clearSuggestions, setSearchResult])
 
     React.useEffect(() => {
         (ref as React.MutableRefObject<HTMLInputElement> | undefined)?.current?.focus();
     })
+
+    React.useEffect(() => {
+        handleFormCancel();
+    }, [isOpen, handleFormCancel])
 
 
     return (
@@ -186,7 +190,7 @@ const GooglePopoverBody = React.forwardRef(function GooglePopoverBody({ setSearc
                         </div>
                     : (
                         <div className="w-full">
-                            <div className="h-56">
+                            <div className="h-72">
                                 <MapBoxMap key={searchResult?.lat} latitude={searchResult?.lat} longitude={searchResult?.lng}/>
                             </div>
                             <AddressForm

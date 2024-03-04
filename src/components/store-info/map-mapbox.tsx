@@ -22,7 +22,7 @@ export function MapBoxMap({ longitude=-75.6496399, latitude=45.4131465, zoom=14 
                 latitude,
                 zoom
             }}
-            style={{width: '100%'}}
+            style={{width: '100%', height: '100%'}}
             mapStyle="mapbox://styles/mapbox/streets-v11">
                 <Marker
                     longitude={longitude}
