@@ -53,7 +53,10 @@ function PlacesAutoComplete({ children } : { children: React.ReactNode }) {
             </Trigger>
             <Modal
                 size={'lg'}
-                onClose={onClose}
+                onClose={() => {
+                    setSearchResult(null);
+                    onClose();
+                }}
                 isOpen={isOpen}
                 initialFocusRef={inputRef}
                 isCentered
