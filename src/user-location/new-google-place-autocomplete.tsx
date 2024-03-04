@@ -19,6 +19,7 @@ import { AddressForm } from "./location-form";
 import { useRelativeResize } from "../utils/hooks";
 import { Trigger } from "../utils/trigger";
 import { CustomMarker, GoogleLogo } from "../components/icons/icon";
+import clsx from "clsx";
 
 export type LatLng = { lat: number, lng: number };
 
@@ -66,7 +67,7 @@ export function PlacesAutoCompleteModal({ children } : { children: React.ReactNo
                             { !searchResult ? (
                                     <div className="w-full mt-16">
                                         <p className="text-center mb-2 text-xl font-semibold">Choose an address</p>
-                                        <GoogleAutocomplete setSearchResult={setSearchResult} />
+                                        <GoogleAutocomplete setSearchResult={setSearchResult}/>
                                     </div>
                                 ): <LocationForm searchResult={searchResult} handleFormCancel={() => setSearchResult(null) }/>
                             }
@@ -125,9 +126,12 @@ const PlacesSuggestions = React.forwardRef(function SearchSuggestion({ results, 
 
 type GoogleAutocompleteProps = {
     setSearchResult: React.Dispatch<React.SetStateAction<SearchResult | null | undefined>>,
+    iconStyle?: string,
+    inputStyle?: string,
+    containerStyle?: string
 }
 
-export function GoogleAutocomplete({ setSearchResult } : GoogleAutocompleteProps) {
+export function GoogleAutocomplete({ setSearchResult, iconStyle, containerStyle, inputStyle } : GoogleAutocompleteProps) {
     const suggestionRef = React.useRef<HTMLUListElement | null>(null);
     const inputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -161,8 +165,12 @@ export function GoogleAutocomplete({ setSearchResult } : GoogleAutocompleteProps
     })
 
     return (
-        <div className="px-3 w-full h-10 relative">
-            <div className="absolute top-1/2 -translate-y-1/2 left-5">
+        <div className={clsx(containerStyle, {
+            "px-3 w-full relative": !containerStyle
+        })}>
+            <div className={clsx(iconStyle, {
+               "absolute top-1/2 -translate-y-1/2 left-5" : !iconStyle
+            })}>
                 <CustomMarker fill="#96999e" width={20} height={20} />
             </div>
             <input
@@ -173,7 +181,10 @@ export function GoogleAutocomplete({ setSearchResult } : GoogleAutocompleteProps
                 onFocus={(e) => setValue(e.target.value)}
                 disabled={!ready}
                 placeholder="Enter your address"
-                className="focus:border-black focus:border-2 py-2 pl-8  bg-gray-100 border-2 w-full rounded-lg outline-none" autoComplete="off" />
+                className={clsx(inputStyle, {
+                    "focus:border-black focus:border-2 py-2 pl-8 bg-gray-100 border-2 w-full h-full rounded-lg outline-none placeholder-gray-500": !inputStyle
+                })}
+                autoComplete="off" />
             { status === 'OK' ? <PlacesSuggestions ref={suggestionRef} results={data} onSelect={handleSelect}/> : null }
         </div>
     )

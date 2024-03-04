@@ -69,14 +69,14 @@ function ButtonSection() {
         <div className="flex w-80 gap-2 items-center justify-end">
             <AuthFormTrigger
                 triggerElement={
-                    <Button size="small" onClick={() => setAction('login')} className="h-8 shadow-custom bg-white hover:bg-gray-100 focus:bg-gray-200 text-black">
+                    <Button size="small" onClick={() => setAction('login')} className="h-8 shadow-custom bg-white hover:bg-gray-100 focus:bg-gray-200 text-black font-semibold">
                         Log in
                     </Button>
                 }
             />
             <AuthFormTrigger
                 triggerElement={
-                    <Button size="small" onClick={() => setAction('signup')} className="h-8 border-none shadow-custom hover:bg-gray-800 focus:bg-gray-700 bg-black text-white">
+                    <Button size="small" onClick={() => setAction('signup')} className="h-8 border-none shadow-custom hover:bg-gray-800 focus:bg-gray-700 bg-defaultGreen text-white font-semibold">
                         Sign up
                     </Button>
                 }
