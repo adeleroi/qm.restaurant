@@ -105,12 +105,12 @@ function App() {
   const location = useLocation()
   const navigate = useNavigate();
 
-    React.useEffect(() => {
-      if (loggedIn && location.pathname === '/') {
-        navigate('feed');
-      } 
+  React.useEffect(() => {
+    if (loggedIn && location.pathname === '/') {
+      navigate('feed');
+    } 
 
-    }, [loggedIn, navigate, location])
+  }, [loggedIn, navigate, location])
 
   return (
     <>
