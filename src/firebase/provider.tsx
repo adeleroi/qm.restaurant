@@ -1,7 +1,7 @@
 import { User, onAuthStateChanged } from "firebase/auth";
 import React from "react"
 import { auth, firebaseContext } from "./auth";
-
+import Cookies from 'js-cookie';
 
 
 type Status = 'idle' | 'pending' | 'complete' | 'loading';
@@ -21,8 +21,14 @@ export function FirebaseAuthProvider( { children }: { children?: React.ReactNode
     React.useEffect(() => {
         setStatus('pending')
         const unsubscribe = onAuthStateChanged(auth, user => {
+            console.log('user', user);
             setUser(user);
+            if (user) {
+                Cookies.set('qm_session_id', user.uid);
+            }
             setStatus('complete');
+            console.log('cookie', Cookies.get('qm_session_id'));
+
         })
         return unsubscribe;
     }, [])

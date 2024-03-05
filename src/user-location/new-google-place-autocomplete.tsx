@@ -28,6 +28,13 @@ export type SearchResult = LatLng & {
     address: string | undefined,
 }
 
+export type UserType = {
+    email: string,
+    name: string,
+    PhoneNumber: string,
+    location: SearchResult,
+}
+
 const library = ["places"] as Libraries;
 export function GooglePlace({ children } : { children: React.ReactNode }) {
     const { isLoaded } = useLoadScript({
@@ -57,7 +64,7 @@ export function PlacesAutoCompleteModal({ children } : { children: React.ReactNo
                 isCentered
             >
                 <ModalOverlay/>
-                <ModalContent minH={'80vh'} borderRadius={'10px'} padding={"0px 0px 0px 0px"} overflow={'hidden'}>
+                <ModalContent minH={'80vh'} borderRadius={'16px'} padding={"0px 0px 0px 0px"} overflow={'hidden'}>
                     <ModalCloseButton
                         onClick={() => onClose()}
                         style={{top: '0.5rem', fontWeight: 'bold', fontSize: '16px', width: '2.4rem', height: '2.4rem', borderRadius: '50%'}}
@@ -106,10 +113,10 @@ const PlacesSuggestions = React.forwardRef(function SearchSuggestion({ results, 
                         >
                             <div className="relative flex pl-3 text-[16px] font-medium items-center w-full">
                                 <div className="w-10 h-10 rounded-full bg-gray-100 group-hover:bg-white flex items-center justify-center">
-                                        <CustomMarker width={20} height={20}/>
+                                    <CustomMarker width={20} height={20}/>
                                 </div>
                                 <div className="ml-8">
-                                    <p className="font-semibold">{ address }</p>
+                                    <p className="font-semibold group-hover:text-defaultGreen">{ address }</p>
                                     <p className="text-[14px] text-gray-500">{ postalCode }</p>
                                 </div>
                             </div>
@@ -166,7 +173,7 @@ export function GoogleAutocomplete({ setSearchResult, iconStyle, containerStyle,
 
     return (
         <div className={clsx(containerStyle, {
-            "px-3 w-full relative": !containerStyle
+            "px-3 w-full relative h-14": !containerStyle
         })}>
             <div className={clsx(iconStyle, {
                "absolute top-1/2 -translate-y-1/2 left-5" : !iconStyle
@@ -182,7 +189,7 @@ export function GoogleAutocomplete({ setSearchResult, iconStyle, containerStyle,
                 disabled={!ready}
                 placeholder="Enter your address"
                 className={clsx(inputStyle, {
-                    "focus:border-black focus:border-2 py-2 pl-8 bg-gray-100 border-2 w-full h-full rounded-lg outline-none placeholder-gray-500": !inputStyle
+                    "hover:border-black hover:border-2 focus:border-black focus:border-2 py-2 pl-8 bg-gray-100 border-2 w-full h-full rounded-lg outline-none placeholder-gray-500": !inputStyle
                 })}
                 autoComplete="off" />
             { status === 'OK' ? <PlacesSuggestions ref={suggestionRef} results={data} onSelect={handleSelect}/> : null }
@@ -193,7 +200,7 @@ export function GoogleAutocomplete({ setSearchResult, iconStyle, containerStyle,
 function LocationForm({ searchResult, handleFormCancel } : { searchResult: SearchResult, handleFormCancel: () => void}) {
     return (
         <div className="w-full">
-            <div className="h-72">
+            <div className="h-64">
                 <MapBoxMap key={searchResult?.lat} latitude={searchResult?.lat} longitude={searchResult?.lng}/>
             </div>
             <AddressForm

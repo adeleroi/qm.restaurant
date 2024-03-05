@@ -16,6 +16,7 @@ import { MapBoxMap } from "./map-mapbox";
 
 export function StoreInfoModal({ children, storeInfos } : { children: React.ReactNode, storeInfos: Store | Restaurant }) {
     const { onClose, onOpen, isOpen } = useDisclosure();
+    console.log(storeInfos);
     return (
         <React.Fragment>
             <Trigger onOpen={onOpen}>
@@ -23,10 +24,10 @@ export function StoreInfoModal({ children, storeInfos } : { children: React.Reac
             </Trigger>
             <Modal isOpen={isOpen} onClose={onClose} isCentered scrollBehavior="inside">
                 <ModalOverlay opacity={0.2}/>
-                <ModalContent style={{borderRadius: 0}}>
+                <ModalContent style={{borderRadius: '16px', overflow: 'hidden'}} minH={'70vh'}>
                     <ModalBody style={{padding: 0}}>
                         <div>
-                            <h1 className="p-3 py-4 text-2xl font-bold">{storeInfos?.name}</h1>
+                            {/* <h1 className="p-3 py-4 text-2xl font-bold">{storeInfos?.name}</h1> */}
                             <div className="relative w-full h-64 bg-gray-100">
                                 {/* <GoogleMap/> */}
                                 <MapBoxMap

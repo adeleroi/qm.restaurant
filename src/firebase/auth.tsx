@@ -1,5 +1,5 @@
 import React from "react";
-import { type User, connectAuthEmulator, createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { type User, connectAuthEmulator, createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut, signInAnonymously } from "firebase/auth";
 import { firebaseApp } from ".";
 import Cookies from 'js-cookie';
 
@@ -10,7 +10,7 @@ connectAuthEmulator(auth, "http://localhost:9099");
 export async function signupEmailPassword (email: string, password: string) {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     if (userCredential.user.uid) {
-        Cookies.set('qm_session_id', userCredential.user.uid);
+        // Cookies.set('qm_session_id', userCredential.user.uid);
     }
     return userCredential;
 }
@@ -18,15 +18,21 @@ export async function signupEmailPassword (email: string, password: string) {
 export async function loginEmailPassword(email: string, password: string) {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     if (userCredential.user.uid) {
-        Cookies.set('qm_session_id', userCredential.user.uid);
+        // Cookies.set('qm_session_id', userCredential.user.uid);
     }
     return userCredential;
 }
 
 export async function signout() {
-    await signOut(auth);
-    Cookies.remove('qm_session_id');
+    signOut(auth).then(() => {
+        Cookies.remove('qm_session_id');
+    });
 }
+
+export async function loginAnonymously() {
+    return signInAnonymously(auth);
+}
+
 
 type TUseFirebaseAuth = {
     loading: boolean,

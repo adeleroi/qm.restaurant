@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 import { Feed } from './views/feed/index.tsx';
 import { ErrorPage } from './views/error.tsx';
-import { Home } from './views/home.tsx';
+import { Home } from './views/home/home.tsx';
 import { action as rootAction, loader as rootLoader } from './App.tsx';
 import { StoreFront } from './views/store-front/index.tsx';
 import { ProductModal } from './views/store-front/product-modal.tsx/index.tsx';

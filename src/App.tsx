@@ -1,5 +1,5 @@
 import React from 'react'
-import { ActionFunctionArgs, LoaderFunctionArgs, Outlet, json, useLocation, useNavigate } from 'react-router-dom'
+import { ActionFunctionArgs, Outlet, json, useLocation, useNavigate } from 'react-router-dom'
 import './App.css'
 import { Navbar } from './components/navbar'
 import { Footer } from './components/footer'
@@ -17,16 +17,19 @@ import {
   LOG_IN_ERROR_CODE_TO_MESSAGE
 } from './firebase/error-code'
 import { z } from 'zod'
-import { collection, doc, getDoc, getDocs, serverTimestamp, setDoc } from 'firebase/firestore'
-import { db } from './firebase/fireStore'
+import { collection, doc, getDoc, getDocs } from 'firebase/firestore'
+import { createUser, db } from './firebase/fireStore'
 import { Product } from './views/store-front'
 import Cookies from 'js-cookie'
 import { Store } from './views/feed'
+import { UserType } from './user-location/new-google-place-autocomplete'
 
 export async function loader() {
   const userId = Cookies.get('qm_session_id') as string;
   if (userId) {
     console.log('connected');
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    const user = { ...userDoc.data() } as UserType;
     const carts: Array<Product> = [];
     const cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
     cartSnapshot.forEach(cartItem => {
@@ -51,9 +54,9 @@ export async function loader() {
       storeCartInfos[key]['storeId'] = key;
     }
   
-    return json({ carts, storeCartInfos: storeCartInfos, cartCount: uniqueStoreList.length })
+    return json({ carts, storeCartInfos: storeCartInfos, cartCount: uniqueStoreList.length, user })
   }
-  return json({ carts: [], storeCartInfos: [], cartCount: 0 })
+  return json({ carts: [], storeCartInfos: [], cartCount: 0, user: {} })
 
 }
 
@@ -91,20 +94,14 @@ export async function action({ request }: ActionFunctionArgs) {
   
   if (intent === 'signup') {
     // Added new users to the users collection
-    await setDoc(doc(db, 'users', submission.value.uid), {
-      email: submission.value.email,
-      name: "N'guessan",
-      country: 'Canada',
-      PhoneNumber: '5817774338',
-      timestamp: serverTimestamp(),
-    })
+    await createUser(submission.value.uid, submission.value.email)
   }
 
   return json({submission});
 }
 
 function App() {
-  const { loading, loggedIn } = useFirebaseAuth()
+  const { loggedIn } = useFirebaseAuth()
   const location = useLocation()
   const navigate = useNavigate();
 
@@ -114,8 +111,6 @@ function App() {
       } 
 
     }, [loggedIn, navigate, location])
-
-  if (loading) return null;
 
   return (
     <>

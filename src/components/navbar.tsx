@@ -6,11 +6,11 @@ import { Menu } from "./menu";
 import { CarTriggerForCheckout, CartIcon } from "./cart/cart";
 import { useFirebaseAuth } from "../firebase/auth";
 import clsx from "clsx";
-import { GooglePlace } from "../user-location/new-google-place-autocomplete";
+import { GooglePlace, UserType } from "../user-location/new-google-place-autocomplete";
 import { forwardRef } from "@chakra-ui/react";
-import { IconMarker } from "./store-info/map-mapbox";
 import { SearchSwitcher } from "./search/global-search-bar";
-import { useLocation } from "react-router-dom";
+import { useLoaderData, useLocation } from "react-router-dom";
+import { CustomMarker } from "./icons/icon";
 
 export function Navbar() {
     const location = useLocation();
@@ -27,7 +27,6 @@ export function Navbar() {
                 <GooglePlace>
                     <AddressButton />
                 </GooglePlace>
-
             }
             <div className={clsx("w-full flex-1 justify-center px-4", { "hidden": isLandingPage })}>
                 <SearchSwitcher />
@@ -40,10 +39,17 @@ export function Navbar() {
 }
 
 const AddressButton = forwardRef((props, ref) => {
+    const { user } = useLoaderData() as { user: UserType };
     return (
-        <button ref={ref} {...props} className="relative ml-10 cursor-pointer text-black px-2 h-12 rounded-3xl flex items-center justify-center">
-            <IconMarker className="absolute -left-5 top-[9px]" bg="#000"/>
-            <p className="truncate font-semibold text-[16px]">75 Daly Ave</p>
+        <button ref={ref} {...props} className="group relative cursor-pointer text-black px-2 h-12 rounded-3xl flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-green-50 group-hover:bg-green-100 flex items-center justify-center">
+                <CustomMarker fill="#099500" width={20} height={20}/>
+            </div>
+            { user?.location?.address ? 
+                <p className="truncate font-semibold text-[15px] text-defaultGreen w-32">{ user.location.address.split(',')[0] }</p>
+                :
+                <p className="truncate font-semibold text-[15px] text-defaultGreen w-32">Your address</p>
+            }
         </button>
     )
 })

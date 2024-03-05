@@ -56,9 +56,6 @@ function FoodCustomizationTitle({ name, price } : { name: string, price: number 
         <div className="overflow-y-auto ">
             <h1 className="text-black capitalize font-black text-2xl">{ name }</h1>
             <p className="font-black text-gray-500 mt-1 text-xl">{ priceFormat(price) }</p>
-            <div>
-
-            </div>
         </div>        
     )
 }
