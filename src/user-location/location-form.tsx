@@ -7,7 +7,7 @@ import clsx from 'clsx';
 import Cookies from 'js-cookie';
 import React from 'react';
 
-export function AddressForm({ searchResult, cancel } : { searchResult: SearchResult, cancel: () => void }) {
+export function AddressForm({ searchResult, cancel, close } : { searchResult: SearchResult, cancel: () => void, close: () => void }) {
     const fullAddress = `${searchResult.address} (${searchResult.postalCode})`;
     const fetcher = useFetcher();
     const isSubmitting = fetcher.state !== 'idle';
@@ -24,8 +24,10 @@ export function AddressForm({ searchResult, cancel } : { searchResult: SearchRes
     }
 
     React.useEffect(() => {
-        console.log(fetcher.state);
-    }, [fetcher])
+        if (fetcher.state === 'idle' && fetcher.data) {
+            close();
+        }
+    }, [fetcher, close])
 
     return (
         <div className="mt-3 px-2">

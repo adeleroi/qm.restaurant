@@ -77,7 +77,9 @@ export function PlacesAutoCompleteModal({ children } : { children: React.ReactNo
                                         <p className="text-center mb-2 text-xl font-semibold">Choose an address</p>
                                         <GoogleAutocomplete setSearchResult={setSearchResult}/>
                                     </div>
-                                ): <LocationForm searchResult={searchResult} handleFormCancel={() => setSearchResult(null) }/>
+                                ): <LocationForm searchResult={searchResult}
+                                    handleFormCancel={() => setSearchResult(null) }
+                                    handleModalClose={() => onClose() }/>
                             }
                         </div>
                     </ModalBody>
@@ -198,7 +200,13 @@ export function GoogleAutocomplete({ setSearchResult, iconStyle, containerStyle,
     )
 }
 
-function LocationForm({ searchResult, handleFormCancel } : { searchResult: SearchResult, handleFormCancel: () => void}) {
+type LocationFormProps = {
+    searchResult: SearchResult,
+    handleFormCancel: () => void,
+    handleModalClose: () => void,
+}
+
+function LocationForm({ searchResult, handleFormCancel, handleModalClose } : LocationFormProps) {
     return (
         <div className="w-full">
             <div className="h-64">
@@ -207,6 +215,7 @@ function LocationForm({ searchResult, handleFormCancel } : { searchResult: Searc
             <AddressForm
                 searchResult={searchResult}
                 cancel={() => handleFormCancel()}
+                close={() => handleModalClose()}
             />
         </div>
     )

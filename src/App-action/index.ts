@@ -11,7 +11,7 @@ import {
 export async function AppAction({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const intent = formData.get('intent');
-  console.log('intent', intent);
+
   if (intent === 'login' || intent === 'signup') {
     const {submission } = await AuthAction(formData);
     if (!submission?.value?.uid) {
@@ -20,7 +20,7 @@ export async function AppAction({ request }: ActionFunctionArgs) {
     if (intent === 'signup') {
       await createUser(submission.value.uid, submission.value.email);
     }
-    return json({ submission });
+    return redirect(window.location.pathname);
   }
 
   if (intent === 'set_anonymous_delivery_address') {
@@ -32,7 +32,6 @@ export async function AppAction({ request }: ActionFunctionArgs) {
   if (intent === 'set_delivery_address') {
     console.log('in set delivery address action');
     await SetDeliveryAddressAction(formData);
-    return json({ok: true, error: null})
   }
 
   if (intent === 'update_delivery_address') {
