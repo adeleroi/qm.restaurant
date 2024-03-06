@@ -13,6 +13,8 @@ import {
     ModalBody,
     ModalCloseButton,
     ModalOverlay,
+    Radio,
+    RadioGroup,
   } from '@chakra-ui/react';
 import { MapBoxMap } from "../components/store-info/map-mapbox";
 import { AddressForm } from "./location-form";
@@ -20,6 +22,7 @@ import { useRelativeResize } from "../utils/hooks";
 import { Trigger } from "../utils/trigger";
 import { CustomMarker, GoogleLogo } from "../components/icons/icon";
 import clsx from "clsx";
+import { useFetcher, useRouteLoaderData } from "react-router-dom";
 
 export type LatLng = { lat: number, lng: number };
 
@@ -48,7 +51,9 @@ export function GooglePlace({ children } : { children: React.ReactNode }) {
 
 export function PlacesAutoCompleteModal({ children } : { children: React.ReactNode }) {
     const [ searchResult, setSearchResult ] = React.useState<SearchResult | null>();
+    const [ locationFormContext, setLocationFormContext ] = React.useState<'edit' | 'add'>('add');
     const { onClose, isOpen, onOpen } = useDisclosure();
+    const data = useRouteLoaderData('root') as { addresses: Array<SearchResult>};
 
     return (
         <React.Fragment>
@@ -73,19 +78,101 @@ export function PlacesAutoCompleteModal({ children } : { children: React.ReactNo
                     <ModalBody padding={"0px 0px 0px 0px"}>
                         <div className="flex flex-col justify-center items-center w-full gap-5">
                             { !searchResult ? (
-                                    <div className="w-full mt-16">
-                                        <p className="text-center mb-2 text-xl font-semibold">Choose an address</p>
-                                        <GoogleAutocomplete setSearchResult={setSearchResult}/>
+                                    <div className="w-full px-3">
+                                        <div className="w-full mt-16 mb-4">
+                                            <p className="text-center mb-2 text-xl font-semibold">Choose an address</p>
+                                            <GoogleAutocomplete
+                                                setLocationFormContext={setLocationFormContext}
+                                                iconStyle="absolute top-1/2 -translate-y-1/2 left-2"
+                                                setSearchResult={setSearchResult}/>
+                                        </div>
+                                        <SelectableAddressList
+                                            closeModal={onClose}
+                                            addressList={data?.addresses}
+                                            setLocationFormContext={setLocationFormContext}
+                                            setAddressToEdit={setSearchResult}/>
                                     </div>
                                 ): <LocationForm searchResult={searchResult}
-                                    handleFormCancel={() => setSearchResult(null) }
-                                    handleModalClose={() => onClose() }/>
+                                        handleFormCancel={() => setSearchResult(null)}
+                                        handleModalClose={() => onClose()}
+                                        context={locationFormContext}
+                                    />
                             }
                         </div>
                     </ModalBody>
                 </ModalContent>
             </Modal>
         </React.Fragment>
+    )
+}
+
+function formatAddress(_address: string) {
+    const comaIdx = _address.indexOf(',');
+    const address = _address.slice(0, comaIdx)
+    const postalCode = _address.slice(comaIdx+2);
+    return [ address, postalCode ];
+}
+type SelectableAddressListProps = {
+    addressList: Array<SearchResult>,
+    setAddressToEdit: React.Dispatch<React.SetStateAction<SearchResult | null | undefined>>,
+    closeModal: () => void,
+    setLocationFormContext: React.Dispatch<React.SetStateAction<'edit' | 'add'>>
+}
+
+function SelectableAddressList({ addressList, setAddressToEdit, closeModal, setLocationFormContext } : SelectableAddressListProps) {
+    const fetcher = useFetcher();
+
+    function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+        const formData = new FormData((e.target as HTMLInputElement).closest('form') as HTMLFormElement);
+        formData.append('intent', 'set_main_delivery_address');
+        fetcher.submit(formData, { method: 'post', action: "/", encType: "multipart/form-data" });
+        closeModal();
+    }
+
+    function handleEdit(address: SearchResult) {
+        setAddressToEdit(address);
+        setLocationFormContext('edit');
+    }
+
+    return (
+        <div className="flex items-start flex-col w-full ">
+        <fetcher.Form onChange={handleSubmit} className="w-full">
+            <RadioGroup defaultValue={addressList[0].id}>
+                {
+                    addressList?.map(data => (
+                        <div className="text-left text-md py-3 rounded-lg" key={data.id}>
+                            <SelectableAddress data={data} setAddressToEdit={handleEdit}/>
+                        </div>
+                    ))
+                }
+            </RadioGroup>
+        </fetcher.Form>
+        </div>
+    )
+}
+
+type SelectableAddressProps = {
+    setAddressToEdit: (t:SearchResult) => void,
+    data: SearchResult,
+}
+
+function SelectableAddress({ data, setAddressToEdit } : SelectableAddressProps) {
+    const [ address, postalCode ] = formatAddress(data.address as string);
+    return (
+        <fieldset className="flex gap-3 justify-between w-full">
+            <div className="flex gap-3">
+                <Radio colorScheme="green" size={'lg'} type="radio" name="addressId" id={data.id} value={data.id} className="w-5 border-2 border-black rounded-full h-5"/>
+                <label className="cursor-pointer grid" htmlFor={data.id}>
+                    <span className="font-semibold">{address}, </span>
+                    <span className="text-gray-700 text-[13px]">{postalCode}</span>
+                </label>
+            </div>
+            <div
+                onClick={() => setAddressToEdit(data)}
+                className="grid place-items-center  bg-green-100 rounded-lg px-4 font-medium cursor-pointer hover:bg-green-200">
+                <span className="text-defaultGreen text-[15px]">Edit</span>
+            </div>
+        </fieldset>
     )
 }
 
@@ -97,15 +184,8 @@ type PlacesSuggestionProps = {
 const PlacesSuggestions = React.forwardRef(function SearchSuggestion({ results, onSelect } : PlacesSuggestionProps, ref) {
     function handleClick(address: string) { onSelect(address) }
 
-    function formatAddress(_address: string) {
-        const comaIdx = _address.indexOf(',');
-        const address = _address.slice(0, comaIdx)
-        const postalCode = _address.slice(comaIdx+2);
-        return [ address, postalCode ];
-    }
-
     return (
-        <ul tabIndex={1} ref={ref as LegacyRef<HTMLUListElement> | undefined} className="p-3 bg-white z-100 opacity-100 shadow-custom rounded-md overflow-y-scroll mt-1">
+        <ul tabIndex={1} ref={ref as LegacyRef<HTMLUListElement> | undefined} className="p-3 bg-white shadow-custom rounded-md overflow-y-scroll mt-1">
             {
                 results?.map(({ place_id, description}) => {
                     const [ address, postalCode ] = formatAddress(description);
@@ -114,7 +194,7 @@ const PlacesSuggestions = React.forwardRef(function SearchSuggestion({ results, 
                             key={ place_id }
                             onClick={() => handleClick(description)}
                         >
-                            <div className="relative flex pl-3 text-[16px] font-medium items-center w-full">
+                            <div className="relative flex pl-3 text-[16px] font-medium items-center w-full z-">
                                 <div className="w-10 h-10 rounded-full bg-gray-100 group-hover:bg-white flex items-center justify-center">
                                     <CustomMarker width={20} height={20}/>
                                 </div>
@@ -138,10 +218,11 @@ type GoogleAutocompleteProps = {
     setSearchResult: React.Dispatch<React.SetStateAction<SearchResult | null | undefined>> | ((r: SearchResult) => void),
     iconStyle?: string,
     inputStyle?: string,
-    containerStyle?: string
+    containerStyle?: string,
+    setLocationFormContext: React.Dispatch<React.SetStateAction<"edit" | "add">>,
 }
 
-export function GoogleAutocomplete({ setSearchResult, iconStyle, containerStyle, inputStyle } : GoogleAutocompleteProps) {
+export function GoogleAutocomplete({ setSearchResult, iconStyle, containerStyle, inputStyle, setLocationFormContext } : GoogleAutocompleteProps) {
     const suggestionRef = React.useRef<HTMLUListElement | null>(null);
     const inputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -165,7 +246,8 @@ export function GoogleAutocomplete({ setSearchResult, iconStyle, containerStyle,
         const results = await getGeocode({ address, componentRestrictions: { country: "CA" } });
         const { lat, lng } = getLatLng(results[0]);
         const postalCode = getZipCode(results[0], true);
-        setSearchResult({ lat, lng, postalCode, address  })
+        setSearchResult({ lat, lng, postalCode, address  });
+        setLocationFormContext('add');
     }
 
     useRelativeResize(inputRef as MutableRefObject<HTMLElement | null>, suggestionRef);
@@ -176,7 +258,7 @@ export function GoogleAutocomplete({ setSearchResult, iconStyle, containerStyle,
 
     return (
         <div className={clsx(containerStyle, {
-            "px-3 w-full relative h-14": !containerStyle
+            "w-full relative h-14": !containerStyle
         })}>
             <div className={clsx(iconStyle, {
                "absolute top-1/2 -translate-y-1/2 left-5" : !iconStyle
@@ -204,11 +286,16 @@ type LocationFormProps = {
     searchResult: SearchResult,
     handleFormCancel: () => void,
     handleModalClose: () => void,
+    context: 'edit' | 'add',
 }
 
-function LocationForm({ searchResult, handleFormCancel, handleModalClose } : LocationFormProps) {
+function LocationForm({ searchResult, handleFormCancel, handleModalClose, context } : LocationFormProps) {
+    const title = context === 'edit' ? 'Edit address' : 'Add new address';
     return (
         <div className="w-full">
+            <div className="py-4 pl-3">
+                <h1 className="font-bold text-xl capitalize">{ title }</h1>
+            </div>
             <div className="h-64">
                 <MapBoxMap key={searchResult?.lat} latitude={searchResult?.lat} longitude={searchResult?.lng}/>
             </div>
@@ -216,6 +303,7 @@ function LocationForm({ searchResult, handleFormCancel, handleModalClose } : Loc
                 searchResult={searchResult}
                 cancel={() => handleFormCancel()}
                 close={() => handleModalClose()}
+                context={context}
             />
         </div>
     )

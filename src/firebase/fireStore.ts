@@ -37,3 +37,9 @@ export async function updateAddress(address: SearchResult, uid: string, addressI
 export async function deleteAddress(uid: string, addressId: string) {
     return deleteDoc(doc(db, 'users', uid, 'addresses', addressId));
 }
+
+export async function setMainAdress(uid: string, addressId: string) {
+    return updateDoc(doc(db, 'users', uid, 'addresses', addressId), {
+        timestamp: serverTimestamp(),
+    })
+}

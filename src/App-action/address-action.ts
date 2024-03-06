@@ -1,5 +1,5 @@
 import { loginAnonymously } from "../firebase/auth";
-import { setAddress, updateAddress, deleteAddress } from "../firebase/fireStore";
+import { setAddress, updateAddress, deleteAddress, setMainAdress } from "../firebase/fireStore";
 import { SearchResult } from "../user-location/new-google-place-autocomplete";
 import Cookies from 'js-cookie';
 
@@ -26,6 +26,12 @@ export async function DeleteDeliveryAddressAction(formData: FormData) {
     const addressId = formData.get('addressId') as string;
     const userCredential = Cookies.get('qm_session_id') as string;
     return deleteAddress(userCredential, addressId);
+}
+
+export async function setAddressAsMainDeliveryAddress(formData: FormData) {
+    const addressId = formData.get('addressId') as string;
+    const userCredential = Cookies.get('qm_session_id') as string;
+    return setMainAdress(userCredential, addressId);
 }
 
 function retrieveDataFromForm(formData: FormData) {

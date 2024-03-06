@@ -5,7 +5,8 @@ import {
   SetAnonymousDeliveryAddressAction,
   SetDeliveryAddressAction,
   UpdateDeliveryAddressAction,
-  DeleteDeliveryAddressAction
+  DeleteDeliveryAddressAction,
+  setAddressAsMainDeliveryAddress
 } from './address-action';
 
 export async function AppAction({ request }: ActionFunctionArgs) {
@@ -42,5 +43,9 @@ export async function AppAction({ request }: ActionFunctionArgs) {
     await DeleteDeliveryAddressAction(formData);
   }
 
-  return json({})
+  if (intent === 'set_main_delivery_address') {
+    await setAddressAsMainDeliveryAddress(formData);
+  }
+
+  return json({});
 }

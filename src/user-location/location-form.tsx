@@ -7,18 +7,32 @@ import clsx from 'clsx';
 import Cookies from 'js-cookie';
 import React from 'react';
 
-export function AddressForm({ searchResult, cancel, close } : { searchResult: SearchResult, cancel: () => void, close: () => void }) {
+type AddressFormProps = {
+    searchResult: SearchResult,
+    cancel: () => void,
+    close: () => void,
+    context: 'edit' | 'add',
+};
+
+function getFormIntent(context: AddressFormProps['context']) {
+    const isAnonymousUser = !Cookies.get('qm_session_id');
+    if (context === 'edit') {
+        return 'update_delivery_address'
+    }
+    return isAnonymousUser ? 'set_anonymous_delivery_address' : 'set_delivery_address';
+}
+
+export function AddressForm({ searchResult, cancel, close, context } : AddressFormProps) {
     const fullAddress = `${searchResult.address} (${searchResult.postalCode})`;
     const fetcher = useFetcher();
     const isSubmitting = fetcher.state !== 'idle';
-    const isAnonymousUser = !Cookies.get('qm_session_id');
     const navigate = useNavigate();
     const location = useLocation();
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         const formData = new FormData(e.target as HTMLFormElement);
         formData.append('location', JSON.stringify(searchResult));
-        formData.append('intent', isAnonymousUser ? 'set_anonymous_delivery_address' : 'set_delivery_address');
+        formData.append('intent', getFormIntent(context));
         fetcher.submit(formData, { method: 'post', action: "/", encType: "multipart/form-data" });
         navigate(location.pathname); // hack to allow synchronization.
     }
@@ -54,8 +68,8 @@ export function AddressForm({ searchResult, cancel, close } : { searchResult: Se
                         maxLength={50}
                         className="p-3 mt-[2px] rounded-lg min-h-36 border-[1px] bg-gray-50 focus:border-black outline-none focus:border-2 w-full placeholder-gray-400"/>
                 </Field>
-                <div className="w-full flex justify-end gap-2 mt-3 pb-4">
-                    <button onClick={cancel} type="button" className="w-32 rounded-lg p-2 text-black hover:bg-gray-200 border-gray-100 bg-gray-100 font-bold">Cancel</button>
+                <div className="w-full flex justify-end gap-2 mt-6 pb-4">
+                    <button onClick={cancel} type="button" className="w-32 rounded-lg p-2 text-black hover:bg-gray-300 border-gray-200 bg-gray-100 font-bold">Cancel</button>
                     <button
                         type="submit"
                         className={clsx("w-32 rounded-lg p-2 text-white font-bold", {
