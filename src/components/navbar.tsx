@@ -6,7 +6,7 @@ import { Menu } from "./menu";
 import { CarTriggerForCheckout, CartIcon } from "./cart/cart";
 import { useFirebaseAuth } from "../firebase/auth";
 import clsx from "clsx";
-import { GooglePlace, UserType } from "../user-location/new-google-place-autocomplete";
+import { GooglePlace, SearchResult } from "../user-location/new-google-place-autocomplete";
 import { forwardRef } from "@chakra-ui/react";
 import { SearchSwitcher } from "./search/global-search-bar";
 import { useLoaderData, useLocation } from "react-router-dom";
@@ -17,7 +17,7 @@ export function Navbar() {
     const isLandingPage = location.pathname === '/';
 
     return (
-        <nav className="flex justify-between w-full py-2 px-16 items-center bg-white border-b-[1px] border-gray-200 gap-2 top-0 z-40 sticky">
+        <nav className="flex justify-between min-h-16 w-full py-2 px-16 items-center bg-white border-b-[1px] border-gray-200 gap-2 top-0 z-40 sticky">
             <div className="mr-8 flex items-center justify-start gap-4">
                 { isLandingPage ? null: <Menu/> }
                 <Logo/>
@@ -32,21 +32,22 @@ export function Navbar() {
                 <SearchSwitcher />
             </div>
             <div className="ml-8">
-                <ButtonSection/>
+                <ButtonSection isLandingPage={isLandingPage}/>
             </div>
         </nav>
     )
 }
 
 const AddressButton = forwardRef((props, ref) => {
-    const { user } = useLoaderData() as { user: UserType };
+    const { addresses } = useLoaderData() as { addresses: Array<SearchResult> };
+    const currentAddress = addresses[0];
     return (
         <button ref={ref} {...props} className="group relative cursor-pointer text-black px-2 h-12 rounded-3xl flex items-center justify-center">
             <div className="w-10 h-10 rounded-full bg-green-50 group-hover:bg-green-100 flex items-center justify-center">
                 <CustomMarker fill="#099500" width={20} height={20}/>
             </div>
-            { user?.location?.address ? 
-                <p className="truncate font-semibold text-[15px] text-defaultGreen w-32">{ user.location.address.split(',')[0] }</p>
+            { currentAddress?.address ? 
+                <p className="truncate font-semibold text-[15px] text-defaultGreen w-32">{ currentAddress?.address.split(',')[0] }</p>
                 :
                 <p className="truncate font-semibold text-[15px] text-defaultGreen w-32">Your address</p>
             }
@@ -54,39 +55,49 @@ const AddressButton = forwardRef((props, ref) => {
     )
 })
 
-function ButtonSection() {
+function ButtonSection({ isLandingPage } : { isLandingPage: boolean }) {
     const { setAction } = useLoginFormAction();
     const { loading, complete, data: user }: ReturnType<typeof useFirebaseAuth> = useFirebaseAuth();
+    const displayCartButton = complete && user && !isLandingPage;
+    const displayAuthButtons = !user || user && user?.isAnonymous;
 
     if (loading) return null;
 
-    if (complete && user) {
-        return (
-            <>
-                <CarTriggerForCheckout triggerElement={
-                    <button className="group/cartbtn py-[9px] pr-4 pl-3 rounded-3xl shadow-custom bg-defaultGreen hover:bg-green-800 hover:shadow-custom text-black relative">
-                        <CartIcon/>
-                    </button>
-                }/>
-            </>
-        )
-    }
-    return (
-        <div className="flex w-80 gap-2 items-center justify-end">
+    const cartButton = (
+        <CarTriggerForCheckout triggerElement={
+            <button className="group/cartbtn py-[9px] pr-4 pl-3 rounded-3xl shadow-custom bg-defaultGreen hover:bg-green-800 hover:shadow-custom text-black relative">
+                <CartIcon/>
+            </button>
+        }/>
+    )
+
+    const authButtons = (
+        <div className="flex gap-2 items-center justify-end">
+            {
+                !user ? 
+                    <AuthFormTrigger
+                        triggerElement={
+                            <Button size="small" onClick={() => setAction('login')} className="h-8 shadow-custom bg-white hover:bg-gray-100 focus:bg-gray-200 text-black font-semibold">
+                                Log in
+                            </Button>
+                        }
+                    />
+                : null
+            }
             <AuthFormTrigger
                 triggerElement={
-                    <Button size="small" onClick={() => setAction('login')} className="h-8 shadow-custom bg-white hover:bg-gray-100 focus:bg-gray-200 text-black font-semibold">
-                        Log in
-                    </Button>
-                }
-            />
-            <AuthFormTrigger
-                triggerElement={
-                    <Button size="small" onClick={() => setAction('signup')} className="h-8 border-none shadow-custom hover:bg-gray-800 focus:bg-gray-700 bg-defaultGreen text-white font-semibold">
+                    <Button size="small" onClick={() => setAction('signup')} className="h-8 border-none shadow-custom hover:bg-gray-800 focus:bg-gray-700 bg-black text-white font-semibold">
                         Sign up
                     </Button>
                 }
             />
+        </div>
+    )
+
+    return (
+        <div className="flex gap-2">
+            { displayAuthButtons ? authButtons : null }
+            { displayCartButton ? cartButton : null }
         </div>
     )
 }

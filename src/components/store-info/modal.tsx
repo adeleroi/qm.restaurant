@@ -16,7 +16,6 @@ import { MapBoxMap } from "./map-mapbox";
 
 export function StoreInfoModal({ children, storeInfos } : { children: React.ReactNode, storeInfos: Store | Restaurant }) {
     const { onClose, onOpen, isOpen } = useDisclosure();
-    console.log(storeInfos);
     return (
         <React.Fragment>
             <Trigger onOpen={onOpen}>

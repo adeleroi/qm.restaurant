@@ -1,6 +1,7 @@
-import { collection, connectFirestoreEmulator, doc, getFirestore, serverTimestamp, setDoc } from "firebase/firestore";
+import { collection, connectFirestoreEmulator, deleteDoc, doc, getFirestore, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { firebaseApp } from ".";
 import { SearchResult } from "../user-location/new-google-place-autocomplete";
+import { v4 as uuidv4 } from 'uuid';
 
 export const db = getFirestore(firebaseApp);
 
@@ -15,14 +16,24 @@ export async function createUser(uid: string, email: string) {
         email: email,
         country: 'Canada',
         PhoneNumber: '5817774338',
-        location: null,
         timestamp: serverTimestamp(),
     })
 }
 
 export async function setAddress(address: SearchResult, uid: string) {
-    return setDoc(doc(db, 'users', uid), {
-        location: address,
+    return setDoc(doc(db, 'users', uid, 'addresses', uuidv4()), {
+        ...address,
         timestamp: serverTimestamp(),
     })
+}
+
+export async function updateAddress(address: SearchResult, uid: string, addressId: string) {
+    return updateDoc(doc(db, 'users', uid, 'addresses', addressId), {
+        ...address,
+        timestamp: serverTimestamp(),
+    })
+}
+
+export async function deleteAddress(uid: string, addressId: string) {
+    return deleteDoc(doc(db, 'users', uid, 'addresses', addressId));
 }

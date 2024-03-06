@@ -10,7 +10,7 @@ type MapBoxMapProps = {
     zoom?: number,
 }
 
-export function MapBoxMap({ longitude=-75.6496399, latitude=45.4131465, zoom=14 } : MapBoxMapProps) {
+export function MapBoxMap({ longitude=-75.6496399, latitude=45.4131465, zoom=10 } : MapBoxMapProps) {
     return (
         <Map
             reuseMaps

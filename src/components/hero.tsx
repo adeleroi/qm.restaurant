@@ -1,28 +1,30 @@
-import React from "react";
 import { GoogleAutocomplete, SearchResult } from "../user-location/new-google-place-autocomplete";
 import { Libraries, useLoadScript } from "@react-google-maps/api";
-import { loginAnonymously } from "../firebase/auth";
-import { useNavigate } from "react-router-dom";
-import { setAddress } from "../firebase/fireStore";
+import { useFetcher } from "react-router-dom";
+import Cookies from "js-cookie";
 
-const library = ['places'] as Libraries
+
+const library = ['places'] as Libraries;
+
 export function Hero() {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAP_API_KEY as string,
         libraries: library,
     })
-    const [ searchResult, setSearchResult ] = React.useState<SearchResult | null | undefined>(null);
-    const navigate = useNavigate();
+    const isAnonymousUser = !Cookies.get('qm_session_id');
+    const fetcher = useFetcher();
 
-    React.useEffect(() => {
-        if (searchResult) {
-            loginAnonymously().then(async (userCredential) => {
-                await setAddress(searchResult, userCredential.user.uid)
-                navigate('feed');
-            })
+    function handleSelection(location: SearchResult) {
+        if (location) {
+            const formData = new FormData();
+            formData.append('location', JSON.stringify(location));
+            formData.append('intent', isAnonymousUser ? 'set_anonymous_delivery_address' : 'set_delivery_address');
+            fetcher.submit(
+                formData,
+                { method: 'post', action: "/", encType: "multipart/form-data" }
+            )
         }
-        console.log('called')
-    }, [searchResult, navigate])
+    }
 
     return (
         <div className="bg-[rgb(208_229_193)] w-full h-[80vh] flex justify-center bg-cover flex-col items-start pl-32">
@@ -33,7 +35,7 @@ export function Hero() {
             <div className="w-[500px]">
                 { isLoaded ? 
                 <GoogleAutocomplete
-                    setSearchResult={setSearchResult}
+                    setSearchResult={handleSelection}
                     iconStyle="absolute top-1/2 -translate-y-1/2 left-2"
                     containerStyle="h-14 px-0 relative"
                 /> : null

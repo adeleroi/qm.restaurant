@@ -28,6 +28,7 @@
     "react-map-gl": "^7.1.7",
     "react-router-dom": "^6.21.3",
     "use-places-autocomplete": "^4.0.1",
+    "uuid": "^9.0.1",
     "vite-plugin-svgr": "^4.2.0",
     "zod": "^3.22.4"
   },
@@ -37,6 +38,7 @@
     "@types/js-cookie": "^3.0.6",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
+    "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "@vitejs/plugin-react": "^4.2.1",

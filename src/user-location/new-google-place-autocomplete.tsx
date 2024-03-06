@@ -24,6 +24,7 @@ import clsx from "clsx";
 export type LatLng = { lat: number, lng: number };
 
 export type SearchResult = LatLng & {
+    id?: string,
     postalCode: string | undefined,
     address: string | undefined,
 }
@@ -132,7 +133,7 @@ const PlacesSuggestions = React.forwardRef(function SearchSuggestion({ results, 
 })
 
 type GoogleAutocompleteProps = {
-    setSearchResult: React.Dispatch<React.SetStateAction<SearchResult | null | undefined>>,
+    setSearchResult: React.Dispatch<React.SetStateAction<SearchResult | null | undefined>> | ((r: SearchResult) => void),
     iconStyle?: string,
     inputStyle?: string,
     containerStyle?: string
@@ -204,8 +205,7 @@ function LocationForm({ searchResult, handleFormCancel } : { searchResult: Searc
                 <MapBoxMap key={searchResult?.lat} latitude={searchResult?.lat} longitude={searchResult?.lng}/>
             </div>
             <AddressForm
-                address={searchResult.address as string}
-                postalCode={searchResult.postalCode as string}
+                searchResult={searchResult}
                 cancel={() => handleFormCancel()}
             />
         </div>

@@ -9,7 +9,6 @@ import {
 import { Feed } from './views/feed/index.tsx';
 import { ErrorPage } from './views/error.tsx';
 import { Home } from './views/home/home.tsx';
-import { action as rootAction, loader as rootLoader } from './App.tsx';
 import { StoreFront } from './views/store-front/index.tsx';
 import { ProductModal } from './views/store-front/product-modal.tsx/index.tsx';
 import { ProductListFilteredByCategory } from './views/store-front/product-list-filtered-category/index.tsx';
@@ -24,19 +23,23 @@ import { RestaurantLoader } from './views/restaurant/loader.ts';
 import { FoodModal } from './views/restaurant/food-modal/index.tsx';
 import { FoodModalLoader } from './views/restaurant/food-modal/loader.ts';
 import { FoodModalAction } from './views/restaurant/food-modal/action.ts';
+import { HomeAction } from './views/home/action.tsx';
+import { AppAction } from './App-action/index.ts';
+import { AppLoader } from './App-loader/index.ts';
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App/>,
-    errorElement: <ErrorPage/>,
-    action: rootAction,
-    loader: rootLoader,
+    // errorElement: <ErrorPage/>,
+    action: AppAction,
+    loader: AppLoader,
     id: 'root',
     children: [
       {
         index: true,
-        element: <Home/>
+        element: <Home/>,
+        // action: HomeAction,
       },
       {
         path: "feed",

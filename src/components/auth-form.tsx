@@ -70,7 +70,7 @@ const AuthForm = React.forwardRef(function AuthForm(_, ref) {
     shouldValidate: 'onSubmit',
     shouldRevalidate: 'onInput',
   })
-
+  console.log('auth form')
 
   const { action, setAction } = useLoginFormAction();
   const login = action === 'login';

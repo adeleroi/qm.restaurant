@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, json, redirect } from "react-router-dom";
+import { LoaderFunctionArgs, json } from "react-router-dom";
 import { Product } from ".";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/fireStore";
@@ -6,9 +6,6 @@ import Cookies from "js-cookie";
 
 export async function storeFrontLoader({params, request}: LoaderFunctionArgs) {
     const userId = Cookies.get('qm_session_id') as string;
-    if (!userId) {
-        return redirect('/',)
-    }
 
     const searchQuery = new URL(request.url).searchParams.get('searchQuery') || "";
     const searchResults = [] as Array<Product>;
@@ -22,24 +19,25 @@ export async function storeFrontLoader({params, request}: LoaderFunctionArgs) {
 
     const productListRef = collection(db, "store", storeId, "product");
 
+    if (userId) {
+        const cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
+        cartSnapshot.forEach(cartItem => {
+            const data = cartItem.data();
+            carts.push({id: cartItem.id, ...data} as Product);
+            cartItemIds.set(cartItem.id, data.count);
+        });
+    }
+    
     const [
-        cartSnapshot,
         productSnapshot,
         categorySnapshot,
     ] = await Promise.all([
-        await getDocs(collection(db, "users", userId, "cart")),
         await getDocs(productListRef),
         await getDocs(productListRef),
     ]);
-
+    
     categorySnapshot.forEach(cat => {
         categories.push(cat.data().category);
-    });
-
-    cartSnapshot.forEach(cartItem => {
-        const data = cartItem.data();
-        carts.push({id: cartItem.id, ...data} as Product);
-        cartItemIds.set(cartItem.id, data.count);
     });
 
     productSnapshot.forEach(prod => {
@@ -53,7 +51,7 @@ export async function storeFrontLoader({params, request}: LoaderFunctionArgs) {
             }
             return;
         }
-        if (cartItemIds.has(prod.id)) {
+        if (userId && cartItemIds.has(prod.id)) {
             productInStore.count = Number(cartItemIds.get(prod.id));
         }
         const { category } = productInStore;
@@ -65,7 +63,6 @@ export async function storeFrontLoader({params, request}: LoaderFunctionArgs) {
 
     const storeDoc = await getDoc(doc(db, "store", storeId));
     const storeInfos = { id: storeDoc.id, ...storeDoc.data() }
-
 
     return json({ productMap, storeInfos, categories: [...new Set(categories)], searchQuery, searchResults, defaultSearchSuggestions });
 }
