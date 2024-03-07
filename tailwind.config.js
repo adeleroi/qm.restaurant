@@ -18,6 +18,7 @@ export default {
         'overlay-white': 'rgb(255,255, 255, 0.6)',
         'brown-bg': '#f2ebd1',
         'bg-product': 'rgba(0, 0, 0, 0.03)',
+        'feed-card': 'rgba(0, 0, 0, 0.3)',
         'search-overlay': 'rgba(0, 0, 0, 0.2)',
       },
       backgroundImage: {

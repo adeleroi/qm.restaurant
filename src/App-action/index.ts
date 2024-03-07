@@ -31,8 +31,8 @@ export async function AppAction({ request }: ActionFunctionArgs) {
   }
 
   if (intent === 'set_delivery_address') {
-    console.log('in set delivery address action');
     await SetDeliveryAddressAction(formData);
+    console.log('in set delivery address action');
   }
 
   if (intent === 'update_delivery_address') {
@@ -45,6 +45,7 @@ export async function AppAction({ request }: ActionFunctionArgs) {
 
   if (intent === 'set_main_delivery_address') {
     await setAddressAsMainDeliveryAddress(formData);
+    console.log('in set main delivery address')
   }
 
   return json({});

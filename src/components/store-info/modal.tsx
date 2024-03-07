@@ -61,7 +61,7 @@ export function StoreInfoModal({ children, storeInfos } : { children: React.Reac
 }
 
 function Schedule() {
-    const [ isOpen, setIsOpen ] = React.useState(false);
+    const [ isOpen, setIsOpen ] = React.useState(true);
     return (
         <div>
             <div className="px-4 flex gap-8 border-t-[1px] py-4 items-center cursor-pointer" onClick={() => setIsOpen(!isOpen)}>

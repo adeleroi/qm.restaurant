@@ -17,7 +17,7 @@ type AddressFormProps = {
 function getFormIntent(context: AddressFormProps['context']) {
     const isAnonymousUser = !Cookies.get('qm_session_id');
     if (context === 'edit') {
-        return 'update_delivery_address'
+        return 'update_delivery_address';
     }
     return isAnonymousUser ? 'set_anonymous_delivery_address' : 'set_delivery_address';
 }
@@ -57,6 +57,7 @@ export function AddressForm({ searchResult, cancel, close, context } : AddressFo
                 <Field className="mb-3">
                     <label className='font-medium text-gray-500 text-xs mb-2'>Number (Appartment, suite, floor)</label>
                     <input
+                        defaultValue={searchResult.appNumber}
                         autoComplete='off'
                         name="appNumber"
                         className="p-3 mt-[2px] rounded-lg border-[1px] bg-gray-50 focus:border-black outline-none focus:border-2 w-full placeholder-gray-400"/>
@@ -64,14 +65,25 @@ export function AddressForm({ searchResult, cancel, close, context } : AddressFo
                 <Field className="mb-3">
                     <label className='font-medium text-gray-500 text-xs mb-2'>Delivery instructions</label>
                     <textarea
+                        defaultValue={searchResult.deliveryInstruction}
                         name="deliveryInstruction"
                         maxLength={50}
                         className="p-3 mt-[2px] rounded-lg min-h-36 border-[1px] bg-gray-50 focus:border-black outline-none focus:border-2 w-full placeholder-gray-400"/>
                 </Field>
                 <div className="w-full flex justify-end gap-2 mt-6 pb-4">
-                    <button onClick={cancel} type="button" className="w-32 rounded-lg p-2 text-black hover:bg-gray-300 border-gray-200 bg-gray-100 font-bold">Cancel</button>
+                    <button
+                        type="button"
+                        onClick={cancel}
+                        disabled={isSubmitting}
+                        className={clsx("w-32 rounded-lg p-2 text-black font-bold border-gray-200", {
+                            "hover:bg-gray-300 bg-gray-100": !isSubmitting,
+                            "bg-gray-300 cursor-not-allowed": isSubmitting
+                        })}>
+                            Cancel
+                    </button>
                     <button
                         type="submit"
+                        disabled={isSubmitting}
                         className={clsx("w-32 rounded-lg p-2 text-white font-bold", {
                             'bg-green-800 cursor-not-allowed': isSubmitting,
                             ' bg-defaultGreen hover:bg-green-800': !isSubmitting

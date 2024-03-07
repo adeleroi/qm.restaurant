@@ -44,8 +44,8 @@ export async function AppLoader() {
     }
 
     console.log('new address', addresses)
-  
-    return json({ carts, storeCartInfos: storeCartInfos, cartCount: uniqueStoreList.length, user, addresses })
+    const result = { carts, storeCartInfos: storeCartInfos, cartCount: uniqueStoreList.length, user, addresses };
+    return json(result);
   }
   return json({ carts: [], storeCartInfos: [], cartCount: 0, user: {}, addresses: [] })
 

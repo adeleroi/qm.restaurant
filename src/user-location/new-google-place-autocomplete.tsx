@@ -1,5 +1,5 @@
 import { Libraries, useLoadScript } from "@react-google-maps/api";
-import React, { LegacyRef, MutableRefObject } from "react";
+import React, { LegacyRef } from "react";
 import usePlacesAutocomplete, {
     // GeocodeResult,
     getGeocode,
@@ -18,7 +18,6 @@ import {
   } from '@chakra-ui/react';
 import { MapBoxMap } from "../components/store-info/map-mapbox";
 import { AddressForm } from "./location-form";
-import { useRelativeResize } from "../utils/hooks";
 import { Trigger } from "../utils/trigger";
 import { CustomMarker, GoogleLogo } from "../components/icons/icon";
 import clsx from "clsx";
@@ -30,6 +29,8 @@ export type SearchResult = LatLng & {
     id?: string,
     postalCode: string | undefined,
     address: string | undefined,
+    deliveryInstruction?: string,
+    appNumber?: string,
 }
 
 export type UserType = {
@@ -68,6 +69,7 @@ export function PlacesAutoCompleteModal({ children } : { children: React.ReactNo
                 }}
                 isOpen={isOpen}
                 isCentered
+                scrollBehavior="inside"
             >
                 <ModalOverlay/>
                 <ModalContent minH={'80vh'} borderRadius={'16px'} padding={"0px 0px 0px 0px"} overflow={'hidden'}>
@@ -83,6 +85,7 @@ export function PlacesAutoCompleteModal({ children } : { children: React.ReactNo
                                             <p className="text-center mb-2 text-xl font-semibold">Choose an address</p>
                                             <GoogleAutocomplete
                                                 setLocationFormContext={setLocationFormContext}
+                                                containerStyle="w-full relative h-14"
                                                 iconStyle="absolute top-1/2 -translate-y-1/2 left-2"
                                                 setSearchResult={setSearchResult}/>
                                         </div>
@@ -94,7 +97,10 @@ export function PlacesAutoCompleteModal({ children } : { children: React.ReactNo
                                     </div>
                                 ): <LocationForm searchResult={searchResult}
                                         handleFormCancel={() => setSearchResult(null)}
-                                        handleModalClose={() => onClose()}
+                                        handleModalClose={() => {
+                                            onClose();
+                                            setSearchResult(null);
+                                        }}
                                         context={locationFormContext}
                                     />
                             }
@@ -122,6 +128,8 @@ type SelectableAddressListProps = {
 function SelectableAddressList({ addressList, setAddressToEdit, closeModal, setLocationFormContext } : SelectableAddressListProps) {
     const fetcher = useFetcher();
 
+    const isSubmitting = fetcher.state !== 'idle';
+
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         const formData = new FormData((e.target as HTMLInputElement).closest('form') as HTMLFormElement);
         formData.append('intent', 'set_main_delivery_address');
@@ -134,6 +142,13 @@ function SelectableAddressList({ addressList, setAddressToEdit, closeModal, setL
         setLocationFormContext('edit');
     }
 
+    function handleDelete(addressId: string) {
+        const formData = new FormData();
+        formData.append('addressId', addressId);
+        formData.append('intent', 'delete_delivery_address')
+        fetcher.submit(formData, { method: 'post', action: "/", encType: "multipart/form-data" });
+    }
+
     return (
         <div className="flex items-start flex-col w-full ">
         <fetcher.Form onChange={handleSubmit} className="w-full">
@@ -141,7 +156,12 @@ function SelectableAddressList({ addressList, setAddressToEdit, closeModal, setL
                 {
                     addressList?.map(data => (
                         <div className="text-left text-md py-3 rounded-lg" key={data.id}>
-                            <SelectableAddress data={data} setAddressToEdit={handleEdit}/>
+                            <SelectableAddress
+                                data={data}
+                                isSubmitting={isSubmitting}
+                                setAddressToEdit={handleEdit}
+                                deleteAddress={handleDelete}
+                            />
                         </div>
                     ))
                 }
@@ -154,9 +174,11 @@ function SelectableAddressList({ addressList, setAddressToEdit, closeModal, setL
 type SelectableAddressProps = {
     setAddressToEdit: (t:SearchResult) => void,
     data: SearchResult,
+    deleteAddress: (a:string) => void,
+    isSubmitting: boolean,
 }
 
-function SelectableAddress({ data, setAddressToEdit } : SelectableAddressProps) {
+function SelectableAddress({ data, setAddressToEdit, deleteAddress, isSubmitting } : SelectableAddressProps) {
     const [ address, postalCode ] = formatAddress(data.address as string);
     return (
         <fieldset className="flex gap-3 justify-between w-full">
@@ -167,10 +189,19 @@ function SelectableAddress({ data, setAddressToEdit } : SelectableAddressProps) 
                     <span className="text-gray-700 text-[13px]">{postalCode}</span>
                 </label>
             </div>
-            <div
-                onClick={() => setAddressToEdit(data)}
-                className="grid place-items-center  bg-green-100 rounded-lg px-4 font-medium cursor-pointer hover:bg-green-200">
-                <span className="text-defaultGreen text-[15px]">Edit</span>
+            <div className="flex gap-3 items-center">
+                <div onClick={() => setAddressToEdit(data)}>
+                    <span className={clsx("material-symbols-outlined", {
+                        "ont-semibold text-gray-900 hover:text-gray-400 cursor-pointer": !isSubmitting,
+                        "text-gray-400 cursor-not-allowed": isSubmitting,
+                    })}>edit</span>
+                </div>
+                <div onClick={() => deleteAddress(data.id as string)}>
+                    <span className={clsx("material-symbols-outlined", {
+                        "ont-semibold text-gray-900 hover:text-gray-400 cursor-pointer": !isSubmitting,
+                        "text-gray-400 cursor-not-allowed": isSubmitting,
+                    })}>delete</span>
+                </div>
             </div>
         </fieldset>
     )
@@ -185,7 +216,7 @@ const PlacesSuggestions = React.forwardRef(function SearchSuggestion({ results, 
     function handleClick(address: string) { onSelect(address) }
 
     return (
-        <ul tabIndex={1} ref={ref as LegacyRef<HTMLUListElement> | undefined} className="p-3 bg-white shadow-custom rounded-md overflow-y-scroll mt-1">
+        <ul tabIndex={1} ref={ref as LegacyRef<HTMLUListElement> | undefined} className="p-3 bg-white shadow-custom rounded-md overflow-y-scroll mt-1 absolute  w-full z-10">
             {
                 results?.map(({ place_id, description}) => {
                     const [ address, postalCode ] = formatAddress(description);
@@ -219,7 +250,7 @@ type GoogleAutocompleteProps = {
     iconStyle?: string,
     inputStyle?: string,
     containerStyle?: string,
-    setLocationFormContext: React.Dispatch<React.SetStateAction<"edit" | "add">>,
+    setLocationFormContext?: React.Dispatch<React.SetStateAction<"edit" | "add">>,
 }
 
 export function GoogleAutocomplete({ setSearchResult, iconStyle, containerStyle, inputStyle, setLocationFormContext } : GoogleAutocompleteProps) {
@@ -247,10 +278,8 @@ export function GoogleAutocomplete({ setSearchResult, iconStyle, containerStyle,
         const { lat, lng } = getLatLng(results[0]);
         const postalCode = getZipCode(results[0], true);
         setSearchResult({ lat, lng, postalCode, address  });
-        setLocationFormContext('add');
+        setLocationFormContext?.('add');
     }
-
-    useRelativeResize(inputRef as MutableRefObject<HTMLElement | null>, suggestionRef);
 
     React.useEffect(() => {
         (inputRef as React.MutableRefObject<HTMLInputElement> | undefined)?.current?.focus();

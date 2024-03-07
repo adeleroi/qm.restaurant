@@ -112,7 +112,7 @@ export function FoodCard({ food } : { food: Food }) {
                 <div className="absolute bottom-1 right-1 z-20">
                     <CircleButton/>
                 </div>
-                <div className="absolute -bottom-8 -right-8 w-20 h-20 rounded-full bg-defaultGreen">
+                <div className="absolute -bottom-8 -right-8 w-20 h-20 rounded-full bg-green-100">
 
                 </div>
             </li>
