@@ -38,6 +38,7 @@ export function RestaurantFront() {
                     <img
                         className="object-cover h-64 w-full"
                         src="https://tb-static.uber.com/prod/image-proc/processed_images/6a3368e8b89834d00d62c35a9658baff/16bb0a3ab8ea98cfe8906135767f7bf4.webp" />
+                    <h1 className="text-5xl text-white z-10 font-thin absolute top-1/2 left-16">{infos.name} 🍗</h1>
                 </header>
                 <div className="flex mt-8 px-16">
                     <div className="">
@@ -62,7 +63,7 @@ export function RestaurantFront() {
                             </ul>
                         </div>
                     </div>
-                    <div className="ml-4">
+                    <div className="ml-4 pl-20">
                         {
                             CATEGORIES.map((category, idx) => (
                                 <FoodCategoryTest key={idx} category={category}/>
@@ -104,7 +105,7 @@ export function FoodCard({ food } : { food: Food }) {
                 <div className="pt-3 w-full">
                     <h1 className="font-bold capitalize">{ food.name }</h1>
                     <p className="font-black text-gray-500">{ priceFormat(food.price) }</p>
-                    <p className=" text-gray-600 text-[14px] pt-2 w-full">adkjfalskdf Lorem ipsum, dolor sit amet consectetur adipisicing elit. Cupiditate quo deleniti, est itaque nesciunt quod harum voluptatem ullam veniam asperiores?</p>
+                    <p className=" text-gray-600 text-[14px] pt-2 w-full">adkjfalskdf Lorem ipsum, dolor sit amet consectetur ai?</p>
                 </div>
                 <div className="w-72 ml-2">
                     <img className="h-40 object-fit" src={food.imgUrl}/>
@@ -112,9 +113,7 @@ export function FoodCard({ food } : { food: Food }) {
                 <div className="absolute bottom-1 right-1 z-20">
                     <CircleButton/>
                 </div>
-                <div className="absolute -bottom-8 -right-8 w-20 h-20 rounded-full bg-green-100">
-
-                </div>
+                <div className="absolute -bottom-8 -right-8 w-20 h-20 rounded-full bg-green-100"></div>
             </li>
         </Link>
     )

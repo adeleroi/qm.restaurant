@@ -22,7 +22,7 @@ export default {
         'search-overlay': 'rgba(0, 0, 0, 0.2)',
       },
       backgroundImage: {
-        'hero-overlay': 'linear-gradient(rgba(0, 0, 0, 0.61) 0%, rgba(0, 0, 0, 0.41) 100%)',
+        'hero-overlay': 'linear-gradient(rgba(0, 0, 0, 0.62) 0%, rgba(0, 0, 0, 0.81) 100%)',
       },
       fontFamily: {
         sans: 'montserrat',
