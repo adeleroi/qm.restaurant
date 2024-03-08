@@ -8,6 +8,7 @@ import {
   DeleteDeliveryAddressAction,
   setAddressAsMainDeliveryAddress
 } from './address-action';
+import { googleSignInWithPopup } from '../firebase/auth';
 
 export async function AppAction({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
@@ -22,6 +23,15 @@ export async function AppAction({ request }: ActionFunctionArgs) {
       await createUser(submission.value.uid, submission.value.email);
     }
     return redirect(window.location.pathname);
+  }
+
+  if (intent === 'login_with_google_social_provider') {
+    const user = await googleSignInWithPopup();
+    // if (user) {
+    //   await createUser(user.uid, user.email as string, user.displayName as string, user.phoneNumber as string)
+    // }
+    console.log('--->', user)
+    return redirect('/feed')
   }
 
   if (intent === 'set_anonymous_delivery_address') {

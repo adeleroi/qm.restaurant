@@ -219,22 +219,14 @@ function getSubtotalAndCount(arr: Array<Product> = []) {
     return arr?.reduce((acc, curr) => ({...acc, count: acc?.count + curr?.count, price: curr?.price * curr?.count + acc?.price}), {count: 0, price: 0});
 }
 
-// const fullCartIcon = <span className="material-symbols-outlined text-white font-bold text-xl">remove_shopping_cart</span>;
-
-// const emptyCartIcon = <span className="material-symbols-outlined text-white font-bold text-xl">shopping_cart</span>
-
-
-
 export function CartIcon() {
     const {  storeCartInfos, carts } = useLoaderData();
     const { storeId } = useParams();
     const totalNumberOfCartItem = getSubtotalAndCount(carts).count;
     const { count: numberOfCartItemByStore } = getSubtotalAndCount(storeCartInfos[storeId]?.cart);
-    // const showEmptyCartIcon = storeId && numberOfCartItemByStore == 0 || !storeId && totalNumberOfCartItem == 0;
 
     return (
         <div className="flex justify-between items-center text-white w-full">
-            {/* { showEmptyCartIcon ? emptyCartIcon : fullCartIcon } */}
             <SVGCartIcon />
             <span className="ml-1 text-[13px] bg-green-800 px-[7px] rounded-3xl group-hover/cartbtn:bg-defaultGreen font-bold"> { storeId ? numberOfCartItemByStore : totalNumberOfCartItem }</span>
         </div>

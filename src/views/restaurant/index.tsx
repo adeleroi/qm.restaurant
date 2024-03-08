@@ -101,7 +101,7 @@ const CATEGORIES = [
 export function FoodCard({ food } : { food: Food }) {
     return (
         <Link to="food/EI0V7KJulrr3AsRhy87e">
-            <li className="relative pl-3 border-[1px] w-full rounded-xl overflow-hidden flex justify-between h-40 mb-2 hover:shadow-custom cursor-pointer">
+            <li className="relative pl-3 border-[1px] w-full rounded-xl overflow-hidden flex justify-between h-40 mb-2 hover:shadow-custom hover:scale-105 transition-transform duration-500 cursor-pointer">
                 <div className="pt-3 w-full">
                     <h1 className="font-bold capitalize">{ food.name }</h1>
                     <p className="font-black text-gray-500">{ priceFormat(food.price) }</p>
@@ -121,7 +121,7 @@ export function FoodCard({ food } : { food: Food }) {
 
 export function FoodListTest() {
     return (
-        <ul className="grid grid-cols-2 gap-4 pt-4">
+        <ul className="grid grid-cols-2 gap-6 pt-4">
             {
                 Array.from({length: 5}, (_, idx) => {
                     return (

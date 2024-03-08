@@ -1,9 +1,23 @@
 import React from "react";
-import { type User, connectAuthEmulator, createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut, signInAnonymously } from "firebase/auth";
+import {
+    type User,
+    connectAuthEmulator,
+    createUserWithEmailAndPassword,
+    getAuth,
+    GoogleAuthProvider,
+    signInWithEmailAndPassword,
+    signOut,
+    signInAnonymously,
+    signInWithPopup
+} from "firebase/auth";
 import { firebaseApp } from ".";
 import Cookies from 'js-cookie';
 
-export const auth = getAuth(firebaseApp)
+export const auth = getAuth(firebaseApp);
+auth.useDeviceLanguage();
+
+const googleProvider = new GoogleAuthProvider();
+// googleProvider.addScope('https://www.googleapis.com/auth/userinfo.profile')
 
 connectAuthEmulator(auth, "http://localhost:9099");
 
@@ -23,6 +37,18 @@ export async function loginEmailPassword(email: string, password: string) {
     return userCredential;
 }
 
+export async function googleSignInWithPopup() {
+    const result = await signInWithPopup(auth, googleProvider);
+    const userCredential = GoogleAuthProvider.credentialFromResult(result);
+    // const token = userCredential?.accessToken;
+    const user = result.user;
+
+    // console.log('user', user);
+    // console.log('userCredential', userCredential);
+    // console.log('result', result);
+    return user;
+}
+
 export async function signout() {
     signOut(auth).then(() => {
         Cookies.remove('qm_session_id');
@@ -32,7 +58,6 @@ export async function signout() {
 export async function loginAnonymously() {
     return signInAnonymously(auth);
 }
-
 
 type TUseFirebaseAuth = {
     loading: boolean,

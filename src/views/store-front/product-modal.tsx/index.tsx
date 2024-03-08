@@ -133,7 +133,7 @@ function SimilarProduct({ productList }: { productList: Array<Product> }) {
     return (
         <div className='mt-10'>
             <h1 className='capitalize text-2xl font-bold mb-5'>Similar items</h1>
-            <div className='grid xl:grid-cols-5 2xl:grid-cols-6 place-items-center'>
+            <div className='grid xl:grid-cols-5 place-items-center'>
                 {
                     productList?.map(product => (
                         <Product key={product?.name} action={`/store/${product.storeId}`} product={product} to={`../product/${product.id}`}/>
@@ -233,7 +233,7 @@ export function ProductModal() {
                 onClose();
             }}>
           <ModalOverlay />
-          <ModalContent className='min-h-[90vh] 2xl:min-w-[75vw] min-w-[85vw] overflow-hidden' style={{position: 'relative', borderRadius: 0}} ref={rootTargetRef}>
+          <ModalContent className='min-h-[90vh] 2xl:min-w-[75vw] min-w-[85vw] overflow-hidden' style={{position: 'relative', borderRadius: '16px'}} ref={rootTargetRef}>
             <ProductCountProvider key={product.name} product={product} isAlreadyInCart={!!cartItemMap?.[product?.id]}>
                 <CustomModalHeader product={product} ref={headerRef}/>
                 <ModalBody>

@@ -82,7 +82,7 @@ export function ListOfProductByCategory({ categories, productMap } : { categorie
                                         }
                                     </React.Fragment>
                                 </ScrollableList>
-                            ) : null
+                            ) : <div className="h-screen w-screen bg-red-500"></div>
                         }
                     </div>
                 ))
@@ -157,7 +157,7 @@ export function ScrollableList({ as="div", title, children }: { as:string, child
 
                 }
             </div>
-            <As className="item-list my-5 py-4 gap-2 mb-10 flex overflow-x-auto snap-x scroll-smooth" ref={slideRef} onScroll={handleScroll}>
+            <As className="pl-2 item-list my-5 py-4 gap-2 mb-10 flex overflow-x-auto snap-x scroll-smooth" ref={slideRef} onScroll={handleScroll}>
                 { children }
             </As>
         </div>

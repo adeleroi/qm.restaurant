@@ -72,6 +72,13 @@ function ButtonSection({ isLandingPage } : { isLandingPage: boolean }) {
 
     const authButtons = (
         <div className="flex gap-2 items-center justify-end">
+            <AuthFormTrigger
+                triggerElement={
+                    <span onClick={() => setAction('signup')} className="mr-2 hover:text-gray-800 text-black font-semibold cursor-pointer">
+                        Sign up
+                    </span>
+                }
+            />
             {
                 !user ? 
                     <AuthFormTrigger
@@ -83,13 +90,6 @@ function ButtonSection({ isLandingPage } : { isLandingPage: boolean }) {
                     />
                 : null
             }
-            <AuthFormTrigger
-                triggerElement={
-                    <Button size="small" onClick={() => setAction('signup')} className="h-8 border-none shadow-custom hover:bg-gray-800 focus:bg-gray-700 bg-black text-white font-semibold">
-                        Sign up
-                    </Button>
-                }
-            />
         </div>
     )
 

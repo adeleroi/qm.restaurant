@@ -23,7 +23,6 @@ import { RestaurantLoader } from './views/restaurant/loader.ts';
 import { FoodModal } from './views/restaurant/food-modal/index.tsx';
 import { FoodModalLoader } from './views/restaurant/food-modal/loader.ts';
 import { FoodModalAction } from './views/restaurant/food-modal/action.ts';
-import { HomeAction } from './views/home/action.tsx';
 import { AppAction } from './App-action/index.ts';
 import { AppLoader } from './App-loader/index.ts';
 
@@ -69,14 +68,17 @@ const router = createBrowserRouter([
         id: "store",
         children: [
           {
-            index: true,
+            path: "",
+            // index: true,
             element: <ProductList />,
             loader: storeFrontLoader,
-          },
-          {
-            path: "product/:productId",
-            element: <ProductModal/>,
-            loader: ProductModalLoader,
+            children: [
+              {
+                path: "product/:productId",
+                element: <ProductModal/>,
+                loader: ProductModalLoader,
+              },
+            ]
           },
           {
             path: "category/:categoryId",

@@ -11,11 +11,13 @@ import {
     RadioGroup,
     CheckboxGroup,
     Checkbox,
+    Spinner,
 } from '@chakra-ui/react'
 import { Form, useLoaderData, useNavigate, useSubmit } from "react-router-dom";
 import { priceFormat } from "../../../utils/currency";
 import { Food, FoodOption, FoodOptionList } from "./model.ts";
 import clsx from "clsx";
+import { ButtonIncrement } from "../../store-front/index.tsx";
 
 export function FoodModal() {
     const { onOpen, onClose, isOpen } = useDisclosure();
@@ -30,7 +32,7 @@ export function FoodModal() {
     return (
         <React.Fragment>
             <Modal
-                size={'xl'}
+                size={'lg'}
                 scrollBehavior="inside"
                 isCentered
                 onClose={() => {
@@ -40,7 +42,7 @@ export function FoodModal() {
                 isOpen={isOpen}
                 >
                 <ModalOverlay/>
-                <ModalContent className="min-h-[90vh] px-2 pt-10 relative" style={{position: 'relative', borderRadius: 0}}>
+                <ModalContent className="min-h-[90vh] px-2 pt-10 relative" style={{position: 'relative', borderRadius: '16px'}}>
                     <ModalBody className="">
                         <FoodCustomizationTitle price={food.price} name={food.name}/>
                         <FoodCustomizationForm food={food} requiredOptionState={requiredOptionState}/>
@@ -54,7 +56,7 @@ export function FoodModal() {
 function FoodCustomizationTitle({ name, price } : { name: string, price: number }) {
     return (
         <div className="overflow-y-auto ">
-            <h1 className="text-black capitalize font-black text-2xl">{ name }</h1>
+            <h1 className="capitalize font-black text-2xl">{ name }</h1>
             <p className="font-black text-gray-500 mt-1 text-xl">{ priceFormat(price) }</p>
         </div>        
     )
@@ -98,14 +100,32 @@ function FoodCustomizationForm({ food, requiredOptionState } : FoodCustomization
                     )
                 })
             }
-            <div className="w-full flex justify-end">
-                <button
-                    type="submit"
-                    className="bg-black text-white font-bold text-xl py-2 rounded-lg w-44 mt-8 mb-4">
-                        Save
-                </button>
+            <div style={{borderBottomLeftRadius: '16px', borderBottomRightRadius: '16px'}}
+                className="w-full flex justify-end items-center gap-5 bg-green-100 shadow-custom py-4 absolute bottom-0 left-0 px-3">
+                <ButtonIncrement alwaysOnDisplay cartCount={1} onLimitDisable limitInf={1} />
+                <AddToCartWithCountButton />
             </div>
         </Form>
+    )
+}
+
+function AddToCartWithCountButton({ count=1, price=12.99, disableButton=false, isSubmitting=false }) {
+    return (
+        <button
+            className={clsx('relative group h-12 w-full font-bold text-lg py-2 rounded-lg text-white px-4', {
+                'bg-green-800 cursor-not-allowed': disableButton,
+                'bg-defaultGreen hover:bg-green-800': !disableButton
+            })}
+            disabled={disableButton}
+            type="submit"
+        >
+            <span className='mr-4'>{ isSubmitting ? <Spinner color='white' size="sm" /> : null }</span>
+            <span className={clsx('capitalize', {'text-gray-100': disableButton})}>Add to order</span>
+            <span className={clsx('absolute right-2 top-1/2 -translate-y-1/2 px-2 rounded-lg text-[15px]', {
+                'group-hover:bg-defaultGreen  bg-green-900': !disableButton,
+                'text-gray-100 bg-green-800': disableButton
+            })}>{priceFormat(count > 0 ? price * count: price)}</span>
+        </button>
     )
 }
 
@@ -191,7 +211,7 @@ type FoodCustomizationProps = {
 export function FoodCustomization({ customization, setRequiredOptionsValidity, isInvalid, isIdle } : FoodCustomizationProps) {
     const isCustomizationRequired = isOptionRequired(customization.minNumOptions);
     return (
-        <section>
+        <section className="last-of-type:pb-24">
             <div className="mt-8 py-2">
                     <div className="mb-4">
                         <h1 className="font-black text-lg capitalize">{ customization.title }</h1>
@@ -213,13 +233,14 @@ export function FoodCustomization({ customization, setRequiredOptionsValidity, i
                                     options={customization.options}
                                     title={customization.title}
                                     setRequiredOptionsValidity={setRequiredOptionsValidity}
-                                    />
-                                    : <OptionalFoodCustomizationSelect
-                                        options={customization.options}
-                                        title={customization.title}
-                                        min={customization.minNumOptions}
-                                        max={customization.maxNumOptions}
-                                        setRequiredOptionsValidity={setRequiredOptionsValidity}
+                                />
+                                    : 
+                                <OptionalFoodCustomizationSelect
+                                    options={customization.options}
+                                    title={customization.title}
+                                    min={customization.minNumOptions}
+                                    max={customization.maxNumOptions}
+                                    setRequiredOptionsValidity={setRequiredOptionsValidity}
                                 />
                         }
                     </div>

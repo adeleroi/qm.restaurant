@@ -11,11 +11,12 @@ export const productCollection = collection(db, 'product');
 export const storeCollection = collection(db, 'store');
 export const restaurantCollection = collection(db, 'restaurant');
 
-export async function createUser(uid: string, email: string) {
+export async function createUser(uid: string, email: string, displayName: string = '', phoneNumber: string = '') {
     await setDoc(doc(db, 'users', uid), {
         email: email,
         country: 'Canada',
-        PhoneNumber: '5817774338',
+        displayName,
+        phoneNumber,
         timestamp: serverTimestamp(),
     })
 }

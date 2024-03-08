@@ -144,7 +144,7 @@ type ProductProps = {
 
 export function Product({product, action, to}: ProductProps) {
     return (
-        <div className="relative overflow-hidden p-2 pb-4 w-56">
+        <div className="relative overflow-hidden p-2 pb-4 w-56 group hover:scale-105 hover:shadow-custom rounded-xl transition-transform duration-500">
             <Link to={ to ?? `product/${product.id} `}>
                 <div className="relative overflow-hidden rounded-lg grid place-items-center">
                     <div className="p-4 rounded-xl mb-4 h-[11rem] relative">
