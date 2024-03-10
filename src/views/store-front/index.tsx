@@ -294,7 +294,7 @@ export function ButtonIncrement({ getCount, productId, disabled, limitInf=1, lim
                     { count !== limitInf ? (
                             <span className={clsx("font-semibold", {"cursor-not-allowed text-gray-300": disabledOnLimitInf})}>-</span>
                         ) : (
-                            <Trash width={24} height={24} fill={disabledOnLimitInf ? "#c4c4c4": "#fff"}/>
+                            <Trash width={24} height={24} fill={disabledOnLimitInf ? "#c4c4c4": "#000"}/>
                         )
                     }
                 </button>

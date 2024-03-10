@@ -15,7 +15,7 @@ export function RestaurantFront() {
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach((entry) => {
                         const item = document.getElementById(`list-item-${category}`);
-                        const defaultStyle = "capitalize py-2 rounded-lg underline-offset-8 px-2 cursor-pointer font-semibold scroll-my-48";
+                        const defaultStyle = "capitalize py-3 rounded-lg underline-offset-8 px-2 cursor-pointer font-medium scroll-my-48 hover:bg-gray-100";
                         if (entry.isIntersecting) {
                             item?.setAttribute('class', defaultStyle + ' ' + "underline ");
                             item?.scrollIntoView({ block: 'nearest' })
@@ -55,7 +55,7 @@ export function RestaurantFront() {
                                             }}
                                             id={`list-item-${category}`}
                                             key={idx}
-                                            className="capitalize py-2 rounded-lg px-2 cursor-pointer font-semibold">
+                                            className="capitalize py-2 rounded-lg px-2 cursor-pointer">
                                             { category }
                                         </li>
                                     ))

@@ -160,8 +160,8 @@ function FeedCard({ name, image } : FeedCardProps) {
             </div>
             <div className='my-2 px-2'>
                 <p className='font-bold text-md mb-2'>{ name }</p>
-                <p className='font-medium text-gray-500 text-[14px]'>16 km • 22-45 min</p>
-                <p className='font-medium text-gray-500 text-[14px]'>Delivery fee: {priceFormat(4.99)}</p>
+                <p className='text-[13px]'>16 km • 22-45 min</p>
+                <p className='text-[13px]'>Delivery fee: {priceFormat(4.99)}</p>
             </div>
         </li>
     )

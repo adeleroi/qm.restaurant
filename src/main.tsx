@@ -26,6 +26,14 @@ import { FoodModalAction } from './views/restaurant/food-modal/action.ts';
 import { AppAction } from './App-action/index.ts';
 import { AppLoader } from './App-loader/index.ts';
 import { Profile } from './views/profile/index.tsx';
+import { PersonalInfo } from './views/profile/personal-info/index.tsx';
+import { PersonalInfoAction } from './views/profile/personal-info/action.ts';
+import { PersonalInfoLoader } from './views/profile/personal-info/loader.ts';
+import { OrderHistory } from './views/profile/order-history/index.tsx';
+import { OrderHistoryLoader } from './views/profile/order-history/loader.ts';
+import { Promotion } from './views/profile/promotion/index.tsx';
+import { PromotionAction } from './views/profile/promotion/action.ts';
+import { PromotionLoader } from './views/profile/promotion/loader.ts';
 
 const router = createBrowserRouter([
   {
@@ -95,8 +103,27 @@ const router = createBrowserRouter([
         ],
       },
       {
-        path: "profile",
-        element: <Profile/>
+        path: "account/",
+        element: <Profile/>,
+        children: [
+          {
+            index: true,
+            element: <PersonalInfo/>,
+            action: PersonalInfoAction,
+            loader: PersonalInfoLoader,
+          },
+          {
+            path: "orders-history",
+            element: <OrderHistory/>,
+            loader: OrderHistoryLoader,
+          },
+          {
+            path: "promotions",
+            element: <Promotion/>,
+            action: PromotionAction,
+            loader: PromotionLoader,
+          }
+        ]
       }
     ],
   },

@@ -50,7 +50,7 @@ export function ProfileMenuList({ onClose } : { onClose?: () => void}) {
     const navigate = useNavigate();
     
     function handleClick(segment: string) {
-        navigate(`/profile/${segment}`);
+        navigate(`/account/${segment}`);
         onClose?.();
     }
 
@@ -58,7 +58,7 @@ export function ProfileMenuList({ onClose } : { onClose?: () => void}) {
         <ul className='w-full'>
             <ProfileMenuMainButton onClick={() => handleClick("")}/>
             <ProfileMenuItem title='Language' onClick={() => handleClick('language')}/>
-            <ProfileMenuItem title='Orders' onClick={() => handleClick('orders')}/>
+            <ProfileMenuItem title='Orders' onClick={() => handleClick('orders-history')}/>
         </ul>
     )
 }
@@ -77,7 +77,7 @@ function ProfileMenuMainButton({ onClick } : { onClick: () => void }) {
     const displayName = user.data?.displayName;
     const initial = getInitial(displayName || '');
     return (
-        <Link to={"/profile"} onClick={onClick}>
+        <Link to={"/account/"} onClick={onClick}>
             <li className='flex justify-start gap-2 items-center font-medium text-[14px] py-2 hover:bg-gray-100 rounded-lg px-4 w-full cursor-pointer my-1'>
                     <CircleAccount initial={initial}/>
                     <div className='text-[14px]'>
