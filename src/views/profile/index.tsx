@@ -9,6 +9,7 @@ export function Profile() {
                         <Tile to="/" title="Account informations" end/>
                         <Tile to="/orders-history" title="Orders history"/>
                         <Tile to="/promotions" title="Promotions"/>
+                        <Tile to="/language" title="Language"/>
                     </ul>
                 </div>
             </div>

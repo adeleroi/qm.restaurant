@@ -48,12 +48,12 @@ function AddressButton ({ onClick, ...rest } : { onClick?: () => void }) {
     const { addresses } = useLoaderData() as { addresses: Array<SearchResult> };
     const currentAddress = addresses[0];
     return (
-        <button onClick={onClick} {...rest} className="group relative cursor-pointer text-black pr-2 pl-1 h-12 rounded-3xl flex items-center bg-gray-100">
+        <button onClick={onClick} {...rest} className="group relative cursor-pointer text-black pr-2 pl-1 h-12 rounded-3xl flex justify-center items-center bg-gray-100">
             <div className="w-10 h-10 rounded-full bg-white border-gray-300 border-2 group-hover:bg-gray-100 flex items-center justify-center">
                 <CustomMarker fill="#4b5563" width={16} height={16}/>
             </div>
             { currentAddress?.address ? 
-                <p className="font-semibold truncate text-[15px] text-[#4b5563] w-32">{ currentAddress?.address.split(',')[0] }</p>
+                <p className="font-semibold truncate text-[15px] text-[#4b5563] w-32 pl-2">{ currentAddress?.address.split(',')[0] }</p>
                 :
                 <p className="truncate font-semibold text-[14px] text-black w-32">Your address</p>
             }

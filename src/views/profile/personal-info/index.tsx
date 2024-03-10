@@ -3,7 +3,7 @@ import { ChevronForward } from "../../../components/icons/icon"
 export function PersonalInfo() {
     return (
         <div className="w-full">
-            <h1 className="text-3xl font-semibold">
+            <h1 className="text-3xl font-bold">
                 Personal infos
             </h1>
             <div className="w-full mt-8">

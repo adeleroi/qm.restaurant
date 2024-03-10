@@ -8,7 +8,8 @@ import {
     signInWithEmailAndPassword,
     signOut,
     signInAnonymously,
-    signInWithPopup
+    signInWithPopup,
+    getAdditionalUserInfo
 } from "firebase/auth";
 import { firebaseApp } from ".";
 import Cookies from 'js-cookie';
@@ -34,6 +35,7 @@ export async function loginEmailPassword(email: string, password: string) {
     if (userCredential.user.uid) {
         // Cookies.set('qm_session_id', userCredential.user.uid);
     }
+    console.log('Login -->', getAdditionalUserInfo(userCredential));
     return userCredential;
 }
 
@@ -44,8 +46,8 @@ export async function googleSignInWithPopup() {
     const user = result.user;
 
     // console.log('user', user);
-    // console.log('userCredential', userCredential);
-    // console.log('result', result);
+    console.log('userCredential', getAdditionalUserInfo(result));
+    console.log('result --->', result);
     return user;
 }
 

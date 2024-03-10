@@ -6,7 +6,7 @@ import clsx from "clsx";
 export function OrderHistory() {
     return (
         <div className="w-full">
-            <h1 className="text-3xl font-semibold">
+            <h1 className="text-3xl font-bold">
                 Order history
             </h1>
             <div className="w-full mt-8 mb-20">
@@ -59,11 +59,11 @@ function OrderCard() {
         <div className="min-h-64 min-w-[550px] rounded-xl border-2 border-gray-200 flex px-5 items-center justify-between gap-4">
             <div className="flex flex-col justify-between py-6">
                 <div>
-                    <p className="text-[14px]">3 articles</p>
                     <h1 className="truncate w-64 text-xl font-bold">African BBQ House</h1>
-                    <p>Mar-15-2024</p>
-                    <p>Status: <span className="text-defaultGreen font-semibold">Complete</span></p>
+                    <p className="text-[14px]">Mar-15-2024</p>
+                    <p className="text-[14px]">Status: <span className="text-defaultGreen font-semibold">Complete</span></p>
                 </div>
+                <CartItems />
                 <div className="mt-4 font-bold text-3xl">
                     {priceFormat(33.44)}
                 </div>
@@ -72,6 +72,21 @@ function OrderCard() {
             <div className="overflow-hidden w-64 h-48 rounded-xl">
                 <img src="https://duyt4h9nfnj50.cloudfront.net/resized/d97fd6350b8779bd06e3f1ed4bdc6e86-w2880-81.jpg" className="object-cover"/>
             </div>
+        </div>
+    )
+}
+
+function CartItems() {
+    return (
+        <div className="mb-2 mt-3">
+            <h2 className="font-bold">5 articles</h2>
+            <ul className="my-1 list-disc pl-2">
+                <li className="text-[14px]">Egoussi soup</li>
+                <li className="text-[14px]">Garba</li>
+                <li className="text-[14px]">Poulet DG</li>
+                <li className="text-[14px]">Mafé</li>
+                <li className="text-[14px]">Foutou</li>
+            </ul>
         </div>
     )
 }
