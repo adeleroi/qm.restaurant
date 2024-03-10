@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react';
 import { Trigger } from '../../utils/trigger';
 import { Link, useLoaderData, useParams } from 'react-router-dom';
-import React from 'react';
+import React, { LegacyRef } from 'react';
 import { ButtonIncrement, Product } from '../../views/store-front';
 import { getSubtotal, priceFormat } from '../../utils/currency';
 import clsx from 'clsx';
@@ -41,6 +41,7 @@ export function DrawerCart({ isOpen, onClose, loaderData, storeId, action }: { i
     const initialFocusRef = React.useRef(null);
     const cartCount = loaderData?.cartCount;
     const data = loaderData?.storeCartInfos;
+    const currLocation = loaderData?.addresses[0]
     const storeAndCartSummary = Object.values(data);
 
     const storeInfos = data[storeId];
@@ -65,7 +66,7 @@ export function DrawerCart({ isOpen, onClose, loaderData, storeId, action }: { i
                             !storeInfos?.name ? (
                                 <div>
                                     <p className='text-center text-[16px] font-medium'>Your carts</p>
-                                    <p className='text-center text-xs text-gray-400'>Deliver to K1N6E3</p>
+                                    <p className='text-center text-xs text-gray-400'>{ currLocation?.address}</p>
                                 </div>
                             ) : (
                                 <div className=''>
@@ -182,7 +183,7 @@ function EmptyCart({ onClose }: { onClose: () => void}) {
 
 export const ButtonActionAndValue = React.forwardRef(function ButtonActionAndValue({subtotal, children} : { subtotal: number, children: React.ReactNode }, ref) {
     return (
-        <button ref={ref} className='h-12 relative group w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-lg text-white px-4'>
+        <button ref={ref as LegacyRef<HTMLButtonElement>} className='h-12 relative group w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-lg text-white px-4'>
             <span>{ children }</span>
             <span className='absolute right-2 bg-green-900 px-2 rounded-lg text-[14px] group-hover:bg-defaultGreen'>{priceFormat(subtotal)}</span>
         </button>
@@ -268,10 +269,10 @@ function CartSummary({ store, onClose }) {
                 </div>
             </div>
             <div className='mt-10 grid gap-2'>
-            <button className='bg-gray-200 py-2 rounded-3xl font-bold w-full hover:bg-gray-100'>Checkout</button>
-                <Link to={`store/${store?.storeId}`} onClick={() => onClose()}>
-                    <button className='bg-gray-200 py-2 rounded-3xl font-bold w-full hover:bg-gray-100'>Add more items</button>
-                </Link>
+            <button className='bg-defaultGreen text-white py-2 rounded-3xl font-bold w-full hover:bg-green-800'>Checkout</button>
+            <Link to={`/store/${store?.storeId}`} onClick={() => onClose()}>
+                <button className='bg-gray-200 py-2 rounded-3xl font-bold w-full hover:bg-gray-100'>Add more items</button>
+            </Link>
             </div>
         </li>
     )

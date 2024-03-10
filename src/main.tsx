@@ -25,6 +25,7 @@ import { FoodModalLoader } from './views/restaurant/food-modal/loader.ts';
 import { FoodModalAction } from './views/restaurant/food-modal/action.ts';
 import { AppAction } from './App-action/index.ts';
 import { AppLoader } from './App-loader/index.ts';
+import { Profile } from './views/profile/index.tsx';
 
 const router = createBrowserRouter([
   {
@@ -38,7 +39,6 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home/>,
-        // action: HomeAction,
       },
       {
         path: "feed",
@@ -94,6 +94,10 @@ const router = createBrowserRouter([
           },
         ],
       },
+      {
+        path: "profile",
+        element: <Profile/>
+      }
     ],
   },
 ])

@@ -191,4 +191,3 @@ type FoodCategoryProps = {
 //         </div>
 //     )
 // }
-

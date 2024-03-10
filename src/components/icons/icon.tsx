@@ -44,3 +44,46 @@ export function AppleIcon({ width=20, height=20 } : { width?: number, height?: n
         </svg>
     )
 }
+
+export function ChevronDown({ width=20, height=20 } : { width?: number, height?: number}) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-chevron-down" width={width} height={height} viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <polyline points="6 9 12 15 18 9" />
+        </svg>
+
+    )
+}
+
+export function Trash({ height=24, width=24, fill="#000" } : { height?: number, width?: number, fill?: string}) {
+    return (
+        // <svg viewBox="0 0 448 512" width={width} height={height} xmlns="http://www.w3.org/2000/svg">
+        //     <path d="m432 32h-120l-9.4-18.7a24 24 0 0 0 -21.5-13.3h-114.3a23.72 23.72 0 0 0 -21.4 13.3l-9.4 18.7h-120a16 16 0 0 0 -16 16v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16v-32a16 16 0 0 0 -16-16zm-378.8 435a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45l21.2-339h-384z" fill={fill}/>
+        // </svg>
+        <svg fill="none" height={height} width={width} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="m17 22h-10c-1.10457 0-2-.8954-2-2v-13h-2v-2h4v-1c0-1.10457.89543-2 2-2h6c1.1046 0 2 .89543 2 2v1h4v2h-2v13c0 1.1046-.8954 2-2 2zm-10-15v13h10v-13zm2-3v1h6v-1zm6 14h-2v-9h2zm-4 0h-2v-9h2z" fill={fill}/>
+        </svg>
+    )
+}
+
+export function Pencil({ height=24, width=24, fill="#fff" } : { height?: number, width?: number, fill?: string}) {
+    return (
+        // <svg xmlns="http://www.w3.org/2000/svg" width={width} height={height} viewBox="0 0 24 24">
+        //     <path d="M8.707 19.707L18 10.414 13.586 6l-9.293 9.293c-.128.128-.219.289-.263.464L3 21l5.242-1.03C8.418 19.926 8.579 19.835 8.707 19.707zM21 7.414c.781-.781.781-2.047 0-2.828L19.414 3c-.781-.781-2.047-.781-2.828 0L15 4.586 19.414 9 21 7.414z" fill={fill}/>
+        // </svg>
+        // <svg height={height} viewBox="0 0 20 20" width={width} xmlns="http://www.w3.org/2000/svg">
+        //     <g fill="none" stroke="#000">
+        //         <path d="m17.25 6.01-10.13 10.09-3.3 1.1 1.2-3.3 10.1-10.02c.59-.59 1.54-.59 2.13 0 .58.59.58 1.54 0 2.13z"/>
+        //         <path d="m15.98 7.268-2.129-2.12"/>
+        //     </g>
+        // </svg>
+    <svg fill="none" height={height} width={width} xmlns="http://www.w3.org/2000/svg">
+        <g stroke="currentColor" stroke-width="2" fill={fill}>
+            <path d="M16.364 4.136c.329-.329.493-.493.657-.603a2 2 0 0 1 2.222 0c.164.11.328.274.657.603.328.328.492.493.602.656a2 2 0 0 1 0 2.223c-.11.163-.274.328-.602.656L9.066 18.505c-.264.265-.397.397-.55.502-.154.105-.325.18-.667.33l-.92.405c-1.986.874-2.98 1.311-3.463.828-.484-.484-.047-1.477.827-3.464l.405-.92c.15-.342.226-.513.33-.666.106-.154.238-.286.503-.55L16.364 4.135z" stroke-linecap="round"/>
+            <path d="M13.621 6.843l3.536 3.536"/>
+        </g>
+    </svg>
+
+
+    )
+}

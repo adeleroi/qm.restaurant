@@ -2,7 +2,6 @@ import { Button } from "./button";
 import { Logo } from "./logo";
 import { useLoginFormAction } from "../context/hooks";
 import { AuthFormTrigger } from "./auth-form";
-import { Menu } from "./menu";
 import { CarTriggerForCheckout, CartIcon } from "./cart/cart";
 import { useFirebaseAuth } from "../firebase/auth";
 import clsx from "clsx";
@@ -10,15 +9,16 @@ import { GooglePlace, SearchResult } from "../user-location/new-google-place-aut
 import { SearchSwitcher } from "./search/global-search-bar";
 import { useLoaderData, useLocation } from "react-router-dom";
 import { CustomMarker } from "./icons/icon";
+import { ProfileMenu } from "./profile-menu";
 
 export function Navbar() {
     const location = useLocation();
     const isLandingPage = location.pathname === '/';
+    const { loggedIn } = useFirebaseAuth();
 
     return (
         <nav className="flex justify-between min-h-16 w-full py-2 px-16 items-center bg-white border-b-[1px] border-gray-200 gap-2 top-0 z-40 sticky">
             <div className="mr-8 flex items-center justify-start gap-4">
-                { isLandingPage ? null: <Menu/> }
                 <Logo/>
             </div>
             {
@@ -30,6 +30,13 @@ export function Navbar() {
             <div className={clsx("w-full flex-1 justify-center px-4", { "hidden": isLandingPage })}>
                 <SearchSwitcher />
             </div>
+            {
+                loggedIn && !isLandingPage ?
+                <div className="ml-8">
+                    <ProfileMenu/>
+                </div> :
+                null
+            }
             <div className="ml-8">
                 <ButtonSection isLandingPage={isLandingPage}/>
             </div>
@@ -37,18 +44,18 @@ export function Navbar() {
     )
 }
 
-function AddressButton (props) {
+function AddressButton ({ onClick, ...rest } : { onClick?: () => void }) {
     const { addresses } = useLoaderData() as { addresses: Array<SearchResult> };
     const currentAddress = addresses[0];
     return (
-        <button {...props} className="group relative cursor-pointer text-black px-2 h-12 rounded-3xl flex items-center justify-center">
-            <div className="w-10 h-10 rounded-full bg-green-50 group-hover:bg-green-100 flex items-center justify-center">
-                <CustomMarker fill="#099500" width={20} height={20}/>
+        <button onClick={onClick} {...rest} className="group relative cursor-pointer text-black pr-2 pl-1 h-12 rounded-3xl flex items-center justify-center bg-gray-100">
+            <div className="w-10 h-10 rounded-full bg-white border-gray-300 border-2 group-hover:bg-gray-100 flex items-center justify-center">
+                <CustomMarker fill="#4b5563" width={16} height={16}/>
             </div>
             { currentAddress?.address ? 
-                <p className="pl-2 truncate font-semibold text-[15px] text-defaultGreen w-32">{ currentAddress?.address.split(',')[0] }</p>
+                <p className="pl-2 truncate font-semibold text-[14px] text-black w-32">{ currentAddress?.address.split(',')[0] }</p>
                 :
-                <p className="truncate font-semibold text-[15px] text-defaultGreen w-32">Your address</p>
+                <p className="truncate font-semibold text-[14px] text-black w-32">Your address</p>
             }
         </button>
     )

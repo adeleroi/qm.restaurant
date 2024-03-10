@@ -19,7 +19,7 @@ import {
 import { MapBoxMap } from "../components/store-info/map-mapbox";
 import { AddressForm } from "./location-form";
 import { Trigger } from "../utils/trigger";
-import { CustomMarker, GoogleLogo } from "../components/icons/icon";
+import { CustomMarker, GoogleLogo, Pencil, Trash } from "../components/icons/icon";
 import clsx from "clsx";
 import { useFetcher, useRouteLoaderData } from "react-router-dom";
 
@@ -152,7 +152,7 @@ function SelectableAddressList({ addressList, setAddressToEdit, closeModal, setL
     return (
         <div className="flex items-start flex-col w-full ">
         <fetcher.Form onChange={handleSubmit} className="w-full">
-            <RadioGroup defaultValue={addressList[0].id}>
+            <RadioGroup defaultValue={addressList[0]?.id}>
                 {
                     addressList?.map(data => (
                         <div className="text-left text-md py-3 rounded-lg" key={data.id}>
@@ -180,6 +180,17 @@ type SelectableAddressProps = {
 
 function SelectableAddress({ data, setAddressToEdit, deleteAddress, isSubmitting } : SelectableAddressProps) {
     const [ address, postalCode ] = formatAddress(data.address as string);
+    function handleEdit() {
+        if (!isSubmitting) {
+            setAddressToEdit(data);
+        }
+    }
+
+    function handleDelete() {
+        if (!isSubmitting) {
+            deleteAddress(data.id as string);
+        }
+    }
     return (
         <fieldset className="flex gap-3 justify-between w-full">
             <div className="flex gap-3">
@@ -190,18 +201,18 @@ function SelectableAddress({ data, setAddressToEdit, deleteAddress, isSubmitting
                 </label>
             </div>
             <div className="flex gap-3 items-center">
-                <div onClick={() => setAddressToEdit(data)}>
-                    <span className={clsx("material-symbols-outlined", {
-                        "ont-semibold text-gray-900 hover:text-gray-400 cursor-pointer": !isSubmitting,
-                        "text-gray-400 cursor-not-allowed": isSubmitting,
-                    })}>edit</span>
-                </div>
-                <div onClick={() => deleteAddress(data.id as string)}>
-                    <span className={clsx("material-symbols-outlined", {
-                        "ont-semibold text-gray-900 hover:text-gray-400 cursor-pointer": !isSubmitting,
-                        "text-gray-400 cursor-not-allowed": isSubmitting,
-                    })}>delete</span>
-                </div>
+                <button disabled={isSubmitting} onClick={handleEdit} className={clsx("hover:opacity-45", {
+                    'opacity-25 cursor-not-allowed': isSubmitting,
+                    "cursor-pointer": !isSubmitting
+                })}>
+                    <Pencil width={24} height={24}/>
+                </button>
+                <button disabled={isSubmitting} onClick={handleDelete} className={clsx("hover:opacity-45", {
+                    'opacity-25 cursor-not-allowed': isSubmitting,
+                    "cursor-pointer": !isSubmitting
+                })}>
+                    <Trash width={24} height={24}/>
+                </button>
             </div>
         </fieldset>
     )

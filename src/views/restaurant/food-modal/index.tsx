@@ -101,7 +101,7 @@ function FoodCustomizationForm({ food, requiredOptionState } : FoodCustomization
                 })
             }
             <div style={{borderBottomLeftRadius: '16px', borderBottomRightRadius: '16px'}}
-                className="w-full flex justify-end items-center gap-5 bg-green-100 shadow-custom py-4 absolute bottom-0 left-0 px-3">
+                className="w-full flex justify-end items-center gap-5 bg-white shadow-custom py-4 absolute bottom-0 left-0 px-3">
                 <ButtonIncrement alwaysOnDisplay cartCount={1} onLimitDisable limitInf={1} />
                 <AddToCartWithCountButton />
             </div>

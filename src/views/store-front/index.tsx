@@ -7,6 +7,7 @@ import { useDisclosure } from '@chakra-ui/react'
 import { SubmitTarget } from "react-router-dom/dist/dom";
 import { DrawerCart } from "../../components/cart/cart";
 import { StoreInfoModal } from "../../components/store-info/modal";
+import { Trash } from "../../components/icons/icon";
 
 
 export type Product = {
@@ -51,16 +52,16 @@ export function StoreFront() {
 
     return (
             <React.Fragment>
-                <div className="flex w-full px-16">
-                    <div className="w-[250px] max-h-screen fixed top-[6.3rem]">
-                        <StoreSummary storeInfos={storeInfos}/>
-                        <div className="sticky top-[250px] max-h-[calc(100vh-250px)] pb-8 pt-3">
-                            <div className="overflow-y-auto scroll-smooth h-[calc(100vh-250px)] pb-32" style={{ scrollbarWidth: 'thin'}}>
-                                <CategoryList categories={categories}/>
-                            </div>
+                <div className="flex w-full px-16 mb-16">
+                    <div className="">
+                        <div className="z-20 pt-8 bg-white">
+                            <StoreSummary storeInfos={storeInfos} />
+                        </div>
+                        <div id="list-category" className="pb-20 mt-4 sticky overflow-y-auto top-[80px] w-[250px] max-h-[calc(100vh-80px)]">
+                            <CategoryList categories={categories}/>
                         </div>
                     </div>
-                    <div className="ml-[250px] w-[calc(100%-250px)] pl-10">
+                    <div className="w-[calc(100%-250px)] pl-10">
                         <Outlet/>
                     </div>
                 </div>
@@ -293,9 +294,7 @@ export function ButtonIncrement({ getCount, productId, disabled, limitInf=1, lim
                     { count !== limitInf ? (
                             <span className={clsx("font-semibold", {"cursor-not-allowed text-gray-300": disabledOnLimitInf})}>-</span>
                         ) : (
-                            <span className={clsx("material-symbols-outlined font-semibold", {
-                                "cursor-not-allowed text-gray-200": disabledOnLimitInf,
-                            })}>delete</span>
+                            <Trash width={24} height={24} fill={disabledOnLimitInf ? "#c4c4c4": "#fff"}/>
                         )
                     }
                 </button>
