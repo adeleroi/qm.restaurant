@@ -47,7 +47,6 @@ function OrderHistoryItem({ storeName } : { storeName: string }) {
                 isOpen ?
                     <div className="my-10 flex justify-between items-center">
                         <OrderCard/>
-                        <button className="hover:bg-green-800 w-72 h-14 font-bold text-white bg-defaultGreen rounded-lg py-3">View receipt</button>
                     </div>
                     : null
             }
@@ -57,19 +56,20 @@ function OrderHistoryItem({ storeName } : { storeName: string }) {
 
 function OrderCard() {
     return (
-        <div className="h-56 min-w-[550px] rounded-xl border-2 border-gray-200 flex px-5 items-center justify-between gap-4">
-            <div className="flex flex-col justify-between py-3">
+        <div className="min-h-64 min-w-[550px] rounded-xl border-2 border-gray-200 flex px-5 items-center justify-between gap-4">
+            <div className="flex flex-col justify-between py-6">
                 <div>
                     <p className="text-[14px]">3 articles</p>
                     <h1 className="truncate w-64 text-xl font-bold">African BBQ House</h1>
-                    <p>Mar 15</p>
+                    <p>Mar-15-2024</p>
                     <p>Status: <span className="text-defaultGreen font-semibold">Complete</span></p>
                 </div>
                 <div className="mt-4 font-bold text-3xl">
                     {priceFormat(33.44)}
                 </div>
+                <button className="mt-8 hover:bg-green-800 w-72 h-14 font-bold text-white bg-defaultGreen rounded-lg py-3">View receipt</button>
             </div>
-            <div className="overflow-hidden w-64 h-44 rounded-xl">
+            <div className="overflow-hidden w-64 h-48 rounded-xl">
                 <img src="https://duyt4h9nfnj50.cloudfront.net/resized/d97fd6350b8779bd06e3f1ed4bdc6e86-w2880-81.jpg" className="object-cover"/>
             </div>
         </div>
