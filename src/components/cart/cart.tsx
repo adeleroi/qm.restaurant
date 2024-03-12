@@ -30,7 +30,7 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
                 isOpen={isOpen}
                 onClose={onClose}
                 loaderData={loaderData}
-                storeId={storeId || restaurantId}
+                storeId={storeId as string || restaurantId as string}
                 action={`store/${storeId}`}
             />
         </React.Fragment>

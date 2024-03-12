@@ -19,7 +19,7 @@ auth.useDeviceLanguage();
 
 const googleProvider = new GoogleAuthProvider();
 // googleProvider.addScope('https://www.googleapis.com/auth/userinfo.profile')
-
+// https://firebase.google.com/docs/reference/js/auth#.AdditionalUserInfo
 connectAuthEmulator(auth, "http://localhost:9099");
 
 export async function signupEmailPassword (email: string, password: string) {

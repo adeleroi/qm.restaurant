@@ -34,6 +34,9 @@ import { OrderHistoryLoader } from './views/profile/order-history/loader.ts';
 import { Promotion } from './views/profile/promotion/index.tsx';
 import { PromotionAction } from './views/profile/promotion/action.ts';
 import { PromotionLoader } from './views/profile/promotion/loader.ts';
+import { ProfileLanguage } from './views/profile/language/index.tsx';
+import { LanguageAction } from './views/profile/language/action.tsx';
+import { LanguageLoader } from './views/profile/language/loader.tsx';
 
 const router = createBrowserRouter([
   {
@@ -122,6 +125,12 @@ const router = createBrowserRouter([
             element: <Promotion/>,
             action: PromotionAction,
             loader: PromotionLoader,
+          },
+          {
+            path: "language",
+            element: <ProfileLanguage/>,
+            action: LanguageAction,
+            loader: LanguageLoader,
           }
         ]
       }

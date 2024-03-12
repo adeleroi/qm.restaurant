@@ -1,5 +1,4 @@
 import { Link, useLoaderData } from "react-router-dom";
-import { StoreCard } from "../../components/card";
 import Nigeria from '../../assets/country-flag/nigeria.png';
 import China from '../../assets/country-flag/china.png';
 import Italy from '../../assets/country-flag/italy.png';
@@ -94,15 +93,6 @@ export function Feed() {
                     {
                         stores?.map((store, idx) => (
                             <Link to={`/store/${store.id}`} key={idx}>
-                                {/* <StoreCard
-                                    title={store.name}
-                                    description={store?.sells ?? "Groceries . Organic . Alcohol"}
-                                    alt={store?.name + 'img'}
-                                    src={store?.imgUrl ?? "https://cdn.theorg.com/f1bbabce-f3da-42a0-89fe-8be4f53af00f_thumb.jpg"}
-                                    className=''
-                                    deliveryTime="Delivery by 11am"
-                                    key={idx}
-                                /> */}
                                 <FeedCard name={store.name} image={store.imgUrl}/>
                             </Link>
                         ))
