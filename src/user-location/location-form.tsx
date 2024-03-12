@@ -75,9 +75,9 @@ export function AddressForm({ searchResult, cancel, close, context } : AddressFo
                         type="button"
                         onClick={cancel}
                         disabled={isSubmitting}
-                        className={clsx("w-32 rounded-lg p-2 text-black font-bold border-gray-200", {
-                            "hover:bg-gray-300 bg-gray-100": !isSubmitting,
-                            "bg-gray-300 cursor-not-allowed": isSubmitting
+                        className={clsx("w-32 rounded-lg p-2 font-bold", {
+                            "hover:bg-green-200 bg-green-100 text-defaultGreen": !isSubmitting,
+                            "bg-gray-200 cursor-not-allowed": isSubmitting
                         })}>
                             Cancel
                     </button>

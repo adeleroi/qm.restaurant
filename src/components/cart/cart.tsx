@@ -269,7 +269,7 @@ function CartSummary({ store, onClose }) {
                 </div>
             </div>
             <div className='mt-10 grid gap-2'>
-            <button className='bg-defaultGreen text-white py-2 rounded-3xl font-bold w-full hover:bg-green-800'>Checkout</button>
+            <button className='bg-gray-200 text-black py-2 rounded-3xl font-bold w-full hover:bg-gray-100'>Checkout</button>
             <Link to={`/store/${store?.storeId}`} onClick={() => onClose()}>
                 <button className='bg-gray-200 py-2 rounded-3xl font-bold w-full hover:bg-gray-100'>Add more items</button>
             </Link>

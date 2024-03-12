@@ -74,7 +74,6 @@ export function PlacesAutoCompleteModal({ children } : { children: React.ReactNo
                 <ModalOverlay/>
                 <ModalContent minH={'80vh'} borderRadius={'16px'} padding={"0px 0px 0px 0px"} overflow={'hidden'}>
                     <ModalCloseButton
-                        onClick={() => onClose()}
                         style={{top: '0.5rem', fontWeight: 'bold', fontSize: '16px', width: '2.4rem', height: '2.4rem', borderRadius: '50%'}}
                     />
                     <ModalBody padding={"0px 0px 0px 0px"}>
