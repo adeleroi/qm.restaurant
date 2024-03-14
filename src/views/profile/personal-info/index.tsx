@@ -69,7 +69,7 @@ function EditableInfo({ children, trigger } : { children: React.ReactNode, trigg
                 <ModalOverlay/>
                 <ModalContent borderRadius={"16px"}>
                     <ModalCloseButton style={{top: '0.5rem', fontWeight: 'bold', fontSize: '16px', width: '2.4rem', height: '2.4rem', borderRadius: '50%'}}/>
-                    <ModalBody padding={"0px 0px 0px 0px"}>
+                    <ModalBody padding={"0px"}>
                         <div className="min-h-96 px-4 flex flex-col justify-end pb-4">
                             { children }
                         </div>
