@@ -109,7 +109,7 @@ function OrderListItem({ showPrice=true, name, quantity=1 } : OrderListItemProps
             <FoodInfo name={name} showPrice={showPrice} quantity={quantity}/>
             <div className="ml-8">
                 <h1 className="text-[16px]">Extra: </h1>
-                <ul className="list-disc ml-2 pl-8">
+                <ul className="">
                     <li>
                         <FoodInfo name="Plantain" quantity={quantity} showPrice={false} isExtra/>
                     </li>
