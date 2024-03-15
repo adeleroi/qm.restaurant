@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronDown } from "../../../components/icons/icon"
+import { ChevronDown, PaymentMastercard, PaymentVisa } from "../../../components/icons/icon"
 import { priceFormat } from "../../../utils/currency"
 import clsx from "clsx";
 import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay, useDisclosure } from "@chakra-ui/react";
@@ -65,7 +65,7 @@ function OrderCard() {
                     <p className="text-[14px]">Mar-15-2024</p>
                     <p className="text-[14px]">Status: <span className="text-defaultGreen font-semibold">Complete</span></p>
                 </div>
-                <OrderList />
+                <OrderSummary />
                 <div className="mt-4 font-bold text-3xl w-72 flex gap-2">
                     <p>Total:</p>
                     <p>{priceFormat(73.44)}</p>
@@ -81,17 +81,11 @@ function OrderCard() {
     )
 }
 
-function OrderList() {
+function OrderSummary() {
     return (
         <div className="mb-2 mt-3">
             <h2 className="font-bold">5 articles</h2>
-            <ul className="my-1 pl-2">
-                <OrderListItem name="Egoussi soup" showPrice={false} showExtra={false}/>
-                <OrderListItem name="Garba" showPrice={false} showExtra={false}/>
-                <OrderListItem name="Poulet DG" showPrice={false} showExtra={false}/>
-                <OrderListItem name="Mafé" showPrice={false} showExtra={false}/>
-                <OrderListItem name="Foutou" showPrice={false} showExtra={false}/>
-            </ul>
+            <OrderList orderList={["Egoussi soup", "Garba", "Poulet DG", "Mafé", "Foutou"]} showPrice={false} showExtra={false}/>
         </div>
     )
 }
@@ -103,24 +97,28 @@ type OrderListItemProps = {
     showExtra?: boolean,
 }
 
-function OrderListItem({ showPrice=true, name, quantity=1 } : OrderListItemProps) {
+function OrderListItem({ showPrice=true, showExtra=false, name, quantity=1 } : OrderListItemProps) {
     return (
         <li className="text-lg w-full my-3">
             <FoodInfo name={name} showPrice={showPrice} quantity={quantity}/>
-            <div className="ml-8">
-                <h1 className="text-[16px]">Extra: </h1>
-                <ul className="">
-                    <li>
-                        <FoodInfo name="Plantain" quantity={quantity} showPrice={false} isExtra/>
-                    </li>
-                    <li>
-                        <FoodInfo name="Pepper powder" quantity={quantity} showPrice={false} isExtra/>
-                    </li>
-                    <li>
-                        <FoodInfo name="Sweet potatoes" quantity={quantity} showPrice={false} isExtra/>
-                    </li>
-                </ul>
-            </div>
+            {
+                showExtra ?
+                    <div className="ml-8">
+                        <h1 className="text-[16px]">Extra: </h1>
+                        <ul className="">
+                            <li>
+                                <FoodInfo name="Plantain" quantity={quantity} showPrice={false} isExtra/>
+                            </li>
+                            <li>
+                                <FoodInfo name="Pepper powder" quantity={quantity} showPrice={false} isExtra/>
+                            </li>
+                            <li>
+                                <FoodInfo name="Sweet potatoes" quantity={quantity} showPrice={false} isExtra/>
+                            </li>
+                        </ul>
+                    </div> :
+                null
+            }
         </li>
     )
 }
@@ -160,14 +158,14 @@ function ReceiptModal({ children } : { children: React.ReactNode }) {
             <Modal
                 size={"xl"}
                 isCentered
-                scrollBehavior="inside"
+                scrollBehavior="outside"
                 isOpen={isOpen}
                 onClose={onClose}>
                 <ModalOverlay/>
                 <ModalContent borderRadius={'16px'} minHeight={'95vh'}>
                     <ModalCloseButton style={{top: '0.5rem', fontWeight: 'bold', fontSize: '16px', width: '2.4rem', height: '2.4rem', borderRadius: '50%'}}/>
                     <ModalBody padding={'0px'} overflow={"scroll"}>
-                        <div className="px-5 mt-16">
+                        <div className="px-5 my-20">
                             <Receipt/>
                         </div>
                     </ModalBody>
@@ -185,38 +183,104 @@ function Receipt() {
                 <p>{priceFormat(73.44)}</p>
             </section>
             <section className="py-3 border-t-[1px] border-gray-300">
-                <ReceiptItems/>
+                <OrderList orderList={["Egoussi soup", "Garba", "Poulet DG", "Mafé", "Foutou"]} seeAll showExtra showPrice/>
             </section>
-            <section>
+            <section className="py-3 border-t-[1px] border-gray-300">
                 <ReceiptSubTotal/>
             </section>
-            <section>
+            <section className="py-3 border-t-[1px] border-gray-300">
                 <ReceiptPaymentMethod/>
             </section>
         </div>
     )
 }
 
-function ReceiptItems() {
+type OrderListProps = {
+    orderList: Array<string>,
+    sliceLength?: number,
+    seeAll?: boolean,
+    showExtra?: boolean,
+    showPrice?: boolean,
+}
+
+function OrderList({ orderList, sliceLength = 2, seeAll=false, showExtra=false, showPrice=false } : OrderListProps) {
+    const [ seeMore, setSeeMore ] = React.useState(false);
+    const slice = seeMore || seeAll ? orderList.length : sliceLength
     return (
         <ul className="my-1 w-full">
-            <OrderListItem name="Egoussi soup" showPrice showExtra={false}/>
-            <OrderListItem name="Garba" showPrice showExtra={false}/>
-            <OrderListItem name="Poulet DG" showPrice showExtra={false}/>
-            <OrderListItem name="Mafé" showPrice showExtra={false}/>
-            <OrderListItem name="Foutou" showPrice showExtra={false}/>
+            {
+                orderList.slice(0, slice).map((order, idx) => (
+                    <OrderListItem key={idx} name={order} showPrice={showPrice} showExtra={showExtra}/>
+                ))
+            }
+            {
+                !seeAll ?
+                    <p onClick={() => setSeeMore(!seeMore)} className="text-gray-800 underline underline-offset-4 cursor-pointer hover:text-gray-500 text-[14px]">
+                        {!seeMore ? "See more" : "See less" }
+                    </p>
+                : null
+            }
         </ul>
     )
 }
 
 function ReceiptSubTotal() {
     return (
-        <></>
+        <ul>
+            <SubTotalItem title="Service fee" value={4.20}/>
+            <SubTotalItem title="Delivery fee" value={6.20}/>
+            <SubTotalItem title="Taxes" value={5.76}/>
+            <SubTotalItem title="Tips" value={3.20}/>
+        </ul>
+    )
+}
+
+function SubTotalItem({ title, value } : { title: string, value: number }) {
+    return (
+        <li className="w-full flex justify-between items-center mb-3 text-lg font-medium my-1">
+            <div className="flex gap-3 items-center">
+                <p className="">{ title }</p>
+            </div>
+            <p className="">{priceFormat(value)}</p>
+        </li>
     )
 }
 
 function ReceiptPaymentMethod() {
     return (
-        <></>
+        <ul className="my-1 w-full">
+            <PaymentMethodItem
+                cardIcon={<PaymentMastercard className="w-9 h-9"/>}
+                cardType="Mastercard"
+                date={'10/11/2022 21:04'}
+                value={14.44}/>
+            <PaymentMethodItem
+                cardIcon={<PaymentVisa className="w-9 h-9"/>}
+                cardType="Visa"
+                date={'10/11/2022 21:04'}
+                value={14.44}/>
+        </ul>
+    )
+}
+
+type PaymentMethodItemProps = {
+    date: string,
+    value: number,
+    cardType: string,
+    cardIcon: React.ReactNode,
+}
+
+function PaymentMethodItem({ date, value, cardType, cardIcon } : PaymentMethodItemProps) {
+    return (
+        <li className="w-full flex justify-between items-center mb-3 text-lg">
+            <div className="flex gap-3 items-center">
+                { cardIcon }
+                <div>
+                    <p className="font-semibold">{cardType} ••••531</p>
+                    <p className=" text-gray-500  text-[15px]">{date}</p>
+                </div>
+            </div>
+            <p className="font-semibold">{priceFormat(value)}</p>
+        </li>
     )
 }

@@ -1,6 +1,8 @@
 // https://iconduck.com/icons/117068/shopping-cart
 import SVGCart from './cart.svg';
 import GoogleLog from './google_on_white_hdpi.png';
+import MasterCard from './payment-card-mastercard.svg';
+import Visa from './payment-card-visa.svg'
 
 export function CartIcon() {
     return <img className='' src={SVGCart}/>
@@ -89,5 +91,17 @@ export function VerifiedIcon({ height=24, width=24, fill="#fff" } : { height?: n
             <path d="m0 0h24v24h-24z" fill="none"/>
             <path d="m23 12-2.44-2.79.34-3.69-3.61-.82-1.89-3.2-3.4 1.46-3.4-1.46-1.89 3.19-3.61.81.34 3.7-2.44 2.8 2.44 2.79-.34 3.7 3.61.82 1.89 3.19 3.4-1.47 3.4 1.46 1.89-3.19 3.61-.82-.34-3.69zm-12.91 4.72-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48z" fill={fill}/>
         </svg>
+    )
+}
+
+export function PaymentMastercard({ className } : { className: string }) {
+    return (
+        <img src={MasterCard} className={className}/>
+    )
+}
+
+export function PaymentVisa({ className } : { className: string }) {
+    return (
+        <img src={Visa} className={className}/>
     )
 }

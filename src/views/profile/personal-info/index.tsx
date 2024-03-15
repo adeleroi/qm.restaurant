@@ -18,22 +18,22 @@ export function PersonalInfo() {
                         trigger={
                             <InfoListItem title="Name" value="Adé Ange-Wilfried N'guessan"/>
                         }
+                        infoType="name"
                     >
-                        <EditName/>
                     </EditableInfo>
                     <EditableInfo
                         trigger={
                             <InfoListItem title="Email" value="wilfriednguess@gmail.com"/>
                         }
+                        infoType="email"
                     >
-                        <EditEmail/>
                     </EditableInfo>
                     <EditableInfo
                         trigger={
                             <InfoListItem title="Phone number" value="581-777-7338"/>
                         }
+                        infoType="phoneNumber"
                     >
-                        <EditPhoneNumber/>
                     </EditableInfo>
                 </ul>
             </div>
@@ -55,7 +55,12 @@ function InfoListItem({ title, value, onClick } : { title: string, value: string
     )
 }
 
-function EditableInfo({ children, trigger } : { children: React.ReactNode, trigger: React.ReactNode }) {
+type EditableInfoProps = {
+    infoType: 'email' | 'name' | 'phoneNumber',
+    trigger: React.ReactNode
+}
+
+function EditableInfo({ infoType, trigger } : EditableInfoProps) {
     const { isOpen, onOpen, onClose } = useDisclosure();
     return (
         <div>
@@ -71,7 +76,12 @@ function EditableInfo({ children, trigger } : { children: React.ReactNode, trigg
                     <ModalCloseButton style={{top: '0.5rem', fontWeight: 'bold', fontSize: '16px', width: '2.4rem', height: '2.4rem', borderRadius: '50%'}}/>
                     <ModalBody padding={"0px"}>
                         <div className="min-h-96 px-4 flex flex-col justify-end pb-4">
-                            { children }
+                            {
+                                infoType == 'email' ?
+                                <EditEmail onClose={onClose}/> : infoType === 'name' ?
+                                <EditName onClose={onClose}/> :
+                                <EditPhoneNumber onClose={onClose}/>
+                            }
                         </div>
                     </ModalBody>
                 </ModalContent>
@@ -80,7 +90,7 @@ function EditableInfo({ children, trigger } : { children: React.ReactNode, trigg
     )
 }
 
-function EditName() {
+function EditName({ onClose } : { onClose: () => void }) {
     const fetcher = useFetcher();
     const firsName = 'Adé Ange-wilfried';
     const lastName = "N'guessan";
@@ -107,7 +117,12 @@ function EditName() {
                 </fieldset>
                 <input type="hidden" value="edit-name"/>
                 <div className="flex gap-2 justify-between">
-                    <button className="bg-green-100 w-1/2 hover:bg-green-200 text-defaultGreen h-14 rounded-lg font-bold mt-4" type="button">Cancel</button>
+                    <button
+                        onClick={() => onClose()}
+                        className="bg-green-100 w-1/2 hover:bg-green-200 text-defaultGreen h-14 rounded-lg font-bold mt-4"
+                        type="button">
+                            Cancel
+                    </button>
                     <button className="bg-defaultGreen w-1/2 hover:bg-green-800 text-white h-14 rounded-lg font-bold mt-4" type="submit">Save</button>
                 </div>
             </fetcher.Form>
@@ -115,7 +130,7 @@ function EditName() {
     )
 }
 
-function EditEmail() {
+function EditEmail({ onClose } : { onClose: () => void }) {
     const fetcher = useFetcher();
     const email = "wilfriednguess@gmail.com"
     return (
@@ -133,7 +148,12 @@ function EditEmail() {
                 </fieldset>
                 <input type="hidden" value="edit-email"/>
                 <div className="flex gap-2 justify-between">
-                    <button className="bg-green-100 w-1/2 hover:bg-green-200 text-defaultGreen h-14 rounded-lg font-bold mt-4" type="button">Cancel</button>
+                    <button
+                        onClick={() => onClose()}
+                        className="bg-green-100 w-1/2 hover:bg-green-200 text-defaultGreen h-14 rounded-lg font-bold mt-4"
+                        type="button">
+                            Cancel
+                    </button>
                     <button className="bg-defaultGreen w-1/2 hover:bg-green-800 text-white h-14 rounded-lg font-bold mt-4" type="submit">Save</button>
                 </div>
             </fetcher.Form>
@@ -149,7 +169,7 @@ const errorMap = [
     "Invalid number",
   ];
 
-function EditPhoneNumber() {
+function EditPhoneNumber({ onClose } : { onClose: () => void }) {
     const fetcher = useFetcher();
     const phoneNumber = "5817774338";
     const [hasSubmitted, setHasSubmitted] = React.useState(false);
@@ -166,7 +186,12 @@ function EditPhoneNumber() {
                 </fieldset>
                 <input type="hidden" value="edit-phoneNumber"/>
                 <div className="flex gap-2 justify-between">
-                    <button className="bg-green-100 w-1/2 hover:bg-green-200 text-defaultGreen h-14 rounded-lg font-bold mt-4" type="button">Cancel</button>
+                    <button
+                        onClick={() => onClose()}
+                        className="bg-green-100 w-1/2 hover:bg-green-200 text-defaultGreen h-14 rounded-lg font-bold mt-4"
+                        type="button">
+                            Cancel
+                    </button>
                     <button className="bg-defaultGreen w-1/2 hover:bg-green-800 text-white h-14 rounded-lg font-bold mt-4" onClick={handleSubmit}>Save</button>
                 </div>
             </fetcher.Form>
