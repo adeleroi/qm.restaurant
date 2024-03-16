@@ -37,6 +37,9 @@ import { PromotionLoader } from './views/profile/promotion/loader.ts';
 import { ProfileLanguage } from './views/profile/language/index.tsx';
 import { LanguageAction } from './views/profile/language/action.tsx';
 import { LanguageLoader } from './views/profile/language/loader.tsx';
+import { CheckoutView } from './views/checkout/index.tsx';
+import { CheckoutAction } from './views/checkout/action.tsx';
+import { CheckoutLoader } from './views/checkout/loader.tsx';
 
 const router = createBrowserRouter([
   {
@@ -133,6 +136,12 @@ const router = createBrowserRouter([
             loader: LanguageLoader,
           }
         ]
+      },
+      {
+        path: "checkout/:cartId",
+        element: <CheckoutView/>,
+        action: CheckoutAction,
+        loader: CheckoutLoader,
       }
     ],
   },

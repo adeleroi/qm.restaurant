@@ -105,3 +105,17 @@ export function PaymentVisa({ className } : { className: string }) {
         <img src={Visa} className={className}/>
     )
 }
+
+export function InfoIcon({ height=18, width=18, fill="#000" } : { height?: number, width?: number, fill?: string}) {
+    return (
+        <svg viewBox="0 0 24 24" height={height} width={width} xmlns="http://www.w3.org/2000/svg" className='cursor-pointer'>
+            <path d="m0 0h24v24h-24z" opacity="0" transform="matrix(-1 0 0 -1 24 24)"/>
+            <g fill="#231f20">
+                <path d="m12 2a10 10 0 1 0 10 10 10 10 0 0 0 -10-10zm0 18a8 8 0 1 1 8-8 8 8 0 0 1 -8 8z" fill={fill}/>
+                <circle cx="12" cy="8" r="1" fill='#099500'/>
+                <path d="m12 10a1 1 0 0 0 -1 1v5a1 1 0 0 0 2 0v-5a1 1 0 0 0 -1-1z" fill={fill}/>
+            </g>
+        </svg>
+
+    )
+}

@@ -37,7 +37,16 @@ export function CarTriggerForCheckout({ triggerElement }: { triggerElement: Reac
     )
 }
 
-export function DrawerCart({ isOpen, onClose, loaderData, storeId, action }: { isOpen: boolean, onClose: () => void, loaderData: any, action?: string, storeId: string }) {
+type DrawerCartProps = {
+    isOpen: boolean,
+    onClose: () => void,
+    loaderData: any,
+    action?: string,
+    storeId: string,
+    storeType?: 'store' | 'restaurant',
+}
+
+export function DrawerCart({ isOpen, onClose, loaderData, storeId, action }: DrawerCartProps) {
     const initialFocusRef = React.useRef(null);
     const cartCount = loaderData?.cartCount;
     const data = loaderData?.storeCartInfos;
@@ -47,6 +56,7 @@ export function DrawerCart({ isOpen, onClose, loaderData, storeId, action }: { i
     const storeInfos = data[storeId];
     const cartItems = storeInfos?.cart;
     const subtotal = getSubtotal(cartItems);
+
     return (
         <>
         <Drawer
@@ -93,7 +103,9 @@ export function DrawerCart({ isOpen, onClose, loaderData, storeId, action }: { i
                 </DrawerBody>
                 { cartItems?.length ?
                     <div className='sticky top-full w-full py-5 gap-2 shadow-custom border-2 px-2 grid place-items-center bg-white'>
-                        <ButtonActionAndValue ref={initialFocusRef} subtotal={subtotal}>Checkout</ButtonActionAndValue>
+                        <Link to={`/checkout/${data.id}`} className='w-full'>
+                            <ButtonActionAndValue ref={initialFocusRef} subtotal={subtotal}>Checkout</ButtonActionAndValue>
+                        </Link>
                         <button onClick={onClose} className='bg-gray-200 text-lg text-black h-12 rounded-lg font-bold w-full hover:cursor-pointer hover:bg-gray-100'>Add more items</button>
                     </div> : null
                 }
@@ -181,9 +193,15 @@ function EmptyCart({ onClose }: { onClose: () => void}) {
     )
 }
 
-export const ButtonActionAndValue = React.forwardRef(function ButtonActionAndValue({subtotal, children} : { subtotal: number, children: React.ReactNode }, ref) {
+type ButtonActionAndValueProps = {
+    subtotal: number,
+    children: React.ReactNode,
+    onClick?: () => void
+}
+
+export const ButtonActionAndValue = React.forwardRef(function ButtonActionAndValue({ subtotal, children, onClick } : ButtonActionAndValueProps, ref) {
     return (
-        <button ref={ref as LegacyRef<HTMLButtonElement>} className='h-12 relative group w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-lg text-white px-4'>
+        <button onClick={onClick} ref={ref as LegacyRef<HTMLButtonElement>} className='h-12 relative group w-full font-bold text-lg hover:bg-green-800 bg-defaultGreen py-2 rounded-lg text-white px-4'>
             <span>{ children }</span>
             <span className='absolute right-2 bg-green-900 px-2 rounded-lg text-[14px] group-hover:bg-defaultGreen'>{priceFormat(subtotal)}</span>
         </button>

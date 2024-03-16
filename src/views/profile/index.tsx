@@ -1,6 +1,13 @@
-import { NavLink, Outlet } from "react-router-dom";
+import React from "react";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 
 export function Profile() {
+    const { pathname } = useLocation();
+
+    React.useEffect(() => {
+      window.scrollTo(0, 0);
+    }, [pathname]);
+  
     return (
         <div className="w-full flex min-h-screen gap-8">
             <div className="pl-16">
