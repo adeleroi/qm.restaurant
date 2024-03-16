@@ -23,6 +23,7 @@ export default {
       },
       backgroundImage: {
         'hero-overlay': 'linear-gradient(rgba(0, 0, 0, 0.62) 0%, rgba(0, 0, 0, 0.81) 100%)',
+        'map-overlay': 'linear-gradient(rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.31) 100%)',
       },
       fontFamily: {
         sans: 'montserrat',
