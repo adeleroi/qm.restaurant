@@ -5,6 +5,7 @@ import { Footer } from './components/footer'
 import { ChakraProvider, extendTheme, theme } from '@chakra-ui/react'
 import { LoginActionsProvider } from './context/login-action-context'
 import { FirebaseAuthProvider } from './firebase/provider'
+
  
 const customTheme = extendTheme({
   ...theme,
@@ -29,7 +30,7 @@ function AppWithProvider() {
     <ChakraProvider theme={customTheme}>
       <FirebaseAuthProvider>
         <LoginActionsProvider>
-        <App/>
+            <App/>
         </LoginActionsProvider>
       </FirebaseAuthProvider>
     </ChakraProvider>

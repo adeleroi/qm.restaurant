@@ -17,8 +17,9 @@ export function Hero() {
     function handleSelection(location: SearchResult) {
         if (location) {
             const formData = new FormData();
+            const intent = isAnonymousUser ? 'set_anonymous_delivery_address' : 'set_delivery_address';
             formData.append('location', JSON.stringify(location));
-            formData.append('intent', isAnonymousUser ? 'set_anonymous_delivery_address' : 'set_delivery_address');
+            formData.append('intent', intent);
             fetcher.submit(
                 formData,
                 { method: 'post', action: "/", encType: "multipart/form-data" }

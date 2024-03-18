@@ -178,7 +178,7 @@ type SelectableAddressProps = {
 }
 
 function SelectableAddress({ data, setAddressToEdit, deleteAddress, isSubmitting } : SelectableAddressProps) {
-    const [ address, postalCode ] = formatAddress(data.address as string);
+    const [ address, cityAndCountry ] = formatAddress(data.address as string);
     function handleEdit() {
         if (!isSubmitting) {
             setAddressToEdit(data);
@@ -195,8 +195,8 @@ function SelectableAddress({ data, setAddressToEdit, deleteAddress, isSubmitting
             <div className="flex gap-3">
                 <Radio colorScheme="green" size={'lg'} type="radio" name="addressId" id={data.id} value={data.id} className="w-5 border-2 border-black rounded-full h-5"/>
                 <label className="cursor-pointer grid" htmlFor={data.id}>
-                    <span className="font-semibold">{address}, </span>
-                    <span className="text-gray-700 text-[13px]">{postalCode}</span>
+                    <span className="font-semibold">{address}</span>
+                    <span className="text-gray-700 text-[13px]">{cityAndCountry}</span>
                 </label>
             </div>
             <div className="flex gap-3 items-center">
@@ -229,7 +229,7 @@ const PlacesSuggestions = React.forwardRef(function SearchSuggestion({ results, 
         <ul tabIndex={1} ref={ref as LegacyRef<HTMLUListElement> | undefined} className="p-3 bg-white shadow-custom rounded-md overflow-y-scroll mt-1 absolute  w-full z-10">
             {
                 results?.map(({ place_id, description}) => {
-                    const [ address, postalCode ] = formatAddress(description);
+                    const [ address, cityAndCountry ] = formatAddress(description);
                     return (
                         <li className="group rounded-lg flex hover:bg-gray-100 py-3 cursor-pointer"
                             key={ place_id }
@@ -241,7 +241,7 @@ const PlacesSuggestions = React.forwardRef(function SearchSuggestion({ results, 
                                 </div>
                                 <div className="ml-8">
                                     <p className="font-semibold group-hover:text-defaultGreen">{ address }</p>
-                                    <p className="text-[14px] text-gray-500">{ postalCode }</p>
+                                    <p className="text-[14px] text-gray-500">{ cityAndCountry }</p>
                                 </div>
                             </div>
                         </li>

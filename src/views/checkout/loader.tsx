@@ -1,5 +1,14 @@
 import { json } from "react-router-dom";
 
+function getUserData() {
+    return { customerId: 'cus_Pl1jmprDk2lvue' };
+}
+
 export async function CheckoutLoader() {
-    return json({});
+    const userData = getUserData();
+    const res = await fetch(`http://localhost:4242/get-payment-method?customerId=${userData.customerId}`);
+    const paymentMethods = await res.json();
+
+    console.log('loader paymentMethod', paymentMethods)
+    return json({ paymentMethods });
 }
