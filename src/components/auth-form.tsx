@@ -36,7 +36,7 @@ export function AuthFormTrigger({triggerElement}: {triggerElement?: React.ReactN
           { triggerElement }
         </Trigger>
   
-        <Modal isOpen={isOpen} onClose={onClose} isCentered initialFocusRef={initialRef} on>
+        <Modal isOpen={isOpen} onClose={onClose} isCentered initialFocusRef={initialRef}>
           <ModalOverlay />
           <ModalContent style={{borderRadius: '16px'}}>
             <ModalHeader>
@@ -67,7 +67,7 @@ function AuthTypeSeparator() {
   return (
     <div className='flex w-full items-center justify-between my-4'>
       <hr className='w-1/2 border-[rgba(32, 33, 37, 0.12)]'/>
-      <span className='text-gray-900 text-[14px] w-64 mx-3 font-medium'>or continue with email</span>
+      <span className='text-gray-900 text-[14px] w-72 mx-3 font-medium'>or continue with email</span>
       <hr className='border-[rgba(32, 33, 37, 0.12)] w-1/2'/>
     </div>
   )

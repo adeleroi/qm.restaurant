@@ -8,7 +8,7 @@ import {
     DrawerHeader,
 } from '@chakra-ui/react';
 import { Trigger } from '../../utils/trigger';
-import { Link, useLoaderData, useParams } from 'react-router-dom';
+import { Link, useLoaderData, useNavigate, useParams } from 'react-router-dom';
 import React, { LegacyRef } from 'react';
 import { ButtonIncrement, Product } from '../../views/store-front';
 import { getSubtotal, priceFormat } from '../../utils/currency';
@@ -47,6 +47,7 @@ type DrawerCartProps = {
 }
 
 export function DrawerCart({ isOpen, onClose, loaderData, storeId, action }: DrawerCartProps) {
+    const navigate = useNavigate();
     const initialFocusRef = React.useRef(null);
     const cartCount = loaderData?.cartCount;
     const data = loaderData?.storeCartInfos;
@@ -56,6 +57,12 @@ export function DrawerCart({ isOpen, onClose, loaderData, storeId, action }: Dra
     const storeInfos = data[storeId];
     const cartItems = storeInfos?.cart;
     const subtotal = getSubtotal(cartItems);
+
+
+    function goToCheckout() {
+        onClose();
+        navigate(`/checkout?storeId=${storeId}`);
+    }
 
     return (
         <>
@@ -94,7 +101,7 @@ export function DrawerCart({ isOpen, onClose, loaderData, storeId, action }: Dra
                             <>
                                 {
                                    storeId ?
-                                   <Cart action={action} onClose={onClose} subtotal={subtotal} cartItems={cartItems} storeInfos={storeInfos} storeId={storeId}/>
+                                   <Cart action={action} onClose={onClose} subtotal={subtotal} cartItems={cartItems} storeId={storeId}/>
                                    : null
                                 }
                                 <CartList onClose={onClose} list={storeAndCartSummary} showTitle={storeId}/>
@@ -103,9 +110,13 @@ export function DrawerCart({ isOpen, onClose, loaderData, storeId, action }: Dra
                 </DrawerBody>
                 { cartItems?.length ?
                     <div className='sticky top-full w-full py-5 gap-2 shadow-custom border-2 px-2 grid place-items-center bg-white'>
-                        <Link to={`/checkout/${data.id}`} className='w-full'>
-                            <ButtonActionAndValue ref={initialFocusRef} subtotal={subtotal}>Checkout</ButtonActionAndValue>
-                        </Link>
+                        <ButtonActionAndValue
+                            ref={initialFocusRef}
+                            subtotal={subtotal}
+                            onClick={goToCheckout}
+                        >
+                                Checkout
+                        </ButtonActionAndValue>
                         <button onClick={onClose} className='bg-gray-200 text-lg text-black h-12 rounded-lg font-bold w-full hover:cursor-pointer hover:bg-gray-100'>Add more items</button>
                     </div> : null
                 }

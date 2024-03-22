@@ -11,7 +11,7 @@ export async function ProductModalLoader({ params }: LoaderFunctionArgs) {
     const cartItems = new Map<string, number>();
     const similarProductList: Array<Product> = [];
 
-    const cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
+    const cartSnapshot = userId ? await getDocs(collection(db, "users", userId, "cart")) : [];
     cartSnapshot.forEach(item => {
         cartItems.set(item.id, item.data().count);
     });

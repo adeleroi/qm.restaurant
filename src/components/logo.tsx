@@ -3,9 +3,9 @@ import { useFirebaseAuth } from "../firebase/auth"
 
 
 export function Logo({ to="feed" }: { to?: string }) {
-    const { loggedIn } = useFirebaseAuth();
+    const { data: user } = useFirebaseAuth();
     return (
-        <Link to={loggedIn ? to : '/'}>
+        <Link to={user && !user.isAnonymous ? to : '/'}>
             <div className="cursor-pointer">
                 <p className="font-montserrat font-bold text-2xl">
                     <span className="text-defaultGreen">Quick</span>

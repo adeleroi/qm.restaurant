@@ -29,6 +29,7 @@ export default {
         sans: 'montserrat',
         roboto: 'roboto',
         anek: "'Anek Devanagari'",
+        poppins: 'Poppins',
       },
       keyframes: {    
         slideToRight: {

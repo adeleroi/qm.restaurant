@@ -138,7 +138,7 @@ const router = createBrowserRouter([
         ]
       },
       {
-        path: "checkout/:cartId",
+        path: "checkout",
         element: <CheckoutView/>,
         action: CheckoutAction,
         loader: CheckoutLoader,

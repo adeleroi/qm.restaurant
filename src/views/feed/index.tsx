@@ -49,6 +49,7 @@ export type Store = {
     closingHour: Date,
     openingHour: Date
     backgroundColor: string,
+    storeType?: 'shop' | 'restaurant',
     // estimatedDeliveryTime: Date 
 }
 

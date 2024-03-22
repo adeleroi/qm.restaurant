@@ -154,7 +154,6 @@ export function ScrollableList({ as="div", title, children }: { as:string, child
                         </button>
                     </div>
                     ): null
-
                 }
             </div>
             <As className="px-2 item-list my-5 py-4 gap-2 mb-10 flex overflow-x-auto snap-x scroll-smooth" ref={slideRef} onScroll={handleScroll}>

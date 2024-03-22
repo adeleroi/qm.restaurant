@@ -1,4 +1,3 @@
-import { Button } from "./button";
 import { Logo } from "./logo";
 import { useLoginFormAction } from "../context/hooks";
 import { AuthFormTrigger } from "./auth-form";
@@ -14,7 +13,7 @@ import { ProfileMenu } from "./profile-menu";
 export function Navbar() {
     const location = useLocation();
     const isLandingPage = location.pathname === '/';
-    const { loggedIn } = useFirebaseAuth();
+    const { loggedIn, data: user } = useFirebaseAuth();
 
     return (
         <nav className="flex justify-between min-h-16 w-full py-2 px-16 items-center bg-white border-b-[1px] border-gray-200 gap-2 top-0 z-40 sticky">
@@ -31,7 +30,7 @@ export function Navbar() {
                 <SearchSwitcher />
             </div>
             {
-                loggedIn && !isLandingPage ?
+                loggedIn && !isLandingPage &&  user?.isAnonymous === false ?
                 <div className="ml-8">
                     <ProfileMenu/>
                 </div> :
@@ -81,22 +80,18 @@ function ButtonSection({ isLandingPage } : { isLandingPage: boolean }) {
         <div className="flex gap-2 items-center justify-end">
             <AuthFormTrigger
                 triggerElement={
-                    <span onClick={() => setAction('signup')} className="mr-2 hover:text-gray-800 text-black font-semibold cursor-pointer">
+                    <span onClick={() => setAction('signup')} className="mr-2 hover:text-gray-500 text-black font-medium cursor-pointer">
                         Sign up
                     </span>
                 }
             />
-            {
-                !user ? 
-                    <AuthFormTrigger
-                        triggerElement={
-                            <Button size="small" onClick={() => setAction('login')} className="h-8 shadow-custom bg-white hover:bg-gray-100 focus:bg-gray-200 text-black font-semibold">
-                                Log in
-                            </Button>
-                        }
-                    />
-                : null
-            }
+            <AuthFormTrigger
+                triggerElement={
+                    <button onClick={() => setAction('login')} className="h-12 rounded-3xl flex items-center p-3 px-4 bg-green-100 text-defaultGreen hover:bg-green-50 focus:bg-gray-200 font-semibold">
+                        Log in
+                    </button>
+                }
+            />
         </div>
     )
 
