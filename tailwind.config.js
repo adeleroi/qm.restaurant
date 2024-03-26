@@ -73,7 +73,7 @@ export default {
           '0%': { height: '6rem' },
           '100%': { height: '0rem' },
         }
-  
+
       },
       animation: {
         'slide-right': 'slideToRight 200ms ease-in-out',

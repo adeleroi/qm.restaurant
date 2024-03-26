@@ -128,6 +128,7 @@ type FoodCustomizationFormProps = {
 
 function FoodCustomizationForm({ food, requiredOptionState } : FoodCustomizationFormProps) {
     const [ requiredOptionsValidity, setRequiredOptionsValidity ] = React.useState<Record<string, boolean>>(requiredOptionState);
+    const [ itemCount, setItemCount ] = React.useState(food?.quantity || 1);
     const [ isSubmit, setIsSubmit ] = React.useState(false);
     const submit = useSubmit();
 
@@ -161,14 +162,14 @@ function FoodCustomizationForm({ food, requiredOptionState } : FoodCustomization
             }
             <div style={{borderBottomLeftRadius: '16px', borderBottomRightRadius: '16px'}}
                 className="w-full flex justify-end items-center gap-5 bg-white shadow-custom py-4 absolute bottom-0 left-0 px-3">
-                <ButtonIncrement alwaysOnDisplay cartCount={1} onLimitDisable limitInf={1} />
-                <AddToCartWithCountButton />
+                <ButtonIncrement alwaysOnDisplay cartCount={itemCount} onLimitDisable limitInf={1} getCount={setItemCount}/>
+                <AddToCartWithCountButton count={itemCount} price={food.price}/>
             </div>
         </Form>
     )
 }
 
-function AddToCartWithCountButton({ count=1, price=12.99, disableButton=false, isSubmitting=false }) {
+function AddToCartWithCountButton({ count=1, price=1299, disableButton=false, isSubmitting=false }) {
     return (
         <button
             className={clsx('relative group h-12 w-full font-bold text-lg py-2 rounded-lg text-white px-4', {
