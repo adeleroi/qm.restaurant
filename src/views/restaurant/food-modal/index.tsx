@@ -16,9 +16,9 @@ import {
 } from '@chakra-ui/react'
 import { Form, useLoaderData, useNavigate, useSubmit } from "react-router-dom";
 import { priceFormat } from "../../../utils/currency";
-import { Food, FoodOption, FoodOptionList } from "./model.ts";
 import clsx from "clsx";
 import { ButtonIncrement } from "../../store-front/index.tsx";
+import { Article, Customization, CustomizationOption } from "../index.tsx";
 
 
 interface IntersectionObserverOption {
@@ -47,7 +47,7 @@ function useIntersectionObserverEffect(
 
 export function FoodModal() {
     const { onOpen, onClose, isOpen } = useDisclosure();
-    const { food, requiredOptionState } = useLoaderData() as { food: Food, requiredOptionState: Record<string, boolean> };
+    const { food, requiredOptionState } = useLoaderData() as { food: Article, requiredOptionState: Record<string, boolean> };
     const navigate = useNavigate();
 
     React.useEffect(() => {
@@ -114,7 +114,7 @@ export function FoodModal() {
 
 const FoodCustomizationTitle = React.forwardRef(function FoodCustomizationTitle({ name, price } : { name: string, price: number }, ref) {
     return (
-        <div className="overflow-y-auto" ref={ref}>
+        <div className="overflow-y-auto" ref={ref as LegacyRef<HTMLDivElement> | undefined}>
             <h1 className="capitalize font-black text-2xl">{ name }</h1>
             <p className="font-black text-gray-500 mt-1 text-xl">{ priceFormat(price) }</p>
         </div>        
@@ -122,7 +122,7 @@ const FoodCustomizationTitle = React.forwardRef(function FoodCustomizationTitle(
 })
 
 type FoodCustomizationFormProps = {
-    food: Food,
+    food: Article,
     requiredOptionState: Record<string, boolean>
 }
 
@@ -262,7 +262,7 @@ function OptionalInstruction({ quantity } : { quantity: number }) {
 }
 
 type FoodCustomizationProps = {
-    customization: FoodOptionList,
+    customization: Customization,
     isInvalid: boolean,
     isIdle: boolean,
     setRequiredOptionsValidity: Dispatch<SetStateAction<Record<string, boolean>>>,
@@ -313,7 +313,7 @@ type FoodCustomizationSelectProps = {
     isRequired?: boolean,
     min: number,
     max: number,
-    options: Array<FoodOption>,
+    options: Array<CustomizationOption>,
     title: string,
     setRequiredOptionsValidity: Dispatch<SetStateAction<Record<string, boolean>>>,
 }
@@ -375,7 +375,7 @@ function FoodCustomizationInstruction({ isRequired, min, max, isInvalid, isIdle,
 
 type CustomizationCheckBoxGroupProps = {
     isRequired?: boolean,
-    options: Array<FoodOption>,
+    options: Array<CustomizationOption>,
     title: string,
     min: number,
     max: number,
@@ -411,7 +411,7 @@ function CustomizationCheckBoxGroup({ options, title, isRequired, min, max, setR
         <div ref={checkboxContainerRef as LegacyRef<HTMLDivElement> | undefined}>
             <CheckboxGroup colorScheme="green">
                 {
-                    options?.map(({ name, price }: FoodOption, idx) => (
+                    options?.map(({ name, price }: CustomizationOption, idx) => (
                         <div className="py-3 pl-3 border-b-[1px] flex items-center " key={idx} id={title}>
                             <Checkbox
                                 disabled={disableUnchecked && !checkedList?.includes(name)}
@@ -434,7 +434,7 @@ function CustomizationCheckBoxGroup({ options, title, isRequired, min, max, setR
 }
 
 type CustomizationRadioGroupProps = {
-    options: Array<FoodOption>,
+    options: Array<CustomizationOption>,
     title: string,
     setRequiredOptionsValidity: Dispatch<SetStateAction<Record<string, boolean>>>,
 }
@@ -450,7 +450,7 @@ function CustomizationRadioGroup({ options, title, setRequiredOptionsValidity } 
     return (
         <RadioGroup className="grid" defaultValue="1" name={ title } onChange={handleChange} value={value} id={title}>
             {
-                options?.map(({name, price}: FoodOption, idx) => (
+                options?.map(({name, price}: CustomizationOption, idx) => (
                     <div className="py-3 pl-3 border-b-[1px]" key={idx}>
                         <Radio form="food-customization-form" name={title} size={'lg'} value={ name } colorScheme="green">
                             <div className="grid pl-2">

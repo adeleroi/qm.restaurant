@@ -31,6 +31,7 @@ export type Article = {
     hasCustomization: boolean,
     isSoldOut: boolean,
     customizations: Array<Customization>,
+    quantity?: number,
 }
 
 export type MenuSection = {
