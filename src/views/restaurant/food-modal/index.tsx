@@ -12,12 +12,38 @@ import {
     CheckboxGroup,
     Checkbox,
     Spinner,
+    ModalCloseButton,
 } from '@chakra-ui/react'
 import { Form, useLoaderData, useNavigate, useSubmit } from "react-router-dom";
 import { priceFormat } from "../../../utils/currency";
 import { Food, FoodOption, FoodOptionList } from "./model.ts";
 import clsx from "clsx";
 import { ButtonIncrement } from "../../store-front/index.tsx";
+
+
+interface IntersectionObserverOption {
+    root: HTMLElement|null,
+    rootMargin?: HTMLElement['style']['margin'],
+    threshold: Array<number>, // number mjust be less than or equal to 1,
+}
+
+const SHOW_HEADER_STYLE = 'will-change-auto h-20 opacity-100 flex flex-col justify-center items-start animate-open-header shadow-xl absolute flex z-50 w-full top-0 left-0 px-4 bg-white';
+const HIDE_HEADER_STYLE = 'will-change-auto h-0 opacity-0 flex flex-col justify-center items-start transition-opacity animate-close-header shadow-xl absolute z-50 w-full top-0 left-0 px-4 bg-white';
+
+
+function useIntersectionObserverEffect(
+    targetRef:  React.MutableRefObject<HTMLElement | null>,
+    callBack: IntersectionObserverCallback,
+    options: IntersectionObserverOption,
+) {
+    React.useEffect(() => {
+        const target = targetRef.current;
+        if (!target) return;
+        const observer = new IntersectionObserver(callBack, options)
+        observer.observe(target);
+        return () => { target && observer.unobserve(target) };
+    });
+}
 
 export function FoodModal() {
     const { onOpen, onClose, isOpen } = useDisclosure();
@@ -28,6 +54,29 @@ export function FoodModal() {
         onOpen();
         return() => onClose();
     }, [onOpen, onClose]);
+
+    const headerRef = React.useRef<HTMLElement|null>(null);
+    const intersectionTargetRef = React.useRef<HTMLElement|null>(null);
+    const rootTargetRef = React.useRef<HTMLElement | null>(null);
+
+    const callback = React.useCallback((entries: Array<IntersectionObserverEntry>) => {
+        if (headerRef.current) {
+            const entry = entries[0];
+            if (entry.isIntersecting) {
+                if (entry.intersectionRatio < 0.9) {
+                    headerRef.current.className = SHOW_HEADER_STYLE;
+                } else {
+                    headerRef.current.className = HIDE_HEADER_STYLE;
+                }
+            }
+        }
+    }, [])
+
+    useIntersectionObserverEffect(
+        intersectionTargetRef,
+        callback,
+        {root: rootTargetRef?.current, threshold: [0.9, 0.7, 0.3, 0]}
+    )
 
     return (
         <React.Fragment>
@@ -42,9 +91,19 @@ export function FoodModal() {
                 isOpen={isOpen}
                 >
                 <ModalOverlay/>
-                <ModalContent className="min-h-[90vh] px-2 pt-10 relative" style={{position: 'relative', borderRadius: '16px'}}>
+                <ModalContent className="min-h-[60vh] px-2 pt-10 relative" style={{position: 'relative', borderRadius: '16px', overflow: 'hidden'}} ref={rootTargetRef}>
+                    <ModalCloseButton
+                        style={{top: '0.5rem', fontWeight: 'bold', fontSize: '16px', width: '2.4rem', height: '2.4rem', borderRadius: '50%', zIndex: 100}}
+                    />
                     <ModalBody className="">
-                        <FoodCustomizationTitle price={food.price} name={food.name}/>
+                        <div ref={headerRef as LegacyRef<HTMLDivElement> | undefined} className="hidden">
+                            <h1 className="capitalize font-black text-xl">{ food.name }</h1>
+                            <p className="font-black text-gray-500 mt-1">{ priceFormat(food.price) }</p>
+                        </div>
+                        <div className="w-full h-80">
+                            <img src="https://imageproxy.wolt.com/menu/menu-images/5c46ec9817ee33000b13cfc1/039e3a58-05c2-11ee-abe8-3adbb04f635b_ahr0chm6ly9zdg9yywdllmdvb2dszwfwaxmuy29tl2lrb25hlwj1y2tldc1wcm9kdwn0aw9ul2ltywdlcy82mtkznjkyogy2zju4odjkotmxyjazodavr291cm1ldedyawxsu3rlywtob3vzzu1lywwtnjq4mdu3ngzjnjq0mwewmdflyzfmymnlllborw__.jpeg" alt=""/>
+                        </div>
+                        <FoodCustomizationTitle price={food.price} name={food.name} ref={intersectionTargetRef}/>
                         <FoodCustomizationForm food={food} requiredOptionState={requiredOptionState}/>
                     </ModalBody>
                 </ModalContent>
@@ -53,14 +112,14 @@ export function FoodModal() {
     )
 }
 
-function FoodCustomizationTitle({ name, price } : { name: string, price: number }) {
+const FoodCustomizationTitle = React.forwardRef(function FoodCustomizationTitle({ name, price } : { name: string, price: number }, ref) {
     return (
-        <div className="overflow-y-auto ">
+        <div className="overflow-y-auto" ref={ref}>
             <h1 className="capitalize font-black text-2xl">{ name }</h1>
             <p className="font-black text-gray-500 mt-1 text-xl">{ priceFormat(price) }</p>
         </div>        
     )
-}
+})
 
 type FoodCustomizationFormProps = {
     food: Food,
@@ -86,7 +145,7 @@ function FoodCustomizationForm({ food, requiredOptionState } : FoodCustomization
     return (
         <Form id="food-customization-form" className="" onSubmit={handleSubmit}>
             {
-                food.customization.map((custom, idx) => {
+                food.customizations?.map((custom, idx) => {
                     return (
                         <FoodCustomization
                             key={idx}

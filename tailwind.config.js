@@ -67,7 +67,7 @@ export default {
         },
         openHeader: {
           '0%': { height: '0rem' },
-          '100%': { height: '6rem' },
+          '100%': { height: '5rem' },
         },
         closeHeader: {
           '0%': { height: '6rem' },

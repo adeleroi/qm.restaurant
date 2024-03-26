@@ -2,7 +2,7 @@ import clsx from "clsx";
 import React from "react";
 import { Link, Outlet, useFetcher, useLoaderData, useLocation, useNavigate, useParams, useRouteLoaderData } from "react-router-dom"
 import { priceFormat } from "../../utils/currency";
-import { Restaurant, Store } from "../feed";
+import { Store } from "../feed";
 import { useDisclosure } from '@chakra-ui/react'
 import { SubmitTarget } from "react-router-dom/dist/dom";
 import { DrawerCart } from "../../components/cart/cart";
@@ -55,7 +55,7 @@ export function StoreFront() {
                 <div className="flex w-full px-16 mb-16">
                     <div className="">
                         <div className="z-20 pt-8 bg-white">
-                            <StoreSummary storeInfos={storeInfos} />
+                            <StoreSummary store={storeInfos} />
                         </div>
                         <div id="list-category" className="pb-20 mt-4 sticky overflow-y-auto top-[80px] w-[250px] max-h-[calc(100vh-80px)]">
                             <CategoryList categories={categories}/>
@@ -73,31 +73,34 @@ export function StoreFront() {
     )
 }
 
-export function StoreSummary({ storeInfos }: { storeInfos: Store | Restaurant}) {
+export function StoreSummary({ store }: { store: Store}) {
+
     return (
         <div className="text-black z-20 bg-white pb-4 border-b-[1px]">
             {
-                storeInfos.imgUrl ? (
+                store.imgUrl ? (
                     <div className="">
                         <div className="overflow-hidden w-28 h-28 border-[1px] shadow-custom bg-white rounded-full flex justify-center items-center mr-2 mb-4 px-2">
-                            { storeInfos.imgUrl ? <img className="object-contain 2-24 h-24" src={storeInfos.imgUrl} alt="lcbo-logo"/> : null }
+                            { store.imgUrl ? <img className="object-contain 2-24 h-24" src={store.imgUrl} alt="lcbo-logo"/> : null }
                         </div>
                     </div>
                 ) : null
             }
             <div className="pl-2">
-                <p className="font-bold text-xl mb-1">{ storeInfos?.name }</p>
+                <p className="font-bold text-xl mb-0 pb-0">{ store?.name }</p>
                 <div className="grid">
-                    <span className="text-[12px] text-gray-600">{storeInfos?.location?.address}</span>
-                    <span className="text-[12px] text-gray-600">Delivery fee (3.69$)</span>
+                    <span className="text-[12px] text-gray-600">{store?.location?.address}</span>
+                    <div className="mt-2">
+                        <span className="text-[12px] text-gray-600">Delivery fee ({priceFormat(store.deliveryFee)})</span>
+                    </div>
                 </div>
                 <div className="text-[12px] text-gray-600r">
-                    <div>
+                    {/* <div>
                         <span className="text-defaultGreen font-semibold">Open now</span>
                         <span> • </span>
                         <span>Closes at 11:39 PM</span>
-                    </div>
-                    <StoreInfoModal storeInfos={storeInfos}>
+                    </div> */}
+                    <StoreInfoModal storeInfos={store}>
                         <span className="text-[12px] text-gray-600 underline cursor-pointer">More Infos</span>
                     </StoreInfoModal>
                 </div>

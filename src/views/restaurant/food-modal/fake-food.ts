@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { Food, FoodOption, FoodOptionList } from './model';
 
 export function createRandomFood(): Food {
-    const customization = Array.from({length: 3}, () =>({
+    const customizations = Array.from({length: 3}, () =>({
         ...generateFoodOptionList(),
     }))
     return {
@@ -11,7 +11,7 @@ export function createRandomFood(): Food {
         name: faker.word.noun(),
         price: faker.number.float({min: 10.0, max: 34.99}),
         imgUrl: faker.image.urlLoremFlickr({ category: 'food' }),
-        customization,
+        customizations,
     }
 }
 

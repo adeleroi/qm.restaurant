@@ -12,7 +12,6 @@ export async function storeFrontLoader({params, request}: LoaderFunctionArgs) {
     const defaultSearchSuggestions = [] as Array<Product>;
 
     const storeId = params.storeId as string;
-    const carts: Array<Product> = [];
     const cartItemIds = new Map<string, number>();
     const productMap: Record<string, Array<Product>> = {};
     const categories: Array<string> = [];
@@ -23,7 +22,6 @@ export async function storeFrontLoader({params, request}: LoaderFunctionArgs) {
         const cartSnapshot = await getDocs(collection(db, "users", userId, "cart"));
         cartSnapshot.forEach(cartItem => {
             const data = cartItem.data();
-            carts.push({id: cartItem.id, ...data} as Product);
             cartItemIds.set(cartItem.id, data.count);
         });
     }

@@ -6,9 +6,10 @@ import {
     ModalContent,
     ModalBody,
     useDisclosure,
+    ModalCloseButton,
   } from '@chakra-ui/react'
 import { Trigger } from "../../utils/trigger";
-import { Restaurant, Store } from "../../views/feed";
+import { Store } from "../../views/feed";
 import clsx from "clsx";
 // import { GoogleMap } from "./map-google";
 import { MapBoxMap } from "./map-mapbox";
@@ -24,6 +25,9 @@ export function StoreInfoModal({ children, storeInfos } : { children: React.Reac
             <Modal isOpen={isOpen} onClose={onClose} isCentered scrollBehavior="inside">
                 <ModalOverlay opacity={0.2}/>
                 <ModalContent style={{borderRadius: '16px', overflow: 'hidden'}} minH={'70vh'}>
+                    <ModalCloseButton
+                        style={{backgroundColor: '#d1d5db96', top: '0.5rem', fontWeight: 'bold', fontSize: '16px', width: '2.4rem', height: '2.4rem', borderRadius: '50%', zIndex: 100}}
+                    />
                     <ModalBody style={{padding: 0}}>
                         <div>
                             {/* <h1 className="p-3 py-4 text-2xl font-bold">{storeInfos?.name}</h1> */}

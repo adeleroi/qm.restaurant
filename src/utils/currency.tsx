@@ -2,7 +2,7 @@ export function priceFormat(value: number) {
     if (typeof value !== 'number') {
         return '$'+value;
     }
-    return new Intl.NumberFormat('en-CA', {style: 'currency', currency: 'CAD'}).format(value);
+    return new Intl.NumberFormat('en-CA', {style: 'currency', currency: 'CAD'}).format(value/100);
 }
 
 // very simple version just for now

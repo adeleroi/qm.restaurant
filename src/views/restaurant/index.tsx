@@ -1,20 +1,71 @@
 import React from "react";
 import { Link, Outlet, useLoaderData } from "react-router-dom";
-import { Restaurant } from "../feed";
 import { StoreSummary } from "../store-front";
 import { priceFormat } from "../../utils/currency";
-import { Food } from "./food-modal/model";
+import { Store } from "../feed";
+
+export type CustomizationOption = {
+    _id: string,
+    name: string,
+    price: number,
+}
+
+export type Customization = {
+    _id: string,
+    title: string,
+    maxNumOptions: number,
+    minNumOptions: number,
+    options: Array<CustomizationOption>,
+}
+
+export type Article = {
+    _id: string,
+    storeId: string,
+    categoryId: string,
+    subCategoryId: Array<string>,
+    type: string,
+    name: string,
+    description: string,
+    price: number,
+    imgUrl: string,
+    hasCustomization: boolean,
+    isSoldOut: boolean,
+    customizations: Array<Customization>,
+}
+
+export type MenuSection = {
+    categoryId: string,
+    categoryItems: Array<Article>,
+    title: string,
+}
+
+export type Section = {
+    _id: string,
+    storeId: string,
+    type: string,
+    subCategoryIds: Array<string>,
+    title: string,
+}
+
+type StoreData = {
+    store: Store,
+    sections: Array<Section>,
+    menuSections: Array<MenuSection>
+}
 
 export function RestaurantFront() {
-    const { restaurantInfos: infos, foodList } = useLoaderData() as { restaurantInfos: Restaurant, foodList: Array<Food> };
+    const { storeData } = useLoaderData() as { storeData: StoreData };
+    const infos = storeData.store;
+    const sections = storeData.sections;
+    const menuSections = storeData.menuSections;
 
     React.useEffect(() => {
-        CATEGORIES.forEach((category) => {
-            const el = document.getElementById(category);
+        sections.forEach((section) => {
+            const el = document.getElementById(section._id);
             if (el) {
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach((entry) => {
-                        const item = document.getElementById(`list-item-${category}`);
+                        const item = document.getElementById(`list-item-${section._id}`);
                         const defaultStyle = "capitalize py-3 rounded-lg underline-offset-8 px-2 cursor-pointer font-medium scroll-my-48 hover:bg-gray-100";
                         if (entry.isIntersecting) {
                             item?.setAttribute('class', defaultStyle + ' ' + "underline ");
@@ -29,83 +80,77 @@ export function RestaurantFront() {
             }
         })
     }, [])
-    
+
     return (
         <React.Fragment>
             <section className="mb-16" id="food-section">
-                <header className="relative w-full h-64 overflow-hidden">
-                    <div className="inset-0 bg absolute bg-hero-overlay h-64 z-10"></div>
-                    <img
-                        className="object-cover h-64 w-full"
-                        src="https://tb-static.uber.com/prod/image-proc/processed_images/6a3368e8b89834d00d62c35a9658baff/16bb0a3ab8ea98cfe8906135767f7bf4.webp" />
-                    <h1 className="text-5xl text-white z-10 font-thin absolute top-1/2 left-16">{infos.name} 🍗</h1>
-                </header>
+                <RestaurantHeader infos={infos}/>
                 <div className="flex mt-8 px-16">
                     <div className="">
                         <div className="z-20 pt-8 bg-white">
-                            <StoreSummary storeInfos={infos} />
+                            <StoreSummary store={infos} />
                         </div>
-                        <div id="list-category" className="pb-20 mt-4 sticky overflow-y-auto top-[80px] w-[250px] max-h-[calc(100vh-80px)]">
-                            <ul>
-                                {
-                                    CATEGORIES.map((category, idx) => (
-                                        <li
-                                            onClick={() => {
-                                                document.getElementById(category)?.scrollIntoView({behavior: "instant"});
-                                            }}
-                                            id={`list-item-${category}`}
-                                            key={idx}
-                                            className="capitalize py-2 rounded-lg px-2 cursor-pointer">
-                                            { category }
-                                        </li>
-                                    ))
-                                }
-                            </ul>
-                        </div>
+                        <CuisineType sections={sections}/>
                     </div>
                     <div className="ml-4 pl-20">
                         {
-                            CATEGORIES.map((category, idx) => (
-                                <FoodCategoryTest key={idx} category={category}/>
+                            menuSections.map((section, idx) => (
+                                <FoodCategory key={idx} category={section}/>
                             ))
                         }
                     </div>
                 </div>
-                <Outlet />
+                <Outlet/>
             </section>
         </React.Fragment>
     )
 }
 
-const CATEGORIES = [
-    "Featured items",
-    "Buy 1, Get 1 Free",
-    "Bundles Meals",
-    "chicken & fish",
-    "happy meals",
-    "hot drinks",
-    "cold Drinks",
-    "bakery",
-    "sweets & treats",
-    "snacks & sides",
-    "condiments",
-    "individual items",
-    "halal",
-    "breakfast",
-    "cury only",
-    "Vegetarian",
-    "Poutine (halal)",
-    "Fish Specialties"
-]
-
-export function FoodCard({ food } : { food: Food }) {
+function CuisineType({sections} : {sections: Array<Section>}) {
     return (
-        <Link to="food/EI0V7KJulrr3AsRhy87e">
+        <div id="list-category" className="pb-20 mt-4 sticky overflow-y-auto top-[80px] w-[250px] max-h-[calc(100vh-80px)]">
+            <ul>
+                {
+                    sections.map((section, idx) => (
+                        <li
+                            onClick={() => {
+                                document.getElementById(section._id)?.scrollIntoView({behavior: "instant"});
+                            }}
+                            id={`list-item-${section._id}`}
+                            key={idx}
+                            className="capitalize py-2 rounded-lg px-2 cursor-pointer">
+                            { section.title }
+                        </li>
+                    ))
+                }
+            </ul>
+        </div>
+    )
+}
+
+type RestaurantHeaderProps = {
+    infos: Store,
+}
+export function RestaurantHeader({infos}: RestaurantHeaderProps) {
+    return (
+        <header className="relative w-full h-64 overflow-hidden">
+            <div className="inset-0 bg absolute bg-hero-overlay h-64 z-10"></div>
+            <img
+                className="object-cover h-64 w-full"
+                src={infos.imgUrl} />
+            <h1 className="text-5xl text-white z-10 font-thin absolute top-1/2 left-16">{infos.name}</h1>
+        </header>
+    )
+}
+
+export function FoodCard({ food } : { food: Article }) {
+    return (
+        <Link to={`food/${food._id}`}>
             <li className="relative pl-3 border-[1px] w-full rounded-xl overflow-hidden flex justify-between h-40 mb-2 hover:shadow-custom hover:scale-105 transition-transform duration-500 cursor-pointer">
                 <div className="pt-3 w-full">
                     <h1 className="font-bold capitalize">{ food.name }</h1>
                     <p className="font-black text-gray-500">{ priceFormat(food.price) }</p>
-                    <p className=" text-gray-600 text-[14px] pt-2 w-full">adkjfalskdf Lorem ipsum, dolor sit amet consectetur ai?</p>
+                    <p className=" text-gray-600 text-[14px] pt-2 w-full">{ food.description }</p>
                 </div>
                 <div className="w-72 ml-2">
                     <img className="h-40 object-fit" src={food.imgUrl}/>
@@ -119,21 +164,18 @@ export function FoodCard({ food } : { food: Food }) {
     )
 }
 
-export function FoodListTest() {
+type FoodListProps = {
+    menuList: Array<Article>
+}
+export function FoodList({ menuList } : FoodListProps) {
     return (
         <ul className="grid grid-cols-2 gap-6 pt-4">
             {
-                Array.from({length: 5}, (_, idx) => {
+                menuList.map((food, idx) => {
                     return (
                         <FoodCard
                             key={idx}
-                            food={{
-                                id: idx + "food",
-                                name: "Half BBQ chicken with plantain",
-                                price: 17.5,
-                                description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Labore expedita quo voluptate voluptas deleniti doloremque harum nostrum. Qui, deserunt accusantium.",
-                                imgUrl: "https://ykochickenbbq.com/wp-content/uploads/2022/11/slider_mobile-1024x1024.png"
-                            }}
+                            food={food}
                         />
                     )
                 })
@@ -142,12 +184,15 @@ export function FoodListTest() {
     )
 }
 
-export function FoodCategoryTest({ category } : FoodCategoryProps) {
+type FoodCategoryProps = {
+    category: MenuSection
+}
+export function FoodCategory({ category } : FoodCategoryProps) {
     return (
-        <div className="mt-8 scroll-mt-24" id={category}>
-            <h1 className="text-2xl font-black capitalize">{ category }</h1>
+        <div className="mt-8 scroll-mt-24" id={category.categoryId}>
+            <h1 className="text-2xl font-black capitalize">{ category.title }</h1>
             <div>
-                <FoodListTest />
+                <FoodList menuList={category.categoryItems} />
             </div>
         </div>
     )
@@ -162,32 +207,3 @@ function CircleButton({ count=0 } : { count?: number }) {
         </div>
     )
 }
-
-// export function FoodList({ foodList } : { foodList: Array<Food>}) {
-//     return (
-//         <ul className="grid grid-cols-2 gap-4 pt-4">
-//             {
-//                 foodList.map((food, idx) => {
-//                     return (
-//                         <FoodCard food={food} key={idx} />
-//                     )
-//                 })
-//             }
-//         </ul>
-//     )
-// }
-
-type FoodCategoryProps = {
-    foodList?: Array<Food>,
-    category: string,
-}
-// export function FoodCategory({ category, foodList } : FoodCategoryProps) {
-//     return (
-//         <div className="mb-16 mt-8">
-//             <h1 className="">{ category }</h1>
-//             <div>
-//                 <FoodList foodList={foodList}/>
-//             </div>
-//         </div>
-//     )
-// }

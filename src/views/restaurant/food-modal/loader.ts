@@ -1,33 +1,34 @@
-// import { doc, getDoc } from "firebase/firestore";
-// import { db } from "../../../firebase/fireStore";
-import { createRandomFood } from "./fake-food";
-import { json } from "react-router-dom";
-import { Food } from "./model";
+import { LoaderFunctionArgs, json } from "react-router-dom";
+import { Article } from "..";
 
-const food = createRandomFood();
 
-function getRequiredOptions(food: Food) {
-    return food.customization.filter((foodOptionList) => (foodOptionList.minNumOptions > 0));
+function getRequiredOptions(food: Article) {
+    return food.customizations?.filter((foodOptionList) => (foodOptionList.minNumOptions > 0)) || [];
 }
 
-function buildRequiredOptionState(food: Food) {
+function buildRequiredOptionState(food: Article) {
     const requiredOptions = getRequiredOptions(food);
     const requiredOptionsMap = {} as Record<string, boolean>;
     requiredOptions.forEach(opList => {
         requiredOptionsMap[opList.title] = false; 
     });
-    console.log('map', requiredOptionsMap);
     return requiredOptionsMap;
 }
 
-export async function FoodModalLoader() {
-    // const { restaurantId, foodId } = params as unknown as { restaurantId: string, foodId: string };
-    // const foodDoc = doc(db, "restaurant", restaurantId, "meal", foodId);
-    // const foodSnapshot = await getDoc(foodDoc);
-    // const food = { id: foodSnapshot.id, ...foodSnapshot.data() } as Food;
+export async function FoodModalLoader({ params } : LoaderFunctionArgs) {
+    const { restaurantId, foodId } = params as Record<string, string>
+    const food = await getMenuItem(restaurantId, foodId)
     const requiredOptionState = buildRequiredOptionState(food);
     return json({
         food,
         requiredOptionState
     })
+}
+
+async function getMenuItem(restaurantId: string, foodId: string) {
+    const data = await fetch(`http://localhost:4242/api/v1/restaurant/${restaurantId}/food/${foodId}`, {
+        headers: {'Content-Type': 'application/json'}
+    })
+    const menu = await data.json();
+    return menu;
 }
