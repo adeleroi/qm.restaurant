@@ -1,42 +1,7 @@
 import { Link, useLoaderData } from "react-router-dom";
 import { priceFormat } from "../../utils/currency";
 import { SportCarIcon } from "../../components/icons/icon";
-
-export type Geolocation = {
-    long?: number,
-    lat?: number,
-    latitude: number,
-    longitude: number,
-    postalCode: string,
-    streetAddress: string,
-}
-
-type Location = {
-    address: string,
-    city: string, 
-    country: string,
-    geolocation: Geolocation
-} 
-
-export type Store = {
-    _id: string,
-    name: string,
-    availabilityStatus: string,
-    hours: Schedule,
-    imgUrl: string,
-    location: Location,
-    phone: string,
-    description: string,
-    productLine: Array<string>,
-    type?: 'shop' | 'restaurant',
-    estimatedTimeRange: string,
-    deliveryFee: number,
-}
-
-type Schedule = {
-    dayRange: string,
-    sectionHours: Array<string>
-}
+import { Store } from "../store-model";
 
 type FeedSection = {
     items: Array<Store>,

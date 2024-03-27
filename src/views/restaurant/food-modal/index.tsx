@@ -18,8 +18,7 @@ import { Form, useLoaderData, useNavigate, useSubmit } from "react-router-dom";
 import { priceFormat } from "../../../utils/currency";
 import clsx from "clsx";
 import { ButtonIncrement } from "../../store-front/index.tsx";
-import { Article, Customization, CustomizationOption } from "../index.tsx";
-
+import { Article, Customization, CustomizationOption } from "../../article-model.ts";
 
 interface IntersectionObserverOption {
     root: HTMLElement|null,
@@ -100,8 +99,8 @@ export function FoodModal() {
                             <h1 className="capitalize font-black text-xl">{ food.name }</h1>
                             <p className="font-black text-gray-500 mt-1">{ priceFormat(food.price) }</p>
                         </div>
-                        <div className="w-full h-80">
-                            <img src="https://imageproxy.wolt.com/menu/menu-images/5c46ec9817ee33000b13cfc1/039e3a58-05c2-11ee-abe8-3adbb04f635b_ahr0chm6ly9zdg9yywdllmdvb2dszwfwaxmuy29tl2lrb25hlwj1y2tldc1wcm9kdwn0aw9ul2ltywdlcy82mtkznjkyogy2zju4odjkotmxyjazodavr291cm1ldedyawxsu3rlywtob3vzzu1lywwtnjq4mdu3ngzjnjq0mwewmdflyzfmymnlllborw__.jpeg" alt=""/>
+                        <div className="w-full h-80 mb-3">
+                            <img className="h-80 w-full" src={food.imgUrl} alt=""/>
                         </div>
                         <FoodCustomizationTitle price={food.price} name={food.name} ref={intersectionTargetRef}/>
                         <FoodCustomizationForm food={food} requiredOptionState={requiredOptionState}/>
@@ -115,8 +114,8 @@ export function FoodModal() {
 const FoodCustomizationTitle = React.forwardRef(function FoodCustomizationTitle({ name, price } : { name: string, price: number }, ref) {
     return (
         <div className="overflow-y-auto" ref={ref as LegacyRef<HTMLDivElement> | undefined}>
-            <h1 className="capitalize font-black text-2xl">{ name }</h1>
-            <p className="font-black text-gray-500 mt-1 text-xl">{ priceFormat(price) }</p>
+            <h1 className="capitalize font-bold text-2xl">{ name }</h1>
+            <p className="font-bold text-gray-500 mt-1 text-xl">{ priceFormat(price) }</p>
         </div>        
     )
 })
@@ -126,11 +125,29 @@ type FoodCustomizationFormProps = {
     requiredOptionState: Record<string, boolean>
 }
 
+type RefinedCustomizationOption = {
+    _id: string,
+    name: string,
+    price: number,
+    quantity: number,
+    // parentCustomization: { name: string, _id: string },
+}
+
 function FoodCustomizationForm({ food, requiredOptionState } : FoodCustomizationFormProps) {
     const [ requiredOptionsValidity, setRequiredOptionsValidity ] = React.useState<Record<string, boolean>>(requiredOptionState);
+    const [ selectedOptions, setSelectedOptions ] = React.useState<Array<Record<string, Array<RefinedCustomizationOption>>>>([]);
+    console.log('selectedOptions', selectedOptions);
     const [ itemCount, setItemCount ] = React.useState(food?.quantity || 1);
     const [ isSubmit, setIsSubmit ] = React.useState(false);
     const submit = useSubmit();
+    
+    // function getPrice() {
+    //     const basePrice = food.price;
+    //     const optionPrice = selectedOptions.reduce((acc, curr) => {
+
+    //     })
+    //     return basePrice + optionPrice;
+    // }
 
     function handleSubmit(e:  React.FormEvent<HTMLFormElement>) {
         e.preventDefault(); // Need to check after
@@ -141,6 +158,7 @@ function FoodCustomizationForm({ food, requiredOptionState } : FoodCustomization
         } else {
             document.getElementById(invalidFields[0])?.scrollIntoView({behavior: "smooth", block: 'center'});
         }
+        console.log('invalidFields', requiredOptionsValidity);
     }
     
     return (
@@ -156,6 +174,7 @@ function FoodCustomizationForm({ food, requiredOptionState } : FoodCustomization
                             isIdle={!isSubmit}
                             customization={custom}
                             setRequiredOptionsValidity={setRequiredOptionsValidity}
+                            setSelectedOptions={setSelectedOptions}
                         />
                     )
                 })
@@ -193,13 +212,14 @@ function isOptionRequired(min: number) {
     return min === 0 ? false : true;
 }
 
-type RequiredPillProps = {
-    children: React.ReactNode,
+type PillProps = {
+    children?: React.ReactNode,
     isInvalid: boolean,
-    isIdle: boolean
+    isIdle: boolean,
+    text: string,
 }
 
-function RequiredPill({ children, isInvalid, isIdle } : RequiredPillProps) {
+function Pill({ children, isInvalid, isIdle, text } : PillProps) {
     return (
         <React.Fragment>
             <div className="flex gap-1 items-center">
@@ -209,14 +229,14 @@ function RequiredPill({ children, isInvalid, isIdle } : RequiredPillProps) {
                     "w-[5.8rem] bg-red-100 text-red-600": isInvalid,
                 })}>
                     { children }
-                    Required
+                    { text }
                 </div>
             </div>
         </React.Fragment>
     )
 }
 
-function RequiredPillIcon({ isInvalid, isIdle } : { isInvalid: boolean, isIdle: boolean }) {
+function PillIcon({ isInvalid, isIdle } : { isInvalid: boolean, isIdle: boolean }) {
     if (isInvalid) {
         return <span className="material-symbols-outlined font-black text-red-600 text-[16px]">error</span>;
     }
@@ -226,13 +246,16 @@ function RequiredPillIcon({ isInvalid, isIdle } : { isInvalid: boolean, isIdle: 
     return null;
 }
 
-function RequiredPillMessage({ min, max } : { min: number, max: number }) {
+function PillMessage({ min, max } : { min: number, max: number }) {
     if (min === 1 || min === max) {
         return <span className="text-gray-500 font-semibold text-[14px]">• Select { min }</span>;
     }
     if (min > 1) {
         return <span className="text-gray-500 font-semibold text-[14px]">• Select between { min } and { max }</span>;
-    }   
+    }
+    if (min == 0) {
+        return   <span className="text-gray-500 font-semibold text-[14px]">• Select up to {max}</span>
+    } 
 }
 
 type RequiredInstructionProps = {
@@ -245,19 +268,22 @@ type RequiredInstructionProps = {
 function RequiredInstruction({ min, max, isInvalid, isIdle } : RequiredInstructionProps) {
     return (
         <div className="flex gap-1 items-center mt-1">
-            <RequiredPill isIdle={isIdle} isInvalid={isInvalid}>
-                <RequiredPillIcon isIdle={isIdle} isInvalid={isInvalid}/>
-            </RequiredPill>
-            <RequiredPillMessage min={min} max={max}/>
+            <Pill isIdle={isIdle} isInvalid={isInvalid} text={'Required'}>
+                <PillIcon isIdle={isIdle} isInvalid={isInvalid}/>
+            </Pill>
+            <PillMessage min={min} max={max}/>
         </div>
     )
 }
 
-function OptionalInstruction({ quantity } : { quantity: number }) {
+function OptionalInstruction({ quantity, isIdle } : { quantity: number, isIdle: boolean }) {
     return (
-        <span className="text-gray-500 font-semibold text-[14px]">
-            (Optional) • Select up to {quantity}
-        </span>
+        <div className="flex gap-1 items-center mt-1">
+            <Pill text="Optional" isIdle={isIdle} isInvalid={false}>
+                <PillIcon isIdle={isIdle} isInvalid={false}/>
+            </Pill>
+            <PillMessage min={0} max={quantity}/>
+        </div>
     )
 }
 
@@ -266,15 +292,16 @@ type FoodCustomizationProps = {
     isInvalid: boolean,
     isIdle: boolean,
     setRequiredOptionsValidity: Dispatch<SetStateAction<Record<string, boolean>>>,
+    setSelectedOptions: Dispatch<SetStateAction<Array<Record<string, Array<RefinedCustomizationOption>>>>>,
 };
 
-export function FoodCustomization({ customization, setRequiredOptionsValidity, isInvalid, isIdle } : FoodCustomizationProps) {
+export function FoodCustomization({ customization, setRequiredOptionsValidity, setSelectedOptions, isInvalid, isIdle } : FoodCustomizationProps) {
     const isCustomizationRequired = isOptionRequired(customization.minNumOptions);
     return (
         <section className="last-of-type:pb-24">
             <div className="mt-8 py-2">
                     <div className="mb-4">
-                        <h1 className="font-black text-lg capitalize">{ customization.title }</h1>
+                        <h1 className="font-bold text-lg capitalize">{ customization.title }</h1>
                         <FoodCustomizationInstruction
                             isIdle={isIdle}
                             isInvalid={isInvalid}
@@ -287,20 +314,22 @@ export function FoodCustomization({ customization, setRequiredOptionsValidity, i
                     <div className="w-full">
                         {
                             isCustomizationRequired ?
-                                <RequiredFoodCustomizationSelect
-                                    min={customization.minNumOptions}
-                                    max={customization.maxNumOptions}
+                            <RequiredFoodCustomizationSelect
                                     options={customization.options}
                                     title={customization.title}
+                                    min={customization.minNumOptions}
+                                    max={customization.maxNumOptions}
                                     setRequiredOptionsValidity={setRequiredOptionsValidity}
-                                />
+                                    setSelectedOptions={setSelectedOptions}
+                                    />
                                     : 
-                                <OptionalFoodCustomizationSelect
-                                    options={customization.options}
-                                    title={customization.title}
-                                    min={customization.minNumOptions}
-                                    max={customization.maxNumOptions}
-                                    setRequiredOptionsValidity={setRequiredOptionsValidity}
+                                    <OptionalFoodCustomizationSelect
+                                        options={customization.options}
+                                        title={customization.title}
+                                        min={customization.minNumOptions}
+                                        max={customization.maxNumOptions}
+                                        setRequiredOptionsValidity={setRequiredOptionsValidity}
+                                        setSelectedOptions={setSelectedOptions}
                                 />
                         }
                     </div>
@@ -316,15 +345,17 @@ type FoodCustomizationSelectProps = {
     options: Array<CustomizationOption>,
     title: string,
     setRequiredOptionsValidity: Dispatch<SetStateAction<Record<string, boolean>>>,
+    setSelectedOptions: Dispatch<SetStateAction<Array<Record<string, Array<RefinedCustomizationOption>>>>>,
 }
 
-function RequiredFoodCustomizationSelect({ min, options, title, max, setRequiredOptionsValidity } : FoodCustomizationSelectProps) {
+function RequiredFoodCustomizationSelect({ min, options, title, max, setRequiredOptionsValidity, setSelectedOptions } : FoodCustomizationSelectProps) {
     if (min == 1) {
         return (
             <CustomizationRadioGroup
                 options={options}
                 title={title}
                 setRequiredOptionsValidity={setRequiredOptionsValidity}
+                setSelectedOptions={setSelectedOptions}
             />
         )
     }
@@ -336,19 +367,23 @@ function RequiredFoodCustomizationSelect({ min, options, title, max, setRequired
                 title={title}
                 min={min}
                 max={max}
-                setRequiredOptionsValidity={setRequiredOptionsValidity}/>
+                setRequiredOptionsValidity={setRequiredOptionsValidity}
+                setSelectedOptions={setSelectedOptions}
+            />
         )
     }
 }
 
-function OptionalFoodCustomizationSelect({ options, title, min, max, setRequiredOptionsValidity } : FoodCustomizationSelectProps) {
+function OptionalFoodCustomizationSelect({ options, title, min, max, setRequiredOptionsValidity, setSelectedOptions } : FoodCustomizationSelectProps) {
     return (
         <CustomizationCheckBoxGroup
             options={options}
             title={title}
             min={min}
             max={max}
-            setRequiredOptionsValidity={setRequiredOptionsValidity} />
+            setRequiredOptionsValidity={setRequiredOptionsValidity}
+            setSelectedOptions={setSelectedOptions}
+        />
     )
 }
 
@@ -367,10 +402,35 @@ function FoodCustomizationInstruction({ isRequired, min, max, isInvalid, isIdle,
             {
                 isRequired ?
                     <RequiredInstruction isInvalid={isInvalid} isIdle={isIdle} min={min} max={max}/>
-                    : <OptionalInstruction quantity={quantity}/>
+                    : <OptionalInstruction quantity={quantity} isIdle={isIdle}/>
             }
         </React.Fragment>
     )
+}
+
+
+function unCheckedOption(customizations: Array<Record<string, RefinedCustomizationOption[]>>, name: string, title: string) {
+    const customizationFound = customizations.find(customization => customization[title]) as Record<string, RefinedCustomizationOption[]>;
+    const otherCustomizations = customizations.filter(customization => !customization[title]);
+    const filteredOptions = customizationFound[title].filter(option => option.name !== name);
+    if (filteredOptions.length) {
+        return [...otherCustomizations, { [title]: filteredOptions}]
+    } else {
+        return [...otherCustomizations];
+    }
+}
+
+function checkedOption(customizations: Array<Record<string, RefinedCustomizationOption[]>>, value: RefinedCustomizationOption, title: string) {
+    let result: Array<RefinedCustomizationOption>; 
+    const customizationFound = customizations.find(customization => customization[title]);
+    const otherCustomizations = customizations.filter(customization => !customization[title]);
+    if (customizationFound) {
+        const newValue = customizationFound[title];
+        result = [...newValue, value];
+        return [...otherCustomizations, {[title]: result}];
+    } else {
+        return [...otherCustomizations, {[title]: [value]}]
+    }
 }
 
 type CustomizationCheckBoxGroupProps = {
@@ -380,9 +440,10 @@ type CustomizationCheckBoxGroupProps = {
     min: number,
     max: number,
     setRequiredOptionsValidity: Dispatch<SetStateAction<Record<string, boolean>>>,
+    setSelectedOptions: Dispatch<SetStateAction<Array<Record<string, Array<RefinedCustomizationOption>>>>>,
 }
 
-function CustomizationCheckBoxGroup({ options, title, isRequired, min, max, setRequiredOptionsValidity } : CustomizationCheckBoxGroupProps) {
+function CustomizationCheckBoxGroup({ options, title, isRequired, min, max, setRequiredOptionsValidity, setSelectedOptions } : CustomizationCheckBoxGroupProps) {
     const [ checkedCount, setCheckedCount ] = React.useState<number>(0);
     const [ checkedList, setCheckedList] = React.useState<Array<string>>([]);
     const checkboxContainerRef = React.useRef<HTMLElement | null>(null);
@@ -407,11 +468,22 @@ function CustomizationCheckBoxGroup({ options, title, isRequired, min, max, setR
         }
     }
 
+
+
+    function handleSelectedOption(checked: boolean, name: string, price: number, _id: string) {
+        if (checked) {
+            const value = { name, price, _id, quantity: 1 };
+            setSelectedOptions((customizations) => checkedOption(customizations, value, title))
+        } else {
+            setSelectedOptions((customizations) => unCheckedOption(customizations, name, title))
+        }
+    }
+
     return (
         <div ref={checkboxContainerRef as LegacyRef<HTMLDivElement> | undefined}>
             <CheckboxGroup colorScheme="green">
                 {
-                    options?.map(({ name, price }: CustomizationOption, idx) => (
+                    options?.map(({ name, price, _id }: CustomizationOption, idx) => (
                         <div className="py-3 pl-3 border-b-[1px] flex items-center " key={idx} id={title}>
                             <Checkbox
                                 disabled={disableUnchecked && !checkedList?.includes(name)}
@@ -419,7 +491,10 @@ function CustomizationCheckBoxGroup({ options, title, isRequired, min, max, setR
                                 form="food-customization-form"
                                 name={title} size={'lg'}
                                 value={name} 
-                                onChange={(e) => handleChange(e.target.checked, name)}>
+                                onChange={(e) => {
+                                    handleChange(e.target.checked, name);
+                                    handleSelectedOption(e.target.checked, name, price, _id);
+                                }}>
                             </Checkbox>
                             <div className="grid pl-2">
                                 <span className="font-semibold text-[14px] capitalize">{ name }</span>
@@ -437,9 +512,10 @@ type CustomizationRadioGroupProps = {
     options: Array<CustomizationOption>,
     title: string,
     setRequiredOptionsValidity: Dispatch<SetStateAction<Record<string, boolean>>>,
+    setSelectedOptions: Dispatch<SetStateAction<Array<Record<string, Array<RefinedCustomizationOption>>>>>,
 }
 
-function CustomizationRadioGroup({ options, title, setRequiredOptionsValidity } : CustomizationRadioGroupProps) {
+function CustomizationRadioGroup({ options, title, setRequiredOptionsValidity, setSelectedOptions } : CustomizationRadioGroupProps) {
     const [ value, setValue ] = React.useState<string | undefined>(undefined);
 
     function handleChange(value: string) {
@@ -447,12 +523,25 @@ function CustomizationRadioGroup({ options, title, setRequiredOptionsValidity } 
         setRequiredOptionsValidity(option => ({ ...option, [title]: true }));
     }
 
+    function handleSelectedOption(name: string, price: number, _id: string) {
+        const value = { [title]: [{ name, price, _id, quantity: 1 }] };
+        setSelectedOptions(options => {
+            const customizations = options.filter(option => !option[title]);
+            return [...customizations, value]
+        })
+    }
+
     return (
         <RadioGroup className="grid" defaultValue="1" name={ title } onChange={handleChange} value={value} id={title}>
             {
-                options?.map(({name, price}: CustomizationOption, idx) => (
+                options?.map(({name, price, _id}: CustomizationOption, idx) => (
                     <div className="py-3 pl-3 border-b-[1px]" key={idx}>
-                        <Radio form="food-customization-form" name={title} size={'lg'} value={ name } colorScheme="green">
+                        <Radio form="food-customization-form"
+                            name={title} size={'lg'}
+                            value={ name }
+                            colorScheme="green"
+                            onChange={() => handleSelectedOption(name, price, _id)}
+                        >
                             <div className="grid pl-2">
                                 <span className="font-semibold text-[14px] capitalize">{ name }</span>
                                 <span className="font-bold text-[14px] text-gray-500">{ price ? priceFormat(price) : null }</span>

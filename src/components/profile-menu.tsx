@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 import { signout, useFirebaseAuth } from '../firebase/auth';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChevronDown } from './icons/icon';
+import { ChevronDown, ProfileIcon } from './icons/icon';
 import clsx from 'clsx';
 
 export function ProfileMenu() {
@@ -122,9 +122,7 @@ export function CircleAccount({ initial } : { initial?: string | null }) {
             { initial ?
                 <p className="text-gray-600 uppercase">{ initial }</p>
                 :
-                <span className="material-symbols-outlined">
-                    person
-                </span>
+                <ProfileIcon/>
             }
         </div>
     )

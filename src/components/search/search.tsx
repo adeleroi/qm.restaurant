@@ -3,6 +3,7 @@ import clsx from "clsx";
 import { Form, useFetcher, useNavigate } from "react-router-dom";
 import { Product } from "../../views/store-front";
 import { useRelativeResize } from "../../utils/hooks";
+import { SearchIcon } from "../icons/icon";
 
 type SearchProps = {
     searchType?: string | undefined,
@@ -41,7 +42,9 @@ export function Search({ action, placeholder, searchQuery, searchResults, defaul
             <Form 
                 onSubmit={() => {setIsOpen(false)}}
                 ref={formRef} action={action} role="search" className="w-full rounded-xl relative py-1 focus:border-b-[2px]">
-                <SearchIcon className="text-[20px] absolute top-1/2 -translate-y-1/2 left-4 text-black"/>
+                <div className="absolute top-1/2 -translate-y-1/2 left-4">
+                    <SearchIcon/>
+                </div>
                 <input
                     ref={inputRef}
                     onBlur={handleBlur}
@@ -112,16 +115,6 @@ const SearchSuggestion = React.forwardRef(function SearchSuggestion({ results, o
         </div>
     )
 })
-
-function SearchIcon({ className }: { className: string }) {
-    return (
-        <button type="button">
-            <span className={clsx("material-symbols-outlined font-semibold", className)}>
-                search
-            </span>
-        </button>
-    )
-}
 
 function ClearIcon({ className, onClick } : { className?: string, onClick: () => void }) {
     return (

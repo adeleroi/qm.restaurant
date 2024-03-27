@@ -1,6 +1,6 @@
 import { useLocation, useParams, useRouteLoaderData } from "react-router-dom";
 import { Search } from "./search";
-import { Restaurant, Store } from "../../views/feed";
+import { Store } from "../../views/store-model";
 import { Product } from "../../views/store-front";
 
 
@@ -25,8 +25,7 @@ type SearchData = {
     searchQuery: string,
     searchResults: Array<Partial<Product>>,
     defaultSearchSuggestions: Array<Partial<Product>>,
-    storeInfos?: Store,
-    restaurantInfos?: Restaurant,
+    storeData?: { store: Store },
 }
 
 function StoreSearch({ action } : { action: string }) {
@@ -34,13 +33,13 @@ function StoreSearch({ action } : { action: string }) {
         searchQuery,
         searchResults,
         defaultSearchSuggestions,
-        storeInfos
+        storeData
     } = useRouteLoaderData('store') as SearchData;
 
     return (
         <Search
             action={action}
-            placeholder={ `Search in ${ storeInfos?.name }` }
+            placeholder={ `Search in ${ storeData?.store?.name }` }
             searchQuery={ searchQuery }
             searchResults={ searchResults }
             defaultSearchSuggestions={ defaultSearchSuggestions }
@@ -71,13 +70,13 @@ function RestaurantSearch({ action } : { action: string }) {
         searchQuery,
         searchResults, 
         defaultSearchSuggestions,
-        restaurantInfos,
+        storeData,
     } = useRouteLoaderData('restaurant') as SearchData;
 
     return (
         <Search
             action={ action }
-            placeholder={ `Search in ${ restaurantInfos?.name }` }
+            placeholder={ `Search in ${ storeData?.store?.name }` }
             searchQuery={ searchQuery }
             searchResults={ searchResults }
             defaultSearchSuggestions={ defaultSearchSuggestions }

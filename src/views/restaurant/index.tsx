@@ -2,37 +2,9 @@ import React from "react";
 import { Link, Outlet, useLoaderData } from "react-router-dom";
 import { StoreSummary } from "../store-front";
 import { priceFormat } from "../../utils/currency";
-import { Store } from "../feed";
-
-export type CustomizationOption = {
-    _id: string,
-    name: string,
-    price: number,
-}
-
-export type Customization = {
-    _id: string,
-    title: string,
-    maxNumOptions: number,
-    minNumOptions: number,
-    options: Array<CustomizationOption>,
-}
-
-export type Article = {
-    _id: string,
-    storeId: string,
-    categoryId: string,
-    subCategoryId: Array<string>,
-    type: string,
-    name: string,
-    description: string,
-    price: number,
-    imgUrl: string,
-    hasCustomization: boolean,
-    isSoldOut: boolean,
-    customizations: Array<Customization>,
-    quantity?: number,
-}
+import { Article } from "../article-model";
+import { Store } from "../store-model";
+import { AddIcon } from "../../components/icons/icon";
 
 export type MenuSection = {
     categoryId: string,
@@ -129,17 +101,33 @@ function CuisineType({sections} : {sections: Array<Section>}) {
     )
 }
 
+export function ProductLine({ productLine } : { productLine: Array<string>}) {
+    return (
+        <ul className="flex gap-4">
+            {
+                productLine?.map(line => (
+                    <li key={line} className="px-3 py-2 text-black bg-white z-50">{line}</li>
+                ))
+            }
+        </ul>
+    )
+}
+
 type RestaurantHeaderProps = {
     infos: Store,
 }
 export function RestaurantHeader({infos}: RestaurantHeaderProps) {
     return (
-        <header className="relative w-full h-64 overflow-hidden">
-            <div className="inset-0 bg absolute bg-hero-overlay h-64 z-10"></div>
+        <header className="relative w-full h-72 overflow-hidden">
+            <div className="inset-0 bg absolute bg-hero-overlay h-72 z-10"></div>
             <img
-                className="object-cover h-64 w-full"
+                className="object-cover h-72 w-full"
                 src={infos.imgUrl} />
-            <h1 className="text-5xl text-white z-10 font-thin absolute top-1/2 left-16">{infos.name}</h1>
+            <div className="absolute top-1/2 left-16 z-10">
+                <h1 className="text-5xl text-white z-10 font-extralight mb-1">{infos.name}</h1>
+                <p className="text-2xl text-white z-10 font-extralight">{infos.description}</p>
+                <ProductLine productLine={infos.productLine}/>
+            </div>
         </header>
     )
 }
@@ -191,7 +179,7 @@ type FoodCategoryProps = {
 export function FoodCategory({ category } : FoodCategoryProps) {
     return (
         <div className="mt-8 scroll-mt-24" id={category.categoryId}>
-            <h1 className="text-2xl font-black capitalize">{ category.title }</h1>
+            <h1 className="text-2xl font-bold capitalize">{ category.title }</h1>
             <div>
                 <FoodList menuList={category.categoryItems} />
             </div>
@@ -203,7 +191,7 @@ function CircleButton({ count=0 } : { count?: number }) {
     return (
         <div className="bg-white text-black w-8 h-8 flex items-center justify-center shadow-custom rounded-full font-bold hover:bg-gray-200">
             <button className="flex items-center rounded-full">
-                { count > 0 ? count : <span className="material-symbols-outlined">add</span> }
+                { count > 0 ? count : <AddIcon/> }
             </button>
         </div>
     )

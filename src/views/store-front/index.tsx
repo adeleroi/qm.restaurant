@@ -2,12 +2,12 @@ import clsx from "clsx";
 import React from "react";
 import { Link, Outlet, useFetcher, useLoaderData, useLocation, useNavigate, useParams, useRouteLoaderData } from "react-router-dom"
 import { priceFormat } from "../../utils/currency";
-import { Store } from "../feed";
 import { useDisclosure } from '@chakra-ui/react'
 import { SubmitTarget } from "react-router-dom/dist/dom";
 import { DrawerCart } from "../../components/cart/cart";
 import { StoreInfoModal } from "../../components/store-info/modal";
-import { Trash } from "../../components/icons/icon";
+import { AddIcon, Trash } from "../../components/icons/icon";
+import { Store } from "../store-model";
 
 
 export type Product = {
@@ -78,10 +78,10 @@ export function StoreSummary({ store }: { store: Store}) {
     return (
         <div className="text-black z-20 bg-white pb-4 border-b-[1px]">
             {
-                store.imgUrl ? (
+                store?.logoUrl ? (
                     <div className="">
                         <div className="overflow-hidden w-28 h-28 border-[1px] shadow-custom bg-white rounded-full flex justify-center items-center mr-2 mb-4 px-2">
-                            { store.imgUrl ? <img className="object-contain 2-24 h-24" src={store.imgUrl} alt="lcbo-logo"/> : null }
+                            { store.imgUrl ? <img className="object-contain 2-24 h-24" src={store?.logoUrl} alt="lcbo-logo"/> : null }
                         </div>
                     </div>
                 ) : null
@@ -316,7 +316,7 @@ export function ButtonIncrement({ getCount, productId, disabled, limitInf=1, lim
                         "cursor-not-allowed": disabledOnLimitMax && isOpen,
                         "hover:bg-[#ededed]": !disabled && !disabledOnLimitMax
                     })}>
-                    <span className={clsx({"text-gray-300": disabledOnLimitMax && isOpen})}>{ !isOpen && count > 0 ? count : "+" }</span>
+                    <span className={clsx({"text-gray-300": disabledOnLimitMax && isOpen})}>{ !isOpen && count > 0 ? count : <AddIcon/> }</span>
                 </button>
             </div>
         </div>

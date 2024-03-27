@@ -1,11 +1,16 @@
 // https://iconduck.com/icons/117068/shopping-cart
-import SVGCart from './cart.svg';
 import GoogleLog from './google_on_white_hdpi.png';
 import MasterCard from './payment-card-mastercard.svg';
 import Visa from './payment-card-visa.svg'
 
-export function CartIcon() {
-    return <img className='' src={SVGCart}/>
+export function CartIcon({ fill="#fff", width=25, height=25 } : { fill?: string, width: number, height: number }) {
+    return (
+        <svg height={height} viewBox="0 0 512 512" width={width} xmlns="http://www.w3.org/2000/svg">
+            <circle cx="176" cy="432" r="40" fill={fill}/>
+            <circle cx="400" cy="432" r="40" fill={fill}/>
+            <path d="m456.8 120.78a23.92 23.92 0 0 0 -18.56-8.78h-304.35l-6.13-34.78a16 16 0 0 0 -15.76-13.22h-64a16 16 0 0 0 0 32h50.58l45.66 258.78a16 16 0 0 0 15.76 13.22h256a16 16 0 0 0 0-32h-242.58l-5.64-32h241.66a24.07 24.07 0 0 0 23.56-19.29l28.8-144a24 24 0 0 0 -5-19.93z" fill={fill}/>
+        </svg>
+    )
 }
 
 export function CustomMarker({ fill="#ca4747", width, height } : { fill?: string, width: number, height: number }) {
@@ -136,5 +141,57 @@ export function PaymentCard({ height=18, width=18, fill="#000" } : { height?: nu
                 <path d="m1 11v-4h14v4c0 1.1046-.8954 2-2 2h-10c-1.10457 0-2-.8954-2-2zm9.5-1c-.2761 0-.5.2239-.5.5s.2239.5.5.5h2c.2761 0 .5-.2239.5-.5s-.2239-.5-.5-.5z"/>
             </g>
         </svg>
+    )
+}
+
+export function AddIcon({ height=18, width=18, fill="none" } : { height?: number, width?: number, fill?: string}) {
+    return (
+        <svg height={height} viewBox="0 0 24 24" width={width} xmlns="http://www.w3.org/2000/svg">
+            <path d="m0 0h24v24h-24z" fill={fill}/>
+            <path d="m19 13h-6v6h-2v-6h-6v-2h6v-6h2v6h6z"/>
+        </svg>
+    )
+}
+
+export function ProfileIcon({ height=18, width=18, fill="#4b5563" } : { height?: number, width?: number, fill?: string}) {
+    return (
+        <svg viewBox="0 0 448 512" height={height} width={width} xmlns="http://www.w3.org/2000/svg">
+            <path d="m224 256c70.7 0 128-57.3 128-128s-57.3-128-128-128-128 57.3-128 128 57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7c-74.2 0-134.4 60.2-134.4 134.4v41.6c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z" fill={fill}/>
+        </svg>
+    )
+}
+
+export function SearchIcon({ height=18, width=18 } : { height?: number, width?: number, fill?: string}) {
+    return (
+        <svg width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 21L16.5143 16.5065M19 10.5C19 15.1944 15.1944 19 10.5 19C5.80558 19 2 15.1944 2 10.5C2 5.80558 5.80558 2 10.5 2C15.1944 2 19 5.80558 19 10.5Z" stroke="black" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+    )
+}
+
+export function ClockIcon({ height=24, width=24 } : { height?: number, width?: number, fill?: string}) {
+    return (
+        // <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-clock" width={width} height={height} viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        //     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+        //     <circle cx="12" cy="12" r="9" />
+        //     <polyline points="12 7 12 12 15 15" />
+        // </svg>
+        <svg fill="none" height={height} viewBox="0 0 24 24" width={width} xmlns="http://www.w3.org/2000/svg">
+            <path d="m12 2c-5.51 0-10 4.49-10 10s4.49 10 10 10 10-4.49 10-10-4.49-10-10-10zm4.35 13.57c-.14.24-.39.37-.65.37-.13 0-.26-.03-.38-.11l-3.1-1.85c-.77-.46-1.34-1.47-1.34-2.36v-4.1c0-.41.34-.75.75-.75s.75.34.75.75v4.1c0 .36.3.89.61 1.07l3.1 1.85c.36.21.48.67.26 1.03z" fill="#292d32"/>
+        </svg>
+
+    )
+}
+
+export function PhoneIcon({ height=18, width=18 } : { height?: number, width?: number, fill?: string}) {
+    return (
+        // <svg height={height} viewBox="0 0 24 24" width={width} xmlns="http://www.w3.org/2000/svg">
+        //     <path d="m0 0h24v24h-24z" fill="none"/>
+        //     <path d="m19.23 15.26-2.54-.29c-.61-.07-1.21.14-1.64.57l-1.84 1.84c-2.83-1.44-5.15-3.75-6.59-6.59l1.85-1.85c.43-.43.64-1.03.57-1.64l-.29-2.52c-.12-1.01-.97-1.77-1.99-1.77h-1.73c-1.13 0-2.07.94-2 2.07.53 8.54 7.36 15.36 15.89 15.89 1.13.07 2.07-.87 2.07-2v-1.73c.01-1.01-.75-1.86-1.76-1.98z"/>
+        // </svg>
+        <svg viewBox="0 0 512 512" width={width} height={height} xmlns="http://www.w3.org/2000/svg">
+            <path d="m497.39 361.8-112-48a24 24 0 0 0 -28 6.9l-49.6 60.6a370.66 370.66 0 0 1 -177.19-177.19l60.6-49.6a23.94 23.94 0 0 0 6.9-28l-48-112a24.16 24.16 0 0 0 -27.5-13.9l-104 24a24 24 0 0 0 -18.6 23.39c0 256.5 207.9 464 464 464a24 24 0 0 0 23.4-18.6l24-104a24.29 24.29 0 0 0 -14.01-27.6z"/>
+        </svg>
+
     )
 }
