@@ -14,11 +14,12 @@ import {
     Spinner,
     ModalCloseButton,
 } from '@chakra-ui/react'
-import { Form, useLoaderData, useNavigate, useSubmit } from "react-router-dom";
+import { Form, useFetcher, useLoaderData, useNavigate, useSubmit } from "react-router-dom";
 import { priceFormat } from "../../../utils/currency";
 import clsx from "clsx";
 import { ButtonIncrement } from "../../store-front/index.tsx";
 import { Article, Customization, CustomizationOption } from "../../article-model.ts";
+import { CheckedIcon, ErrorIcon } from "../../../components/icons/icon.tsx";
 
 interface IntersectionObserverOption {
     root: HTMLElement|null,
@@ -133,34 +134,45 @@ type RefinedCustomizationOption = {
     // parentCustomization: { name: string, _id: string },
 }
 
+function getPrice(basePrice: number, selectedOptions: Array<Record<string, Array<RefinedCustomizationOption>>>) {
+    const optionPrice = selectedOptions.reduce((acc, curr) => {
+        const val = Object.keys(curr)[0]
+        const currCustomPrice = curr[val].reduce((_acc, _curr) => _acc + (_curr.price * _curr.quantity), 0);
+        return acc + currCustomPrice;
+    }, 0);
+    return basePrice + optionPrice;
+}
+
 function FoodCustomizationForm({ food, requiredOptionState } : FoodCustomizationFormProps) {
     const [ requiredOptionsValidity, setRequiredOptionsValidity ] = React.useState<Record<string, boolean>>(requiredOptionState);
     const [ selectedOptions, setSelectedOptions ] = React.useState<Array<Record<string, Array<RefinedCustomizationOption>>>>([]);
     console.log('selectedOptions', selectedOptions);
     const [ itemCount, setItemCount ] = React.useState(food?.quantity || 1);
     const [ isSubmit, setIsSubmit ] = React.useState(false);
-    const submit = useSubmit();
-    
-    // function getPrice() {
-    //     const basePrice = food.price;
-    //     const optionPrice = selectedOptions.reduce((acc, curr) => {
 
-    //     })
-    //     return basePrice + optionPrice;
-    // }
+    const fetcher = useFetcher();
+    const disabled = fetcher.state !== 'idle';
+    const computedPrice = getPrice(food.price, selectedOptions);
+
 
     function handleSubmit(e:  React.FormEvent<HTMLFormElement>) {
         e.preventDefault(); // Need to check after
         setIsSubmit(true);
         const invalidFields = Object.keys(requiredOptionsValidity).filter(key  => !requiredOptionsValidity[key]);
         if (!invalidFields.length) {
-            submit(e.currentTarget);
+            console.log('submitting');
+            const { customizations,  ...rest } = food;
+            const order = {...rest, customizations: selectedOptions, quantity: itemCount };
+            fetcher.submit(order, {
+                method: 'post', action: '.', encType: "application/json"
+            })
+            console.log('order', order);
         } else {
             document.getElementById(invalidFields[0])?.scrollIntoView({behavior: "smooth", block: 'center'});
         }
         console.log('invalidFields', requiredOptionsValidity);
     }
-    
+
     return (
         <Form id="food-customization-form" className="" onSubmit={handleSubmit}>
             {
@@ -182,7 +194,7 @@ function FoodCustomizationForm({ food, requiredOptionState } : FoodCustomization
             <div style={{borderBottomLeftRadius: '16px', borderBottomRightRadius: '16px'}}
                 className="w-full flex justify-end items-center gap-5 bg-white shadow-custom py-4 absolute bottom-0 left-0 px-3">
                 <ButtonIncrement alwaysOnDisplay cartCount={itemCount} onLimitDisable limitInf={1} getCount={setItemCount}/>
-                <AddToCartWithCountButton count={itemCount} price={food.price}/>
+                <AddToCartWithCountButton count={itemCount} price={computedPrice} disableButton={disabled}/>
             </div>
         </Form>
     )
@@ -238,10 +250,10 @@ function Pill({ children, isInvalid, isIdle, text } : PillProps) {
 
 function PillIcon({ isInvalid, isIdle } : { isInvalid: boolean, isIdle: boolean }) {
     if (isInvalid) {
-        return <span className="material-symbols-outlined font-black text-red-600 text-[16px]">error</span>;
+        return <ErrorIcon fill="#dc2626" width={14} height={14}/>
     }
     if (!isInvalid && !isIdle) {
-        return <span className="material-symbols-outlined font-black text-[16px]">check_circle</span>;
+        return <CheckedIcon width={14} height={14}/>
     }
     return null;
 }

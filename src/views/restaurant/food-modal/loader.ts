@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs, json } from "react-router-dom";
-import { Article } from "..";
+import { Article } from "../../article-model";
 
 
 function getRequiredOptions(food: Article) {

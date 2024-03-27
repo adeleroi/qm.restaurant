@@ -171,11 +171,6 @@ export function SearchIcon({ height=18, width=18 } : { height?: number, width?: 
 
 export function ClockIcon({ height=24, width=24 } : { height?: number, width?: number, fill?: string}) {
     return (
-        // <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-clock" width={width} height={height} viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-        //     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-        //     <circle cx="12" cy="12" r="9" />
-        //     <polyline points="12 7 12 12 15 15" />
-        // </svg>
         <svg fill="none" height={height} viewBox="0 0 24 24" width={width} xmlns="http://www.w3.org/2000/svg">
             <path d="m12 2c-5.51 0-10 4.49-10 10s4.49 10 10 10 10-4.49 10-10-4.49-10-10-10zm4.35 13.57c-.14.24-.39.37-.65.37-.13 0-.26-.03-.38-.11l-3.1-1.85c-.77-.46-1.34-1.47-1.34-2.36v-4.1c0-.41.34-.75.75-.75s.75.34.75.75v4.1c0 .36.3.89.61 1.07l3.1 1.85c.36.21.48.67.26 1.03z" fill="#292d32"/>
         </svg>
@@ -185,13 +180,28 @@ export function ClockIcon({ height=24, width=24 } : { height?: number, width?: n
 
 export function PhoneIcon({ height=18, width=18 } : { height?: number, width?: number, fill?: string}) {
     return (
-        // <svg height={height} viewBox="0 0 24 24" width={width} xmlns="http://www.w3.org/2000/svg">
-        //     <path d="m0 0h24v24h-24z" fill="none"/>
-        //     <path d="m19.23 15.26-2.54-.29c-.61-.07-1.21.14-1.64.57l-1.84 1.84c-2.83-1.44-5.15-3.75-6.59-6.59l1.85-1.85c.43-.43.64-1.03.57-1.64l-.29-2.52c-.12-1.01-.97-1.77-1.99-1.77h-1.73c-1.13 0-2.07.94-2 2.07.53 8.54 7.36 15.36 15.89 15.89 1.13.07 2.07-.87 2.07-2v-1.73c.01-1.01-.75-1.86-1.76-1.98z"/>
-        // </svg>
         <svg viewBox="0 0 512 512" width={width} height={height} xmlns="http://www.w3.org/2000/svg">
             <path d="m497.39 361.8-112-48a24 24 0 0 0 -28 6.9l-49.6 60.6a370.66 370.66 0 0 1 -177.19-177.19l60.6-49.6a23.94 23.94 0 0 0 6.9-28l-48-112a24.16 24.16 0 0 0 -27.5-13.9l-104 24a24 24 0 0 0 -18.6 23.39c0 256.5 207.9 464 464 464a24 24 0 0 0 23.4-18.6l24-104a24.29 24.29 0 0 0 -14.01-27.6z"/>
         </svg>
 
+    )
+}
+
+export function CheckedIcon({ height=18, width=18, fill="#099500" } : { height?: number, width?: number, fill?: string}) {
+    return (
+        <svg height={height} viewBox="0 0 20 20" width={width} xmlns="http://www.w3.org/2000/svg" fill='none'>
+            <g style={{ stroke: fill, strokeWidth:2,  strokeLinecap:'round', strokeLinejoin:'round'}} transform="translate(-2 -2)">
+                <path d="m12 3c4.9705627 0 9 4.02943725 9 9 0 4.9705627-4.0294373 9-9 9-4.97056275 0-9-4.0294373-9-9 0-4.97056275 4.02943725-9 9-9z"/>
+                <path d="m7.71428571 11.6223394 3.52941139 3.3776606 5.0420172-6"/>
+            </g>
+        </svg>
+    )
+}
+
+export function ErrorIcon({ height=18, width=18, fill="#099500" } : { height?: number, width?: number, fill?: string}) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" height={height} viewBox="0 0 24 24" width={width}>
+            <path d="M12 7c.55 0 1 .45 1 1v4c0 .55-.45 1-1 1s-1-.45-1-1V8c0-.55.45-1 1-1zm-.01-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm1-3h-2v-2h2v2z" fill={fill}/>
+        </svg>
     )
 }
